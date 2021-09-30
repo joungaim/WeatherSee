@@ -8,8 +8,11 @@
     "eject": "expo eject"
   },
   "dependencies": {
+    "@expo-google-fonts/noto-sans": "^0.2.0",
+    "@expo-google-fonts/noto-sans-kr": "^0.2.0",
     "axios": "^0.21.4",
     "expo": "~42.0.1",
+    "expo-font": "~9.2.1",
     "expo-location": "~12.1.2",
     "expo-status-bar": "~1.0.4",
     "firebase": "8.2.3",
@@ -17,6 +20,7 @@
     "react": "16.13.1",
     "react-dom": "16.13.1",
     "react-native": "https://github.com/expo/react-native/archive/sdk-42.0.0.tar.gz",
+    "react-native-svg": "^12.1.1",
     "react-native-web": "~0.13.12"
   },
   "devDependencies": {

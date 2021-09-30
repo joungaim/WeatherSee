@@ -1,11 +1,28 @@
 import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useState } from "react";
-import { Alert, StyleSheet, Text, View } from "react-native";
+import {
+  Alert,
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  ScrollView,
+  SafeAreaView,
+} from "react-native";
 import * as Location from "expo-location";
 import axios from "axios";
 import moment from "moment";
 import Loading from "./Loading";
 import firebase from "firebase/app";
+import { Svg } from "react-native-svg";
+import { useFonts, NotoSans_300Regular } from "@expo-google-fonts/noto-sans";
+import {
+  NotoSansKR_300Light,
+  NotoSansKR_400Regular,
+  NotoSansKR_500Medium,
+  NotoSansKR_700Bold,
+  NotoSansKR_900Black,
+} from "@expo-google-fonts/noto-sans-kr";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -26,6 +43,18 @@ if (!firebase.apps.length) {
 }
 
 export default function App() {
+  /**
+   * 폰트 로딩
+   */
+  let [fontsLoaded] = useFonts({
+    NotoSans_300Regular,
+    NotoSansKR_300Light,
+    NotoSansKR_400Regular,
+    NotoSansKR_500Medium,
+    NotoSansKR_700Bold,
+    NotoSansKR_900Black,
+  });
+
   const [isLoading, setIsLoading] = useState(true);
 
   const [latitude, setLatitude] = useState(null);
@@ -87,11 +116,13 @@ export default function App() {
 
     let srtBaseTime;
     let ultraSrtLiveBaseTime;
+    let ultraSrtBaseTime;
     let midBaseDate = todayDate;
     let midBaseTime;
 
     setSrtBaseDate(todayDate);
     setultraSrtLiveBaseDate(todayDate);
+    setultraSrtBaseDate(todayDate);
 
     /**
      * [단기예보조회용 날짜/시간 세팅]
@@ -133,53 +164,53 @@ export default function App() {
      * [초단기실황조회용 날짜/시간 세팅]
      * 매시간 정각 40분 후에 조회 가능. 예) 12시 데이터는 12시 41분부터 / 1시 데이터는 1시 41분부터 조회 가능
      */
-    if (moment(currentTime).isBetween("0041", "0140")) {
+    if (moment(currentTime).isBetween("0041", "0141")) {
       ultraSrtLiveBaseTime = "0000";
-    } else if (moment(currentTime).isBetween("0141", "0240")) {
+    } else if (moment(currentTime).isBetween("0141", "0241")) {
       ultraSrtLiveBaseTime = "0100";
-    } else if (moment(currentTime).isBetween("0241", "0340")) {
+    } else if (moment(currentTime).isBetween("0241", "0341")) {
       ultraSrtLiveBaseTime = "0200";
-    } else if (moment(currentTime).isBetween("0341", "0440")) {
+    } else if (moment(currentTime).isBetween("0341", "0441")) {
       ultraSrtLiveBaseTime = "0300";
-    } else if (moment(currentTime).isBetween("0441", "0540")) {
+    } else if (moment(currentTime).isBetween("0441", "0541")) {
       ultraSrtLiveBaseTime = "0400";
-    } else if (moment(currentTime).isBetween("0541", "0640")) {
+    } else if (moment(currentTime).isBetween("0541", "0641")) {
       ultraSrtLiveBaseTime = "0500";
-    } else if (moment(currentTime).isBetween("0641", "0740")) {
+    } else if (moment(currentTime).isBetween("0641", "0741")) {
       ultraSrtLiveBaseTime = "0600";
-    } else if (moment(currentTime).isBetween("0741", "0840")) {
+    } else if (moment(currentTime).isBetween("0741", "0841")) {
       ultraSrtLiveBaseTime = "0700";
-    } else if (moment(currentTime).isBetween("0841", "0940")) {
+    } else if (moment(currentTime).isBetween("0841", "0941")) {
       ultraSrtLiveBaseTime = "0800";
-    } else if (moment(currentTime).isBetween("0941", "1040")) {
+    } else if (moment(currentTime).isBetween("0941", "1041")) {
       ultraSrtLiveBaseTime = "0900";
-    } else if (moment(currentTime).isBetween("1041", "1140")) {
+    } else if (moment(currentTime).isBetween("1041", "1141")) {
       ultraSrtLiveBaseTime = "1000";
-    } else if (moment(currentTime).isBetween("1141", "1240")) {
+    } else if (moment(currentTime).isBetween("1141", "1241")) {
       ultraSrtLiveBaseTime = "1100";
-    } else if (moment(currentTime).isBetween("1241", "1340")) {
+    } else if (moment(currentTime).isBetween("1241", "1341")) {
       ultraSrtLiveBaseTime = "1200";
-    } else if (moment(currentTime).isBetween("1341", "1440")) {
+    } else if (moment(currentTime).isBetween("1341", "1441")) {
       ultraSrtLiveBaseTime = "1300";
-    } else if (moment(currentTime).isBetween("1441", "1540")) {
+    } else if (moment(currentTime).isBetween("1441", "1541")) {
       ultraSrtLiveBaseTime = "1400";
-    } else if (moment(currentTime).isBetween("1541", "1640")) {
+    } else if (moment(currentTime).isBetween("1541", "1641")) {
       ultraSrtLiveBaseTime = "1500";
-    } else if (moment(currentTime).isBetween("1641", "1740")) {
+    } else if (moment(currentTime).isBetween("1641", "1741")) {
       ultraSrtLiveBaseTime = "1600";
-    } else if (moment(currentTime).isBetween("1741", "1840")) {
+    } else if (moment(currentTime).isBetween("1741", "1841")) {
       ultraSrtLiveBaseTime = "1700";
-    } else if (moment(currentTime).isBetween("1841", "1940")) {
+    } else if (moment(currentTime).isBetween("1841", "1941")) {
       ultraSrtLiveBaseTime = "1800";
-    } else if (moment(currentTime).isBetween("1941", "2040")) {
+    } else if (moment(currentTime).isBetween("1941", "2041")) {
       ultraSrtLiveBaseTime = "1900";
-    } else if (moment(currentTime).isBetween("2041", "2140")) {
+    } else if (moment(currentTime).isBetween("2041", "2141")) {
       ultraSrtLiveBaseTime = "2000";
-    } else if (moment(currentTime).isBetween("2141", "2240")) {
+    } else if (moment(currentTime).isBetween("2141", "2241")) {
       ultraSrtLiveBaseTime = "2100";
-    } else if (moment(currentTime).isBetween("2241", "2340")) {
+    } else if (moment(currentTime).isBetween("2241", "2341")) {
       ultraSrtLiveBaseTime = "2200";
-    } else if (moment(currentTime).isBetween("2341", "2359")) {
+    } else if (moment(currentTime).isBetween("2341", "0000")) {
       ultraSrtLiveBaseTime = "2300";
     } else if (moment(currentTime).isBetween("0000", "0040")) {
       ultraSrtLiveBaseTime = "2300";
@@ -187,6 +218,68 @@ export default function App() {
     }
     setUltraSrtLiveBaseTime(ultraSrtLiveBaseTime);
 
+    /**
+     * [초단기예보조회용 날짜/시간 세팅]
+     * 매시간 정각 45분 후에 조회 가능. 예) 12시 데이터는 12시 46분부터 / 1시 데이터는 1시 46분부터 조회 가능
+     */
+    if (moment(currentTime).isBetween("0046", "0146")) {
+      ultraSrtBaseTime = "0030";
+    } else if (moment(currentTime).isBetween("0146", "0246")) {
+      ultraSrtBaseTime = "0130";
+    } else if (moment(currentTime).isBetween("0246", "0346")) {
+      ultraSrtBaseTime = "0230";
+    } else if (moment(currentTime).isBetween("0346", "0446")) {
+      ultraSrtBaseTime = "0330";
+    } else if (moment(currentTime).isBetween("0446", "0546")) {
+      ultraSrtBaseTime = "0430";
+    } else if (moment(currentTime).isBetween("0546", "0646")) {
+      ultraSrtBaseTime = "0530";
+    } else if (moment(currentTime).isBetween("0646", "0746")) {
+      ultraSrtBaseTime = "0630";
+    } else if (moment(currentTime).isBetween("0746", "0846")) {
+      ultraSrtBaseTime = "0730";
+    } else if (moment(currentTime).isBetween("0846", "0946")) {
+      ultraSrtBaseTime = "0830";
+    } else if (moment(currentTime).isBetween("0946", "1046")) {
+      ultraSrtBaseTime = "0930";
+    } else if (moment(currentTime).isBetween("1046", "1146")) {
+      ultraSrtBaseTime = "1030";
+    } else if (moment(currentTime).isBetween("1146", "1246")) {
+      ultraSrtBaseTime = "1130";
+    } else if (moment(currentTime).isBetween("1246", "1346")) {
+      ultraSrtBaseTime = "1230";
+    } else if (moment(currentTime).isBetween("1346", "1446")) {
+      ultraSrtBaseTime = "1330";
+    } else if (moment(currentTime).isBetween("1446", "1546")) {
+      ultraSrtBaseTime = "1430";
+    } else if (moment(currentTime).isBetween("1546", "1646")) {
+      ultraSrtBaseTime = "1530";
+    } else if (moment(currentTime).isBetween("1646", "1746")) {
+      ultraSrtBaseTime = "1630";
+    } else if (moment(currentTime).isBetween("1746", "1846")) {
+      ultraSrtBaseTime = "1730";
+    } else if (moment(currentTime).isBetween("1846", "1946")) {
+      ultraSrtBaseTime = "1830";
+    } else if (moment(currentTime).isBetween("1946", "2046")) {
+      ultraSrtBaseTime = "1930";
+    } else if (moment(currentTime).isBetween("2046", "2146")) {
+      ultraSrtBaseTime = "2030";
+    } else if (moment(currentTime).isBetween("2146", "2246")) {
+      ultraSrtBaseTime = "2130";
+    } else if (moment(currentTime).isBetween("2246", "2346")) {
+      ultraSrtBaseTime = "2230";
+    } else if (moment(currentTime).isBetween("2346", "0000")) {
+      ultraSrtBaseTime = "2330";
+    } else if (moment(currentTime).isBetween("0000", "0046")) {
+      ultraSrtBaseTime = "2330";
+      setultraSrtBaseDate(yesterdayDate);
+    }
+    setUltraSrtBaseTime(ultraSrtBaseTime);
+
+    /**
+     * [중기예보조회용 날짜/시간 세팅]
+     * 0600 / 1800 하루에 두 번 조회 가능
+     */
     if (moment(currentTime).isBetween("0000", "0600")) {
       midBaseDate = yesterdayDate;
       midBaseTime = "1800";
@@ -533,100 +626,94 @@ export default function App() {
     /**
      * [초단기실황조회용 HTTP 비동기 통신 ]
      */
-    (getUltLiveSrtWeather = async () => {
-      const url = `http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst?serviceKey=${API_KEY}&numOfRows=10&pageNo=1&base_date=${ultraSrtLiveBaseDate}&base_time=${ultraSrtLiveBaseTime}&nx=${nx}&ny=${ny}&dataType=JSON`;
-      await axios
-        .get(url)
-        .then(function (response) {
-          const WeatherResponseData = response.data.response.body.items.item;
-          setUltSrtLiveWeatherObj(WeatherResponseData);
-          // WeatherResponseData.map(function (arr, i) {
-          //   console.log("getUltSrtWeather :" + arr.category);
-          // });
-        })
-        .catch(function (error) {
-          console.log("getUltLiveSrtWeather 실패 : " + error);
-        });
-    })();
+    // const ultSrtLiveUrl = `http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst?serviceKey=${API_KEY}&numOfRows=10&pageNo=1&base_date=${ultraSrtLiveBaseDate}&base_time=${ultraSrtLiveBaseTime}&nx=${nx}&ny=${ny}&dataType=JSON`;
+    // console.log("ultSrtLiveUrl " + ultSrtLiveUrl);
+    // await axios
+    //   .get(ultSrtLiveUrl)
+    //   .then(function (response) {
+    //     const ultSrtLiveWeatherResponseData =
+    //       response.data.response.body.items.item;
+    //     setUltSrtLiveWeatherObj(ultSrtLiveWeatherResponseData);
+    //     // WeatherResponseData.map(function (arr, i) {
+    //     //   console.log("getUltSrtWeather :" + arr.category);
+    //     // });
+    //   })
+    //   .catch(function (error) {
+    //     console.log("getUltLiveSrtWeather 실패 : " + error);
+    //   });
 
     /**
      * [초단기예보조회용 HTTP 비동기 통신 ]
      */
-    (getUltSrtWeather = async () => {
-      const url = `http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtFcst?serviceKey=${API_KEY}&numOfRows=100&pageNo=1&base_date=${ultraSrtBaseDate}&base_time=${ultraSrtBaseTime}&nx=${nx}&ny=${ny}&dataType=JSON`;
-      await axios
-        .get(url)
-        .then(function (response) {
-          const WeatherResponseData = response.data.response.body.items.item;
-          setUltSrtWeatherObj(WeatherResponseData);
-          // WeatherResponseData.map(function (arr, i) {
-          //   console.log("getUltSrtWeather :" + arr.category);
-          // });
-        })
-        .catch(function (error) {
-          console.log("getUltSrtWeather 실패 : " + error);
-        });
-    })();
+    const ultSrtUrl = `http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtFcst?serviceKey=${API_KEY}&numOfRows=100&pageNo=1&base_date=${ultraSrtBaseDate}&base_time=${ultraSrtBaseTime}&nx=${nx}&ny=${ny}&dataType=JSON`;
+    console.log(ultSrtUrl);
+    await axios
+      .get(ultSrtUrl)
+      .then(function (response) {
+        const ultSrtWeatherResponseData =
+          response.data.response.body.items.item;
+        setUltSrtWeatherObj(ultSrtWeatherResponseData);
+        // WeatherResponseData.map(function (arr, i) {
+        //   console.log("getUltSrtWeather :" + arr.category);
+        // });
+      })
+      .catch(function (error) {
+        console.log("getUltSrtWeather 실패 : " + error);
+      });
 
     /**
      * [단기예보조회용 HTTP 비동기 통신 ]
      */
-    (getSrtWeather = async () => {
-      const url = `http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?serviceKey=${API_KEY}&numOfRows=10&pageNo=1&dataType=JSON&base_date=${srtBaseDate}&base_time=${srtBaseTime}&nx=${nx}&ny=${ny}`;
-      await axios
-        .get(url)
-        .then(function (response) {
-          const WeatherResponseData = response.data.response.body.items.item; //필요한 정보만 받아오기 전부 다 받아 오려면 response.data 까지만 적는다.
-          setSrtWeatherObj(WeatherResponseData);
-          // WeatherResponseData.map(function (arr, i) {
-          //   setSrtWeatherObj ({
-          //     category = arr.category,
-          //   })
-          // });
-        })
-        .catch(function (error) {
-          console.log("getSrtWeather 실패 : " + error);
-        });
-    })();
+    const srtUrl = `http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?serviceKey=${API_KEY}&numOfRows=10&pageNo=1&dataType=JSON&base_date=${srtBaseDate}&base_time=${srtBaseTime}&nx=${nx}&ny=${ny}`;
+    await axios
+      .get(srtUrl)
+      .then(function (response) {
+        const srtWeatherResponseData = response.data.response.body.items.item; //필요한 정보만 받아오기 전부 다 받아 오려면 response.data 까지만 적는다.
+        setSrtWeatherObj(srtWeatherResponseData);
+        // WeatherResponseData.map(function (arr, i) {
+        //   setSrtWeatherObj ({
+        //     category = arr.category,
+        //   })
+        // });
+      })
+      .catch(function (error) {
+        console.log("getSrtWeather 실패 : " + error);
+      });
 
     // /**
     //  * [중기육상예보조회용 HTTP 비동기 통신 ]
     //  */
-    (getMidWeather = async () => {
-      const url = `http://apis.data.go.kr/1360000/MidFcstInfoService/getMidLandFcst?serviceKey=${API_KEY}&dataType=JSON&tmFc=${midTmFc}&regId=${midLandRegId}`;
-      await axios
-        .get(url)
-        .then(function (response) {
-          const WeatherResponseData = response.data.response.body.items.item; //필요한 정보만 받아오기 전부 다 받아 오려면 response.data 까지만 적는다.
-          setmidLandWeatherObj(WeatherResponseData);
-          console.log(WeatherResponseData);
-        })
-        .catch(function (error) {
-          console.log("getMidWeather 실패 : " + error);
-        });
-    })();
+    const midLandUrl = `http://apis.data.go.kr/1360000/MidFcstInfoService/getMidLandFcst?serviceKey=${API_KEY}&dataType=JSON&tmFc=${midTmFc}&regId=${midLandRegId}`;
+    await axios
+      .get(midLandUrl)
+      .then(function (response) {
+        const midLandWeatherResponseData =
+          response.data.response.body.items.item; //필요한 정보만 받아오기 전부 다 받아 오려면 response.data 까지만 적는다.
+        setmidLandWeatherObj(midLandWeatherResponseData);
+        console.log(midLandWeatherResponseData);
+      })
+      .catch(function (error) {
+        console.log("getMidWeather 실패 : " + error);
+      });
 
     //여기부터 수정 Unhandled promise rejection: ReferenceError: Can't find variable: getMidTaWeather 에러 잡아야함.
     /**
      * [중기기온예보조회용 HTTP 비동기 통신 ]
      */
-    (getMidWeathert = async () => {
-      const url = `http://apis.data.go.kr/1360000/MidFcstInfoService/getMidTa?serviceKey=${API_KEY}&dataType=JSON&tmFc=${midTmFc}&regId=${midTaRegId}`;
-      await axios
-        .get(url)
-        .then(function (response) {
-          const WeatherResponseData = response.data.response.body.items.item; //필요한 정보만 받아오기 전부 다 받아 오려면 response.data 까지만 적는다.
-          setmidTaWeatherObj(WeatherResponseData);
-          console.log(WeatherResponseData);
-        })
-        .catch(function (error) {
-          console.log("getMidWeather 실패 : " + error);
-        });
-    })();
+    const midUrl = `http://apis.data.go.kr/1360000/MidFcstInfoService/getMidTa?serviceKey=${API_KEY}&dataType=JSON&tmFc=${midTmFc}&regId=${midTaRegId}`;
+    await axios
+      .get(midUrl)
+      .then(function (response) {
+        const midWeatherResponseData = response.data.response.body.items.item; //필요한 정보만 받아오기 전부 다 받아 오려면 response.data 까지만 적는다.
+        setmidTaWeatherObj(midWeatherResponseData);
+        console.log(midWeatherResponseData);
+      })
+      .catch(function (error) {
+        console.log("getMidWeather 실패 : " + error);
+      });
 
     setIsLoading(false);
   };
-  console.log(ultSrtLiveWeatherObj[0]);
 
   // 클래스 생명주기 메서드 중 componentDidMount() 와 동일한 기능을 한다.
   // useEffect는첫번째 렌더링과 이후의 모든 업데이트에서 수행됩니다.
@@ -636,24 +723,431 @@ export default function App() {
   }, []);
   // 빈 배열을 넣어 주면 처음 랜더링 될 때 한번만 실행 된다. 넣지 않으면 모든 업데이트에서 실행되며
   // 배열안에 [count] 같이 인자를 넣어주면 해당 인자가 업데이트 될 때 마다 실행된다.
-
+  // {Math.round(ultSrtWeatherObj[3].obsrValue)}
   return isLoading ? (
     <Loading />
   ) : (
-    <View style={styles.container}>
-      <Text>
-        주소 : {addrObj.addrGu} {addrObj.addrDong} /
-      </Text>
-      <StatusBar style="auto" />
-    </View>
+    <SafeAreaView style={styles.container}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        showsHorizontalScrollIndicator={false}
+      >
+        <StatusBar style="auto" />
+        <View style={styles.header} />
+
+        <View style={styles.content}>
+          <Text style={[styles.txt_h5_b]}>
+            {addrObj.addrGu} {addrObj.addrDong}
+          </Text>
+
+          <View style={styles.content_padding}>
+            <View style={styles.ractangle1}>
+              <Image
+                style={styles.img_weathericon}
+                source={require("./assets/img/weather/cloudy.png")}
+              />
+              <View style={styles.content_weather}>
+                <Text style={styles.txt_weather}>19°</Text>
+                <Text style={[styles.txt_subtitle2_r_w, { marginTop: 5 }]}>
+                  최고:24° 최저:17°
+                </Text>
+              </View>
+            </View>
+          </View>
+
+          <View style={[styles.ractangle_bg, { height: 200 }]}>
+            <Text style={styles.txt_h6_b}>상세 예보</Text>
+            <View style={styles.contents_padding}>
+              <View style={[styles.ractangle_detail, { height: 120 }]}>
+                <Image
+                  style={styles.img_detail}
+                  source={require("./assets/img/temperatures.png")}
+                />
+                <View>
+                  <Text
+                    style={[
+                      styles.txt_caption_r,
+                      { marginLeft: "15%", marginBottom: "3%" },
+                    ]}
+                  >
+                    체감온도
+                  </Text>
+                  <Text
+                    style={[
+                      styles.txt_subtitle1_b,
+                      { marginLeft: "15%", marginBottom: "15%" },
+                    ]}
+                  >
+                    더움 29°
+                  </Text>
+                </View>
+              </View>
+              <View
+                style={[
+                  styles.ractangle_detail,
+                  { height: 120, marginLeft: "2.5%" },
+                ]}
+              >
+                <Image
+                  style={styles.img_detail}
+                  source={require("./assets/img/humidity.png")}
+                />
+                <Text
+                  style={[
+                    styles.txt_caption_r,
+                    { marginLeft: "15%", marginBottom: "3%" },
+                  ]}
+                >
+                  습도
+                </Text>
+                <Text
+                  style={[
+                    styles.txt_subtitle1_b,
+                    {
+                      marginLeft: "15%",
+                      marginBottom: "15%",
+                    },
+                  ]}
+                >
+                  습함 55%
+                </Text>
+              </View>
+              <View
+                style={[
+                  styles.ractangle_detail,
+                  { height: 120, marginLeft: "2.5%" },
+                ]}
+              >
+                <Image
+                  style={styles.img_detail}
+                  source={require("./assets/img/windspeed.png")}
+                />
+                <Text
+                  style={[
+                    styles.txt_caption_r,
+                    { marginLeft: "13%", marginBottom: "3%" },
+                  ]}
+                >
+                  서풍
+                </Text>
+                <Text
+                  style={[
+                    styles.txt_subtitle1_b,
+                    { marginLeft: "13%", marginBottom: "15%" },
+                  ]}
+                >
+                  약함 1m/s
+                </Text>
+              </View>
+            </View>
+          </View>
+
+          <View style={[styles.ractangle_bg_row, { height: 50 }]}>
+            <View style={styles.contents_padding}>
+              <View style={styles.content_umbrella}>
+                <Image
+                  style={styles.img_umbrella}
+                  source={require("./assets/img/umbrella.png")}
+                />
+                <Text style={[styles.txt_subtitle1_b, { marginLeft: "3%" }]}>
+                  3시부터 비
+                </Text>
+                <Text style={[styles.txt_subtitle1_r, { marginLeft: 3 }]}>
+                  예보
+                </Text>
+              </View>
+            </View>
+          </View>
+
+          <View style={[styles.ractangle_bg, { height: 300 }]}>
+            <View style={styles.content_padding}>
+              <Text
+                style={
+                  ([styles.txt_caption_r],
+                  { paddingTop: "5%", paddingBottom: "5%" })
+                }
+              >
+                옷차림 알림
+              </Text>
+            </View>
+            <View style={styles.devider}></View>
+          </View>
+
+          <Text style={styles.txt_h6_b}>미세먼지 단계</Text>
+          <View style={styles.contents_padding}>
+            <View style={[styles.ractangle_w_r, { height: 90 }]}>
+              <Image
+                style={styles.img_dust}
+                source={require("./assets/img/dust/reallybad.png")}
+              />
+              <View style={{ marginLeft: "6%" }}>
+                <Text style={[styles.txt_subtitle1_b, { marginBottom: "1%" }]}>
+                  많이 나쁨
+                </Text>
+                <Text style={styles.txt_body2_r}>미세먼지</Text>
+              </View>
+            </View>
+
+            <View
+              style={[styles.ractangle_w_r, { height: 90, marginLeft: "2.5%" }]}
+            >
+              <Image
+                style={styles.img_dust}
+                source={require("./assets/img/dust/verybad.png")}
+              />
+              <View style={{ marginLeft: "6%" }}>
+                <Text style={[styles.txt_subtitle1_b, { marginBottom: "1%" }]}>
+                  아주 나쁨
+                </Text>
+                <Text style={styles.txt_body2_r}>초미세먼지</Text>
+              </View>
+            </View>
+          </View>
+
+          <Text style={[styles.txt_h6_b, { marginTop: "3%" }]}>
+            코로나 19 확진자 수
+          </Text>
+          <View style={styles.contents_padding}>
+            <View style={[styles.ractangle_w_r, { height: 70 }]}>
+              <Text style={[styles.txt_body2_r]}>전국</Text>
+              <Text style={[styles.txt_subtitle1_b, { marginLeft: "3%" }]}>
+                1,597명
+              </Text>
+              <Image
+                style={styles.img_arrow}
+                source={require("./assets/img/up_r.png")}
+                marginLeft="3%"
+              />
+            </View>
+
+            <View
+              style={[styles.ractangle_w_r, { height: 70, marginLeft: "2.5%" }]}
+            >
+              <Text style={[styles.txt_body2_r]}>서울</Text>
+              <Text style={[styles.txt_subtitle1_b, { marginLeft: "3%" }]}>
+                697명
+              </Text>
+              <Image
+                style={styles.img_arrow}
+                source={require("./assets/img/down_g.png")}
+                marginLeft="3%"
+              />
+            </View>
+          </View>
+
+          <View
+            style={[styles.ractangle_bg, { height: 200, marginTop: "10%" }]}
+          >
+            <Text style={styles.txt_h6_b}>3일 예보</Text>
+            <View style={styles.contents_padding}>
+              <View style={[styles.ractangle_detail, { height: 120 }]}>
+                <Image
+                  style={styles.img_detail}
+                  source={require("./assets/img/weather3/sun.png")}
+                />
+              </View>
+            </View>
+          </View>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#F2F2F7",
+  },
+
+  header: {
+    height: 10,
+  },
+
+  content: {
+    flex: 1,
+  },
+
+  content_weather: {
+    flex: 1,
+    paddingTop: "10%",
+    paddingBottom: "20%",
+  },
+
+  content_padding: {
+    paddingLeft: "4.5%",
+    paddingRight: "4.5%",
+  },
+
+  contents_padding: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingLeft: "4.5%",
+    paddingRight: "4.5%",
+  },
+
+  content_umbrella: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+
+  devider: {
+    borderBottomColor: "#c8c8cc",
+    borderBottomWidth: 0.5,
+  },
+
+  txt_weather: {
+    fontFamily: "NotoSansKR_300Light",
+    fontSize: 85,
+    color: "white",
+    height: 105,
+    marginTop: 0,
+    paddingTop: 0,
+  },
+
+  txt_h5_b: {
+    fontFamily: "NotoSansKR_700Bold",
+    fontSize: 24,
+    color: "black",
+    paddingLeft: "4.5%",
+  },
+
+  txt_h6_b: {
+    fontSize: 20,
+    color: "black",
+    fontFamily: "NotoSansKR_700Bold",
+    paddingLeft: "4.5%",
+    paddingTop: "5%",
+  },
+
+  txt_subtitle1_b: {
+    fontFamily: "NotoSansKR_700Bold",
+    fontSize: 18,
+    color: "black",
+    lineHeight: 22,
+  },
+
+  txt_subtitle1_r: {
+    fontFamily: "NotoSansKR_400Regular",
+    fontSize: 18,
+    color: "black",
+    lineHeight: 22,
+  },
+
+  txt_subtitle2_r: {
+    fontFamily: "NotoSansKR_500Medium",
+    fontSize: 14,
+    color: "black",
+  },
+
+  txt_subtitle2_r_w: {
+    fontFamily: "NotoSansKR_500Medium",
+    fontSize: 14,
+    color: "white",
+    height: 16,
+  },
+
+  txt_body2_r: {
+    fontFamily: "NotoSansKR_400Regular",
+    fontSize: 14,
+    color: "#8A8A8E",
+    lineHeight: 19,
+  },
+
+  txt_caption_r: {
+    fontSize: 12,
+    color: "#85858C",
+    fontFamily: "NotoSansKR_400Regular",
+    lineHeight: 15,
+  },
+
+  txt_caption_r_b: {
+    fontSize: 12,
+    color: "black",
+    fontFamily: "NotoSansKR_400Regular",
+    lineHeight: 15,
+  },
+
+  ractangle1: {
+    backgroundColor: "#007AFF",
+    flexDirection: "row",
+    borderRadius: 14,
+    height: 203,
+    alignItems: "center",
+    marginTop: 25,
+    marginBottom: 15,
+  },
+
+  /**
+   * 흰색 배경
+   */
+  ractangle_bg: {
+    backgroundColor: "white",
+    width: "100%",
+    marginTop: 10,
+  },
+
+  /**
+   * 흰색 배경 가로 정렬 (비/눈 예보 영역)
+   */
+  ractangle_bg_row: {
+    backgroundColor: "white",
+    flexDirection: "row",
+    width: "100%",
+    marginTop: 10,
+    alignItems: "center",
+  },
+
+  /**
+   * 흰색 라운드 박스
+   */
+  ractangle_w_r: {
+    flex: 1,
+    flexDirection: "row",
+    backgroundColor: "white",
+    width: "100%",
+    borderRadius: 14,
+    marginTop: 20,
     alignItems: "center",
     justifyContent: "center",
+  },
+
+  ractangle_detail: {
+    flex: 1,
+    backgroundColor: "#F3F3F9",
+    width: "100%",
+    borderRadius: 14,
+    marginTop: 20,
+  },
+
+  img_weathericon: {
+    flex: 1,
+    resizeMode: "contain",
+    paddingLeft: "14%",
+  },
+
+  img_detail: {
+    flex: 1,
+    resizeMode: "contain",
+    marginLeft: "15%",
+    marginTop: "15%",
+    marginBottom: "10%",
+  },
+
+  img_weather3: {
+    flex: 1,
+    resizeMode: "contain",
+    marginLeft: "15%",
+    marginTop: "15%",
+    marginBottom: "10%",
+  },
+
+  img_umbrella: {
+    resizeMode: "contain",
+  },
+
+  img_dust: {
+    resizeMode: "contain",
   },
 });
