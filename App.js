@@ -14,7 +14,6 @@ import axios from "axios";
 import moment from "moment";
 import Loading from "./Loading";
 import firebase from "firebase/app";
-import { Svg } from "react-native-svg";
 import { useFonts, NotoSans_300Regular } from "@expo-google-fonts/noto-sans";
 import {
   NotoSansKR_300Light,
@@ -63,9 +62,9 @@ export default function App() {
   /**
    * 초단기실황조회용 변수
    */
-  const [ultraSrtLiveBaseDate, setultraSrtLiveBaseDate] = useState(null);
-  const [ultraSrtLiveBaseTime, setUltraSrtLiveBaseTime] = useState("0000");
-  const [ultSrtLiveWeatherObj, setUltSrtLiveWeatherObj] = useState({});
+  // const [ultraSrtLiveBaseDate, setultraSrtLiveBaseDate] = useState(null);
+  // const [ultraSrtLiveBaseTime, setUltraSrtLiveBaseTime] = useState("0000");
+  // const [ultSrtLiveWeatherObj, setUltSrtLiveWeatherObj] = useState({});
 
   /**
    * 초단기예보조회용 변수
@@ -115,13 +114,13 @@ export default function App() {
     yesterdayDate = moment(yesterdayDate).format("YYYYMMDD"); // 어제날짜 포맷 재 설정
 
     let srtBaseTime;
-    let ultraSrtLiveBaseTime;
+    // let ultraSrtLiveBaseTime; // 초단기실황 조회용
     let ultraSrtBaseTime;
     let midBaseDate = todayDate;
     let midBaseTime;
 
     setSrtBaseDate(todayDate);
-    setultraSrtLiveBaseDate(todayDate);
+    // setultraSrtLiveBaseDate(todayDate); //초단기실황 조회용
     setultraSrtBaseDate(todayDate);
 
     /**
@@ -164,59 +163,59 @@ export default function App() {
      * [초단기실황조회용 날짜/시간 세팅]
      * 매시간 정각 40분 후에 조회 가능. 예) 12시 데이터는 12시 41분부터 / 1시 데이터는 1시 41분부터 조회 가능
      */
-    if (moment(currentTime).isBetween("0041", "0141")) {
-      ultraSrtLiveBaseTime = "0000";
-    } else if (moment(currentTime).isBetween("0141", "0241")) {
-      ultraSrtLiveBaseTime = "0100";
-    } else if (moment(currentTime).isBetween("0241", "0341")) {
-      ultraSrtLiveBaseTime = "0200";
-    } else if (moment(currentTime).isBetween("0341", "0441")) {
-      ultraSrtLiveBaseTime = "0300";
-    } else if (moment(currentTime).isBetween("0441", "0541")) {
-      ultraSrtLiveBaseTime = "0400";
-    } else if (moment(currentTime).isBetween("0541", "0641")) {
-      ultraSrtLiveBaseTime = "0500";
-    } else if (moment(currentTime).isBetween("0641", "0741")) {
-      ultraSrtLiveBaseTime = "0600";
-    } else if (moment(currentTime).isBetween("0741", "0841")) {
-      ultraSrtLiveBaseTime = "0700";
-    } else if (moment(currentTime).isBetween("0841", "0941")) {
-      ultraSrtLiveBaseTime = "0800";
-    } else if (moment(currentTime).isBetween("0941", "1041")) {
-      ultraSrtLiveBaseTime = "0900";
-    } else if (moment(currentTime).isBetween("1041", "1141")) {
-      ultraSrtLiveBaseTime = "1000";
-    } else if (moment(currentTime).isBetween("1141", "1241")) {
-      ultraSrtLiveBaseTime = "1100";
-    } else if (moment(currentTime).isBetween("1241", "1341")) {
-      ultraSrtLiveBaseTime = "1200";
-    } else if (moment(currentTime).isBetween("1341", "1441")) {
-      ultraSrtLiveBaseTime = "1300";
-    } else if (moment(currentTime).isBetween("1441", "1541")) {
-      ultraSrtLiveBaseTime = "1400";
-    } else if (moment(currentTime).isBetween("1541", "1641")) {
-      ultraSrtLiveBaseTime = "1500";
-    } else if (moment(currentTime).isBetween("1641", "1741")) {
-      ultraSrtLiveBaseTime = "1600";
-    } else if (moment(currentTime).isBetween("1741", "1841")) {
-      ultraSrtLiveBaseTime = "1700";
-    } else if (moment(currentTime).isBetween("1841", "1941")) {
-      ultraSrtLiveBaseTime = "1800";
-    } else if (moment(currentTime).isBetween("1941", "2041")) {
-      ultraSrtLiveBaseTime = "1900";
-    } else if (moment(currentTime).isBetween("2041", "2141")) {
-      ultraSrtLiveBaseTime = "2000";
-    } else if (moment(currentTime).isBetween("2141", "2241")) {
-      ultraSrtLiveBaseTime = "2100";
-    } else if (moment(currentTime).isBetween("2241", "2341")) {
-      ultraSrtLiveBaseTime = "2200";
-    } else if (moment(currentTime).isBetween("2341", "0000")) {
-      ultraSrtLiveBaseTime = "2300";
-    } else if (moment(currentTime).isBetween("0000", "0040")) {
-      ultraSrtLiveBaseTime = "2300";
-      setultraSrtLiveBaseDate(yesterdayDate);
-    }
-    setUltraSrtLiveBaseTime(ultraSrtLiveBaseTime);
+    // if (moment(currentTime).isBetween("0041", "0141")) {
+    //   ultraSrtLiveBaseTime = "0000";
+    // } else if (moment(currentTime).isBetween("0141", "0241")) {
+    //   ultraSrtLiveBaseTime = "0100";
+    // } else if (moment(currentTime).isBetween("0241", "0341")) {
+    //   ultraSrtLiveBaseTime = "0200";
+    // } else if (moment(currentTime).isBetween("0341", "0441")) {
+    //   ultraSrtLiveBaseTime = "0300";
+    // } else if (moment(currentTime).isBetween("0441", "0541")) {
+    //   ultraSrtLiveBaseTime = "0400";
+    // } else if (moment(currentTime).isBetween("0541", "0641")) {
+    //   ultraSrtLiveBaseTime = "0500";
+    // } else if (moment(currentTime).isBetween("0641", "0741")) {
+    //   ultraSrtLiveBaseTime = "0600";
+    // } else if (moment(currentTime).isBetween("0741", "0841")) {
+    //   ultraSrtLiveBaseTime = "0700";
+    // } else if (moment(currentTime).isBetween("0841", "0941")) {
+    //   ultraSrtLiveBaseTime = "0800";
+    // } else if (moment(currentTime).isBetween("0941", "1041")) {
+    //   ultraSrtLiveBaseTime = "0900";
+    // } else if (moment(currentTime).isBetween("1041", "1141")) {
+    //   ultraSrtLiveBaseTime = "1000";
+    // } else if (moment(currentTime).isBetween("1141", "1241")) {
+    //   ultraSrtLiveBaseTime = "1100";
+    // } else if (moment(currentTime).isBetween("1241", "1341")) {
+    //   ultraSrtLiveBaseTime = "1200";
+    // } else if (moment(currentTime).isBetween("1341", "1441")) {
+    //   ultraSrtLiveBaseTime = "1300";
+    // } else if (moment(currentTime).isBetween("1441", "1541")) {
+    //   ultraSrtLiveBaseTime = "1400";
+    // } else if (moment(currentTime).isBetween("1541", "1641")) {
+    //   ultraSrtLiveBaseTime = "1500";
+    // } else if (moment(currentTime).isBetween("1641", "1741")) {
+    //   ultraSrtLiveBaseTime = "1600";
+    // } else if (moment(currentTime).isBetween("1741", "1841")) {
+    //   ultraSrtLiveBaseTime = "1700";
+    // } else if (moment(currentTime).isBetween("1841", "1941")) {
+    //   ultraSrtLiveBaseTime = "1800";
+    // } else if (moment(currentTime).isBetween("1941", "2041")) {
+    //   ultraSrtLiveBaseTime = "1900";
+    // } else if (moment(currentTime).isBetween("2041", "2141")) {
+    //   ultraSrtLiveBaseTime = "2000";
+    // } else if (moment(currentTime).isBetween("2141", "2241")) {
+    //   ultraSrtLiveBaseTime = "2100";
+    // } else if (moment(currentTime).isBetween("2241", "2341")) {
+    //   ultraSrtLiveBaseTime = "2200";
+    // } else if (moment(currentTime).isBetween("2341", "0000")) {
+    //   ultraSrtLiveBaseTime = "2300";
+    // } else if (moment(currentTime).isBetween("0000", "0040")) {
+    //   ultraSrtLiveBaseTime = "2300";
+    //   setultraSrtLiveBaseDate(yesterdayDate);
+    // }
+    // setUltraSrtLiveBaseTime(ultraSrtLiveBaseTime);
 
     /**
      * [초단기예보조회용 날짜/시간 세팅]
@@ -305,9 +304,6 @@ export default function App() {
 
     let location = await Location.getCurrentPositionAsync({});
 
-    console.log(
-      "위/경도 : " + location.coords.latitude + "/" + location.coords.longitude
-    );
     setLatitude(location.coords.latitude);
     setLongitude(location.coords.longitude);
 
@@ -572,9 +568,11 @@ export default function App() {
     // }
     // console.log(strAddrText);
   };
-  // 위,경도 -> 좌표변환 함수
+
+  /**
+   * 위,경도 -> 좌표변환 함수
+   */
   getGridGPS = async () => {
-    // 위,경도 -> 좌표변환 하기 위한 기본값
     const RE = 6371.00877; // 지구 반경(km)
     const GRID = 5.0; // 격자 간격(km)
     const SLAT1 = 30.0; // 투영 위도1(degree)
@@ -583,10 +581,8 @@ export default function App() {
     const OLAT = 38.0; // 기준점 위도(degree)
     const XO = 43; // 기준점 X좌표(GRID)
     const YO = 136; // 기1준점 Y좌표(GRID)
-    //
 
     var DEGRAD = Math.PI / 180.0;
-    var RADDEG = 180.0 / Math.PI;
 
     var re = RE / GRID;
     var slat1 = SLAT1 * DEGRAD;
@@ -646,7 +642,7 @@ export default function App() {
      * [초단기예보조회용 HTTP 비동기 통신 ]
      */
     const ultSrtUrl = `http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtFcst?serviceKey=${API_KEY}&numOfRows=100&pageNo=1&base_date=${ultraSrtBaseDate}&base_time=${ultraSrtBaseTime}&nx=${nx}&ny=${ny}&dataType=JSON`;
-    console.log(ultSrtUrl);
+    console.log("초단기예보 url : " + ultSrtUrl);
     await axios
       .get(ultSrtUrl)
       .then(function (response) {
@@ -665,6 +661,7 @@ export default function App() {
      * [단기예보조회용 HTTP 비동기 통신 ]
      */
     const srtUrl = `http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?serviceKey=${API_KEY}&numOfRows=10&pageNo=1&dataType=JSON&base_date=${srtBaseDate}&base_time=${srtBaseTime}&nx=${nx}&ny=${ny}`;
+    console.log("단기예보 url : " + srtUrl);
     await axios
       .get(srtUrl)
       .then(function (response) {
@@ -684,6 +681,7 @@ export default function App() {
     //  * [중기육상예보조회용 HTTP 비동기 통신 ]
     //  */
     const midLandUrl = `http://apis.data.go.kr/1360000/MidFcstInfoService/getMidLandFcst?serviceKey=${API_KEY}&dataType=JSON&tmFc=${midTmFc}&regId=${midLandRegId}`;
+    console.log("중기육상예보 url : " + midLandUrl);
     await axios
       .get(midLandUrl)
       .then(function (response) {
@@ -701,6 +699,7 @@ export default function App() {
      * [중기기온예보조회용 HTTP 비동기 통신 ]
      */
     const midUrl = `http://apis.data.go.kr/1360000/MidFcstInfoService/getMidTa?serviceKey=${API_KEY}&dataType=JSON&tmFc=${midTmFc}&regId=${midTaRegId}`;
+    console.log("중기기온예보 url : " + midUrl);
     await axios
       .get(midUrl)
       .then(function (response) {
@@ -744,10 +743,12 @@ export default function App() {
             <View style={styles.ractangle1}>
               <Image
                 style={styles.img_weathericon}
-                source={require("./assets/img/weather/cloudy.png")}
+                source={require("./assets/img/weather/snowy.png")}
               />
               <View style={styles.content_weather}>
-                <Text style={styles.txt_weather}>19°</Text>
+                <Text style={styles.txt_weather}>
+                  {ultSrtWeatherObj[25].fcstValue}°
+                </Text>
                 <Text style={[styles.txt_subtitle2_r_w, { marginTop: 5 }]}>
                   최고:24° 최저:17°
                 </Text>
@@ -756,8 +757,10 @@ export default function App() {
           </View>
 
           <View style={[styles.ractangle_bg, { height: 200 }]}>
-            <Text style={styles.txt_h6_b}>상세 예보</Text>
-            <View style={styles.contents_padding}>
+            <View style={styles.content_padding}>
+              <Text style={styles.txt_h6_b}>상세 예보</Text>
+            </View>
+            <View style={styles.content_padding_row}>
               <View style={[styles.ractangle_detail, { height: 120 }]}>
                 <Image
                   style={styles.img_detail}
@@ -809,7 +812,7 @@ export default function App() {
                     },
                   ]}
                 >
-                  습함 55%
+                  습함 {ultSrtWeatherObj[31].fcstValue}%
                 </Text>
               </View>
               <View
@@ -843,10 +846,10 @@ export default function App() {
           </View>
 
           <View style={[styles.ractangle_bg_row, { height: 50 }]}>
-            <View style={styles.contents_padding}>
+            <View style={styles.content_padding_row}>
               <View style={styles.content_umbrella}>
                 <Image
-                  style={styles.img_umbrella}
+                  style={styles.img_contain}
                   source={require("./assets/img/umbrella.png")}
                 />
                 <Text style={[styles.txt_subtitle1_b, { marginLeft: "3%" }]}>
@@ -861,23 +864,89 @@ export default function App() {
 
           <View style={[styles.ractangle_bg, { height: 300 }]}>
             <View style={styles.content_padding}>
-              <Text
-                style={
-                  ([styles.txt_caption_r],
-                  { paddingTop: "5%", paddingBottom: "5%" })
-                }
-              >
+              <Text style={([styles.txt_caption_r], { paddingTop: "5%" })}>
                 옷차림 알림
               </Text>
             </View>
             <View style={styles.devider}></View>
-          </View>
+            <View style={styles.content_padding}>
+              <Image
+                style={styles.img_clothes}
+                source={require("./assets/img/rectangle/rectangle_clothes1.png")}
+              />
+              <View
+                style={{
+                  marginTop: "-38%",
+                  marginLeft: "5.5%",
+                  marginRight: "5.5%",
+                }}
+              >
+                <Text style={[styles.txt_h6_b]}>아주더움</Text>
+                <Text style={styles.txt_subtitle2_r}>어제보다 6° 낮아요</Text>
+                <Text style={[styles.txt_caption_r, { marginTop: 7 }]}>
+                  아주더운 한여름 날씨에요! 민소매, 반팔, 반바지등의 얇은 옷이
+                  좋아요
+                </Text>
+              </View>
 
-          <Text style={styles.txt_h6_b}>미세먼지 단계</Text>
-          <View style={styles.contents_padding}>
+              <View
+                style={{
+                  flexDirection: "row",
+                  marginTop: "15%",
+                  marginLeft: "2.5%",
+                  marginRight: "2.5%",
+                  justifyContent: "space-between",
+                }}
+              >
+                <View style={{ flex: 1, alignItems: "center" }}>
+                  <Image
+                    style={styles.img_contain_clothes}
+                    source={require("./assets/img/clothes/clothes1.png")}
+                  />
+                  <Text style={styles.txt_caption_b}>28°~</Text>
+                </View>
+
+                <View style={{ flex: 1, alignItems: "center" }}>
+                  <Image
+                    style={styles.img_contain_clothes}
+                    source={require("./assets/img/clothes/clothes2.png")}
+                  />
+                  <Text style={styles.txt_caption_r}>23°</Text>
+                </View>
+
+                <View style={{ flex: 1, alignItems: "center" }}>
+                  <Image
+                    style={styles.img_contain_clothes}
+                    source={require("./assets/img/clothes/clothes3.png")}
+                  />
+                  <Text style={styles.txt_caption_r}>20°</Text>
+                </View>
+
+                <View style={{ flex: 1, alignItems: "center" }}>
+                  <Image
+                    style={styles.img_contain_clothes}
+                    source={require("./assets/img/clothes/clothes4.png")}
+                  />
+                  <Text style={styles.txt_caption_r}>17°</Text>
+                </View>
+
+                <View style={{ flex: 1, alignItems: "center" }}>
+                  <Image
+                    style={styles.img_contain_clothes}
+                    source={require("./assets/img/clothes/clothes5.png")}
+                  />
+                  <Text style={styles.txt_caption_r}>12°</Text>
+                </View>
+              </View>
+            </View>
+          </View>
+          <View style={styles.content_padding}>
+            <Text style={styles.txt_h6_b}>미세먼지 단계</Text>
+          </View>
+          <View style={styles.content_padding_row}>
             <View style={[styles.ractangle_w_r, { height: 90 }]}>
               <Image
-                style={styles.img_dust}
+                style={styles.img_contain}
                 source={require("./assets/img/dust/reallybad.png")}
               />
               <View style={{ marginLeft: "6%" }}>
@@ -892,7 +961,7 @@ export default function App() {
               style={[styles.ractangle_w_r, { height: 90, marginLeft: "2.5%" }]}
             >
               <Image
-                style={styles.img_dust}
+                style={styles.img_contain}
                 source={require("./assets/img/dust/verybad.png")}
               />
               <View style={{ marginLeft: "6%" }}>
@@ -904,10 +973,12 @@ export default function App() {
             </View>
           </View>
 
-          <Text style={[styles.txt_h6_b, { marginTop: "3%" }]}>
-            코로나 19 확진자 수
-          </Text>
-          <View style={styles.contents_padding}>
+          <View style={styles.content_padding}>
+            <Text style={[styles.txt_h6_b, { marginTop: "3%" }]}>
+              코로나 19 확진자 수
+            </Text>
+          </View>
+          <View style={styles.content_padding_row}>
             <View style={[styles.ractangle_w_r, { height: 70 }]}>
               <Text style={[styles.txt_body2_r]}>전국</Text>
               <Text style={[styles.txt_subtitle1_b, { marginLeft: "3%" }]}>
@@ -936,15 +1007,337 @@ export default function App() {
           </View>
 
           <View
-            style={[styles.ractangle_bg, { height: 200, marginTop: "10%" }]}
+            style={[styles.ractangle_bg, { height: 195, marginTop: "10%" }]}
           >
-            <Text style={styles.txt_h6_b}>3일 예보</Text>
-            <View style={styles.contents_padding}>
-              <View style={[styles.ractangle_detail, { height: 120 }]}>
-                <Image
-                  style={styles.img_detail}
-                  source={require("./assets/img/weather3/sun.png")}
-                />
+            <View style={styles.content_padding}>
+              <Text style={styles.txt_h6_b}>3일 예보</Text>
+              <ScrollView
+                horizontal
+                style={{ height: 120 }}
+                showsHorizontalScrollIndicator={false}
+              >
+                <View style={styles.ractangle_weather3}>
+                  <Image
+                    style={{ resizeMode: "contain" }}
+                    source={require("./assets/img/weather3/sun.png")}
+                  />
+                  <Text style={styles.txt_body2_b}>18°</Text>
+                  <Text style={styles.txt_overline_r}>오전 11시</Text>
+                </View>
+                <View style={styles.ractangle_weather3_margin}>
+                  <Image
+                    style={{ resizeMode: "contain" }}
+                    source={require("./assets/img/weather3/sun.png")}
+                  />
+                  <Text style={styles.txt_body2_b}>18°</Text>
+                  <Text style={styles.txt_overline_r}>오전 11시</Text>
+                </View>
+                <View style={styles.ractangle_weather3_margin}>
+                  <Image
+                    style={{ resizeMode: "contain" }}
+                    source={require("./assets/img/weather3/sun.png")}
+                  />
+                  <Text style={styles.txt_body2_b}>18°</Text>
+                  <Text style={styles.txt_overline_r}>오전 11시</Text>
+                </View>
+                <View style={styles.ractangle_weather3_margin}>
+                  <Image
+                    style={{ resizeMode: "contain" }}
+                    source={require("./assets/img/weather3/rainy.png")}
+                  />
+                  <Text style={styles.txt_body2_b}>18°</Text>
+                  <Text style={styles.txt_overline_r}>오전 11시</Text>
+                </View>
+                <View style={styles.ractangle_weather3_margin}>
+                  <Image
+                    style={{ resizeMode: "contain" }}
+                    source={require("./assets/img/weather3/cloudy.png")}
+                  />
+                  <Text style={styles.txt_body2_b}>18°</Text>
+                  <Text style={styles.txt_overline_r}>오전 11시</Text>
+                </View>
+                <View style={styles.ractangle_weather3_margin}>
+                  <Image
+                    style={{ resizeMode: "contain" }}
+                    source={require("./assets/img/weather3/sun.png")}
+                  />
+                  <Text style={styles.txt_body2_b}>18°</Text>
+                  <Text style={styles.txt_overline_r}>오전 11시</Text>
+                </View>
+              </ScrollView>
+            </View>
+          </View>
+
+          <View style={[styles.ractangle_bg, { height: 550 }]}>
+            <View style={styles.content_padding}>
+              <Text style={styles.txt_h6_b}>10일 예보</Text>
+              <View style={styles.content_weather10_first}>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                  }}
+                >
+                  <Text style={styles.txt_subtitle1_b}>금요일</Text>
+                  <Text style={[styles.txt_caption_r_b, { marginLeft: 5 }]}>
+                    오늘
+                  </Text>
+                </View>
+                <View>
+                  <Image
+                    style={{ resizeMode: "contain" }}
+                    source={require("./assets/img/weather10/sun.png")}
+                  />
+                </View>
+                <View style={{ flexDirection: "row" }}>
+                  <Text style={styles.txt_subtitle1_b}>28°</Text>
+                  <Text style={[styles.txt_subtitle1_r_g, { marginLeft: 5 }]}>
+                    19°
+                  </Text>
+                </View>
+              </View>
+              <View style={styles.devider_weather10}></View>
+
+              <View style={styles.content_weather10}>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                  }}
+                >
+                  <Text style={styles.txt_subtitle1_b_r}>토요일</Text>
+                  <Text style={[styles.txt_caption_r_r, { marginLeft: 5 }]}>
+                    내일
+                  </Text>
+                </View>
+                <View>
+                  <Image
+                    style={{ resizeMode: "contain" }}
+                    source={require("./assets/img/weather10/sun.png")}
+                  />
+                </View>
+                <View style={{ flexDirection: "row" }}>
+                  <Text style={styles.txt_subtitle1_b}>28°</Text>
+                  <Text style={[styles.txt_subtitle1_r_g, { marginLeft: 5 }]}>
+                    19°
+                  </Text>
+                </View>
+              </View>
+              <View style={styles.devider_weather10}></View>
+
+              <View style={styles.content_weather10}>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                  }}
+                >
+                  <Text style={styles.txt_subtitle1_b_r}>일요일</Text>
+                  <Text style={[styles.txt_caption_r_r, { marginLeft: 5 }]}>
+                    모레
+                  </Text>
+                </View>
+                <View>
+                  <Image
+                    style={{ resizeMode: "contain" }}
+                    source={require("./assets/img/weather10/sun.png")}
+                  />
+                </View>
+                <View style={{ flexDirection: "row" }}>
+                  <Text style={styles.txt_subtitle1_b}>28°</Text>
+                  <Text style={[styles.txt_subtitle1_r_g, { marginLeft: 5 }]}>
+                    19°
+                  </Text>
+                </View>
+              </View>
+              <View style={styles.devider_weather10}></View>
+
+              <View style={styles.content_weather10}>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                  }}
+                >
+                  <Text style={styles.txt_subtitle1_b}>월요일</Text>
+                  <Text style={[styles.txt_caption_r_b, { marginLeft: 5 }]}>
+                    10.4
+                  </Text>
+                </View>
+                <View>
+                  <Image
+                    style={{ resizeMode: "contain" }}
+                    source={require("./assets/img/weather10/sun.png")}
+                  />
+                </View>
+                <View style={{ flexDirection: "row" }}>
+                  <Text style={styles.txt_subtitle1_b}>28°</Text>
+                  <Text style={[styles.txt_subtitle1_r_g, { marginLeft: 5 }]}>
+                    19°
+                  </Text>
+                </View>
+              </View>
+              <View style={styles.devider_weather10}></View>
+
+              <View style={styles.content_weather10}>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                  }}
+                >
+                  <Text style={styles.txt_subtitle1_b}>화요일</Text>
+                  <Text style={[styles.txt_caption_r_b, { marginLeft: 5 }]}>
+                    10.5
+                  </Text>
+                </View>
+                <View>
+                  <Image
+                    style={{ resizeMode: "contain" }}
+                    source={require("./assets/img/weather10/sun.png")}
+                  />
+                </View>
+                <View style={{ flexDirection: "row" }}>
+                  <Text style={styles.txt_subtitle1_b}>28°</Text>
+                  <Text style={[styles.txt_subtitle1_r_g, { marginLeft: 5 }]}>
+                    19°
+                  </Text>
+                </View>
+              </View>
+              <View style={styles.devider_weather10}></View>
+
+              <View style={styles.content_weather10}>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                  }}
+                >
+                  <Text style={styles.txt_subtitle1_b}>수요일</Text>
+                  <Text style={[styles.txt_caption_r_b, { marginLeft: 5 }]}>
+                    10.6
+                  </Text>
+                </View>
+                <View>
+                  <Image
+                    style={{ resizeMode: "contain" }}
+                    source={require("./assets/img/weather10/sun.png")}
+                  />
+                </View>
+                <View style={{ flexDirection: "row" }}>
+                  <Text style={styles.txt_subtitle1_b}>28°</Text>
+                  <Text style={[styles.txt_subtitle1_r_g, { marginLeft: 5 }]}>
+                    19°
+                  </Text>
+                </View>
+              </View>
+              <View style={styles.devider_weather10}></View>
+
+              <View style={styles.content_weather10}>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                  }}
+                >
+                  <Text style={styles.txt_subtitle1_b}>목요일</Text>
+                  <Text style={[styles.txt_caption_r_b, { marginLeft: 5 }]}>
+                    10.7
+                  </Text>
+                </View>
+                <View>
+                  <Image
+                    style={{ resizeMode: "contain" }}
+                    source={require("./assets/img/weather10/sun.png")}
+                  />
+                </View>
+                <View style={{ flexDirection: "row" }}>
+                  <Text style={styles.txt_subtitle1_b}>28°</Text>
+                  <Text style={[styles.txt_subtitle1_r_g, { marginLeft: 5 }]}>
+                    19°
+                  </Text>
+                </View>
+              </View>
+              <View style={styles.devider_weather10}></View>
+
+              <View style={styles.content_weather10}>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                  }}
+                >
+                  <Text style={styles.txt_subtitle1_b}>금요일</Text>
+                  <Text style={[styles.txt_caption_r_b, { marginLeft: 5 }]}>
+                    10.8
+                  </Text>
+                </View>
+                <View>
+                  <Image
+                    style={{ resizeMode: "contain" }}
+                    source={require("./assets/img/weather10/sun.png")}
+                  />
+                </View>
+                <View style={{ flexDirection: "row" }}>
+                  <Text style={styles.txt_subtitle1_b}>28°</Text>
+                  <Text style={[styles.txt_subtitle1_r_g, { marginLeft: 5 }]}>
+                    19°
+                  </Text>
+                </View>
+              </View>
+              <View style={styles.devider_weather10}></View>
+
+              <View style={styles.content_weather10}>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                  }}
+                >
+                  <Text style={styles.txt_subtitle1_b_r}>토요일</Text>
+                  <Text style={[styles.txt_caption_r_r, { marginLeft: 5 }]}>
+                    10.9
+                  </Text>
+                </View>
+                <View>
+                  <Image
+                    style={{ resizeMode: "contain" }}
+                    source={require("./assets/img/weather10/sun.png")}
+                  />
+                </View>
+                <View style={{ flexDirection: "row" }}>
+                  <Text style={styles.txt_subtitle1_b}>28°</Text>
+                  <Text style={[styles.txt_subtitle1_r_g, { marginLeft: 5 }]}>
+                    19°
+                  </Text>
+                </View>
+              </View>
+              <View style={styles.devider_weather10}></View>
+
+              <View style={styles.content_weather10}>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                  }}
+                >
+                  <Text style={styles.txt_subtitle1_b_r}>일요일</Text>
+                  <Text style={[styles.txt_caption_r_r, { marginLeft: 5 }]}>
+                    10.10
+                  </Text>
+                </View>
+                <View>
+                  <Image
+                    style={{ resizeMode: "contain" }}
+                    source={require("./assets/img/weather10/sun.png")}
+                  />
+                </View>
+                <View style={{ flexDirection: "row" }}>
+                  <Text style={styles.txt_subtitle1_b}>28°</Text>
+                  <Text style={[styles.txt_subtitle1_r_g, { marginLeft: 5 }]}>
+                    19°
+                  </Text>
+                </View>
               </View>
             </View>
           </View>
@@ -972,6 +1365,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: "10%",
     paddingBottom: "20%",
+    alignItems: "center",
   },
 
   content_padding: {
@@ -979,11 +1373,23 @@ const styles = StyleSheet.create({
     paddingRight: "4.5%",
   },
 
-  contents_padding: {
+  content_padding_row: {
     flexDirection: "row",
     justifyContent: "space-between",
     paddingLeft: "4.5%",
     paddingRight: "4.5%",
+  },
+
+  content_weather10_first: {
+    paddingTop: "5%",
+    justifyContent: "space-between",
+    flexDirection: "row",
+  },
+
+  content_weather10: {
+    paddingTop: "4%",
+    justifyContent: "space-between",
+    flexDirection: "row",
   },
 
   content_umbrella: {
@@ -993,8 +1399,15 @@ const styles = StyleSheet.create({
   },
 
   devider: {
-    borderBottomColor: "#c8c8cc",
-    borderBottomWidth: 0.5,
+    borderBottomColor: "#CCCCCC",
+    borderBottomWidth: 0.6,
+    paddingTop: "5%",
+  },
+
+  devider_weather10: {
+    borderBottomColor: "#CCCCCC",
+    borderBottomWidth: 0.6,
+    paddingTop: "4%",
   },
 
   txt_weather: {
@@ -1017,7 +1430,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: "black",
     fontFamily: "NotoSansKR_700Bold",
-    paddingLeft: "4.5%",
     paddingTop: "5%",
   },
 
@@ -1028,10 +1440,24 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
 
+  txt_subtitle1_b_r: {
+    fontFamily: "NotoSansKR_700Bold",
+    fontSize: 18,
+    color: "#FF3B30",
+    lineHeight: 22,
+  },
+
   txt_subtitle1_r: {
     fontFamily: "NotoSansKR_400Regular",
     fontSize: 18,
     color: "black",
+    lineHeight: 22,
+  },
+
+  txt_subtitle1_r_g: {
+    fontFamily: "NotoSansKR_400Regular",
+    fontSize: 18,
+    color: "#8A8A8E",
     lineHeight: 22,
   },
 
@@ -1055,9 +1481,23 @@ const styles = StyleSheet.create({
     lineHeight: 19,
   },
 
+  txt_body2_b: {
+    fontFamily: "NotoSansKR_700Bold",
+    fontSize: 14,
+    color: "black",
+    lineHeight: 19,
+  },
+
   txt_caption_r: {
     fontSize: 12,
     color: "#85858C",
+    fontFamily: "NotoSansKR_400Regular",
+    lineHeight: 15,
+  },
+
+  txt_caption_r_r: {
+    fontSize: 12,
+    color: "#FF3B30",
     fontFamily: "NotoSansKR_400Regular",
     lineHeight: 15,
   },
@@ -1069,14 +1509,31 @@ const styles = StyleSheet.create({
     lineHeight: 15,
   },
 
+  txt_caption_b: {
+    fontSize: 12,
+    color: "black",
+    fontFamily: "NotoSansKR_700Bold",
+    lineHeight: 15,
+  },
+
+  txt_overline_r: {
+    fontSize: 10,
+    color: "#85858C",
+    fontFamily: "NotoSansKR_400Regular",
+    lineHeight: 14,
+  },
+
   ractangle1: {
     backgroundColor: "#007AFF",
     flexDirection: "row",
     borderRadius: 14,
     height: 203,
     alignItems: "center",
+    justifyContent: "space-between",
     marginTop: 25,
     marginBottom: 15,
+    paddingLeft: "5%",
+    paddingRight: "5%",
   },
 
   /**
@@ -1121,10 +1578,32 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
 
+  ractangle_weather3: {
+    flex: 1,
+    backgroundColor: "#F3F3F9",
+    borderRadius: 14,
+    marginTop: 20,
+    width: 80,
+    height: 100,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  ractangle_weather3_margin: {
+    flex: 1,
+    backgroundColor: "#F3F3F9",
+    borderRadius: 14,
+    marginTop: 20,
+    width: 80,
+    height: 100,
+    justifyContent: "center",
+    alignItems: "center",
+    marginLeft: 8,
+  },
+
   img_weathericon: {
     flex: 1,
     resizeMode: "contain",
-    paddingLeft: "14%",
   },
 
   img_detail: {
@@ -1139,15 +1618,25 @@ const styles = StyleSheet.create({
     flex: 1,
     resizeMode: "contain",
     marginLeft: "15%",
+    marginRight: "15%",
     marginTop: "15%",
     marginBottom: "10%",
   },
 
-  img_umbrella: {
+  img_contain: {
     resizeMode: "contain",
   },
 
-  img_dust: {
+  img_contain_clothes: {
     resizeMode: "contain",
+    marginBottom: 5,
+  },
+
+  img_clothes: {
+    width: "100%",
+    resizeMode: "stretch",
+    marginTop: "7%",
+    paddingBottom: 5,
+    paddingTop: 5,
   },
 });
