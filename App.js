@@ -92,9 +92,12 @@ export default function App() {
   let [addrObj, setAddrObj] = useState({});
 
   // 날씨 데이터
-  const [pop, setPop] = useState(); // 강수확률 단위 : %
-  const [pty, setPty] = useState(); // 강수형태
-  const [pcp, setPcp] = useState(); // 1시간 강수량
+  const [crtTemp, setCrtTemp] = useState(); // 현재 기온
+  const [crtWindSpd, setCrtWindSpd] = useState(); // 현재 풍속
+  const [feelTemp, setFeelTemp] = useState(); // 체감 온도
+  const [humidity, setHumidity] = useState(); // 습도
+  const [imageVar, setImageVar] = useState(0); // 현재 기온 아이콘 이름
+
   const [reh, setReh] = useState(); // 습도 단위 : %
   const [sno, setSno] = useState(); // 1시간 신적설(눈 쌓인 양)
   const [sky, setSky] = useState(); // 하늘상태
@@ -106,6 +109,30 @@ export default function App() {
   const [vec, setVec] = useState(); // 풍향 : deg
   const [wsd, setWsd] = useState(); // 풍속 : m/s
   // 날씨 데이터
+
+  const IMG_WEATHER_SRC = [
+    {
+      image: require("./assets/img/weather/sun.png"),
+    },
+    {
+      image: require("./assets/img/weather/cloudy.png"),
+    },
+    {
+      image: require("./assets/img/weather/slightly-cloudy.png"),
+    },
+    {
+      image: require("./assets/img/weather/rainy.png"),
+    },
+    {
+      image: require("./assets/img/weather/snowy.png"),
+    },
+    {
+      image: require("./assets/img/weather/thunder.png"),
+    },
+    {
+      image: require("./assets/img/weather/rainy-thunder.png"),
+    },
+  ];
 
   getTime = async () => {
     let todayDate = moment().format("YYYYMMDD");
@@ -311,7 +338,52 @@ export default function App() {
     await getRegId();
 
     const rs = await getGridGPS(); // 위도,경도를 기상청 api에 활용 가능한 x,y로 바꾸는 함수
-    getWeather(rs.x, rs.y); // 좌표 값 사용하여 날씨데이터 받아오는 함수
+    await getWeather(rs.x, rs.y); // 좌표 값 사용하여 날씨데이터 받아오는 함수
+
+    const temp = ultSrtWeatherObj[25].fcstValue; // 현재 기온
+    const wind = ultSrtWeatherObj[55].fcstValue; // 현재 풍속
+    const humidity = ultSrtWeatherObj[31].fcstValue; // 현재 습도
+    const sky = ultSrtWeatherObj[19].fcstValue; // 현재 하늘 상태
+    const pty = ultSrtWeatherObj[7].fcstValue; // 현재 강수 코드
+    const lgy = ultSrtWeatherObj[1].fcstValue; // 현재 낙뢰 코드
+    let icon = 0; // 현재 기온 아이콘 이름
+
+    const feelTemp = Math.round(
+      13.12 +
+        0.6215 * temp -
+        11.37 * wind ** 0.16 +
+        0.3965 * wind ** 0.16 * temp
+    );
+
+    if (pty > 0) {
+      if (lgy > 0) {
+        icon = 6;
+      } else {
+        if (pty == 1 || pty == 2 || pty == 5 || pty == 6) {
+          icon = 3;
+        } else if (pty == 3 || pty == 7) {
+          icon = 4;
+        }
+      }
+    } else {
+      if (lgy > 0) {
+        icon = 5;
+      } else {
+        if (sky == 1) {
+          icon = 0;
+        } else if (sky == 3) {
+          icon = 1;
+        } else if (sky == 4) {
+          icon = 2;
+        }
+      }
+    }
+
+    setImageVar(icon);
+    setCrtTemp(temp);
+    setCrtWindSpd(wind);
+    setFeelTemp(feelTemp);
+    setHumidity(humidity);
   };
 
   /**
@@ -649,6 +721,7 @@ export default function App() {
         const ultSrtWeatherResponseData =
           response.data.response.body.items.item;
         setUltSrtWeatherObj(ultSrtWeatherResponseData);
+
         // WeatherResponseData.map(function (arr, i) {
         //   console.log("getUltSrtWeather :" + arr.category);
         // });
@@ -710,7 +783,6 @@ export default function App() {
       .catch(function (error) {
         console.log("getMidWeather 실패 : " + error);
       });
-
     setIsLoading(false);
   };
 
@@ -723,6 +795,7 @@ export default function App() {
   // 빈 배열을 넣어 주면 처음 랜더링 될 때 한번만 실행 된다. 넣지 않으면 모든 업데이트에서 실행되며
   // 배열안에 [count] 같이 인자를 넣어주면 해당 인자가 업데이트 될 때 마다 실행된다.
   // {Math.round(ultSrtWeatherObj[3].obsrValue)}
+
   return isLoading ? (
     <Loading />
   ) : (
@@ -743,12 +816,10 @@ export default function App() {
             <View style={styles.ractangle1}>
               <Image
                 style={styles.img_weathericon}
-                source={require("./assets/img/weather/snowy.png")}
+                source={IMG_WEATHER_SRC[imageVar].image}
               />
               <View style={styles.content_weather}>
-                <Text style={styles.txt_weather}>
-                  {ultSrtWeatherObj[25].fcstValue}°
-                </Text>
+                <Text style={styles.txt_weather}>{crtTemp}°</Text>
                 <Text style={[styles.txt_subtitle2_r_w, { marginTop: 5 }]}>
                   최고:24° 최저:17°
                 </Text>
@@ -781,7 +852,7 @@ export default function App() {
                       { marginLeft: "15%", marginBottom: "15%" },
                     ]}
                   >
-                    더움 29°
+                    더움 {feelTemp}°
                   </Text>
                 </View>
               </View>
@@ -812,7 +883,7 @@ export default function App() {
                     },
                   ]}
                 >
-                  습함 {ultSrtWeatherObj[31].fcstValue}%
+                  습함 {humidity}%
                 </Text>
               </View>
               <View
@@ -839,7 +910,7 @@ export default function App() {
                     { marginLeft: "13%", marginBottom: "15%" },
                   ]}
                 >
-                  약함 1m/s
+                  약함 {crtWindSpd}m/s
                 </Text>
               </View>
             </View>
@@ -1089,10 +1160,11 @@ export default function App() {
                     source={require("./assets/img/weather10/sun.png")}
                   />
                 </View>
+
                 <View style={{ flexDirection: "row" }}>
-                  <Text style={styles.txt_subtitle1_b}>28°</Text>
+                  <Text style={styles.txt_subtitle1_b}>30°</Text>
                   <Text style={[styles.txt_subtitle1_r_g, { marginLeft: 5 }]}>
-                    19°
+                    20°
                   </Text>
                 </View>
               </View>
@@ -1117,7 +1189,7 @@ export default function App() {
                   />
                 </View>
                 <View style={{ flexDirection: "row" }}>
-                  <Text style={styles.txt_subtitle1_b}>28°</Text>
+                  <Text style={styles.txt_subtitle1_b}>30°</Text>
                   <Text style={[styles.txt_subtitle1_r_g, { marginLeft: 5 }]}>
                     19°
                   </Text>
@@ -1144,9 +1216,11 @@ export default function App() {
                   />
                 </View>
                 <View style={{ flexDirection: "row" }}>
-                  <Text style={styles.txt_subtitle1_b}>28°</Text>
+                  <Text style={styles.txt_subtitle1_b}>
+                    {midTaWeatherObj[0].taMax3}°
+                  </Text>
                   <Text style={[styles.txt_subtitle1_r_g, { marginLeft: 5 }]}>
-                    19°
+                    {midTaWeatherObj[0].taMin3}°
                   </Text>
                 </View>
               </View>
@@ -1171,9 +1245,11 @@ export default function App() {
                   />
                 </View>
                 <View style={{ flexDirection: "row" }}>
-                  <Text style={styles.txt_subtitle1_b}>28°</Text>
+                  <Text style={styles.txt_subtitle1_b}>
+                    {midTaWeatherObj[0].taMax4}°
+                  </Text>
                   <Text style={[styles.txt_subtitle1_r_g, { marginLeft: 5 }]}>
-                    19°
+                    {midTaWeatherObj[0].taMin4}°
                   </Text>
                 </View>
               </View>
@@ -1198,9 +1274,11 @@ export default function App() {
                   />
                 </View>
                 <View style={{ flexDirection: "row" }}>
-                  <Text style={styles.txt_subtitle1_b}>28°</Text>
+                  <Text style={styles.txt_subtitle1_b}>
+                    {midTaWeatherObj[0].taMax5}°
+                  </Text>
                   <Text style={[styles.txt_subtitle1_r_g, { marginLeft: 5 }]}>
-                    19°
+                    {midTaWeatherObj[0].taMin5}°
                   </Text>
                 </View>
               </View>
@@ -1225,9 +1303,11 @@ export default function App() {
                   />
                 </View>
                 <View style={{ flexDirection: "row" }}>
-                  <Text style={styles.txt_subtitle1_b}>28°</Text>
+                  <Text style={styles.txt_subtitle1_b}>
+                    {midTaWeatherObj[0].taMax6}°
+                  </Text>
                   <Text style={[styles.txt_subtitle1_r_g, { marginLeft: 5 }]}>
-                    19°
+                    {midTaWeatherObj[0].taMin6}°
                   </Text>
                 </View>
               </View>
@@ -1252,9 +1332,11 @@ export default function App() {
                   />
                 </View>
                 <View style={{ flexDirection: "row" }}>
-                  <Text style={styles.txt_subtitle1_b}>28°</Text>
+                  <Text style={styles.txt_subtitle1_b}>
+                    {midTaWeatherObj[0].taMax7}°
+                  </Text>
                   <Text style={[styles.txt_subtitle1_r_g, { marginLeft: 5 }]}>
-                    19°
+                    {midTaWeatherObj[0].taMin7}°
                   </Text>
                 </View>
               </View>
@@ -1279,9 +1361,11 @@ export default function App() {
                   />
                 </View>
                 <View style={{ flexDirection: "row" }}>
-                  <Text style={styles.txt_subtitle1_b}>28°</Text>
+                  <Text style={styles.txt_subtitle1_b}>
+                    {midTaWeatherObj[0].taMax8}°
+                  </Text>
                   <Text style={[styles.txt_subtitle1_r_g, { marginLeft: 5 }]}>
-                    19°
+                    {midTaWeatherObj[0].taMin8}°
                   </Text>
                 </View>
               </View>
@@ -1306,9 +1390,11 @@ export default function App() {
                   />
                 </View>
                 <View style={{ flexDirection: "row" }}>
-                  <Text style={styles.txt_subtitle1_b}>28°</Text>
+                  <Text style={styles.txt_subtitle1_b}>
+                    {midTaWeatherObj[0].taMax9}°
+                  </Text>
                   <Text style={[styles.txt_subtitle1_r_g, { marginLeft: 5 }]}>
-                    19°
+                    {midTaWeatherObj[0].taMin9}°
                   </Text>
                 </View>
               </View>
@@ -1333,9 +1419,11 @@ export default function App() {
                   />
                 </View>
                 <View style={{ flexDirection: "row" }}>
-                  <Text style={styles.txt_subtitle1_b}>28°</Text>
+                  <Text style={styles.txt_subtitle1_b}>
+                    {midTaWeatherObj[0].taMax10}°
+                  </Text>
                   <Text style={[styles.txt_subtitle1_r_g, { marginLeft: 5 }]}>
-                    19°
+                    {midTaWeatherObj[0].taMin10}°
                   </Text>
                 </View>
               </View>
