@@ -134,6 +134,30 @@ export default function App() {
     },
   ];
 
+  const IMG_WEATHER10_SRC = [
+    {
+      image: require("./assets/img/weather10/sun.png"),
+    },
+    {
+      image: require("./assets/img/weather10/cloudy.png"),
+    },
+    {
+      image: require("./assets/img/weather10/slightly-cloudy.png"),
+    },
+    {
+      image: require("./assets/img/weather10/rainy.png"),
+    },
+    {
+      image: require("./assets/img/weather10/snowy.png"),
+    },
+    {
+      image: require("./assets/img/weather10/thunder.png"),
+    },
+    {
+      image: require("./assets/img/weather10/rainy-thunder.png"),
+    },
+  ];
+
   getTime = async () => {
     let todayDate = moment().format("YYYYMMDD");
     let currentTime = moment().format("HHmm"); //현재 시간분 (HH:24h / hh:12h)
@@ -340,6 +364,9 @@ export default function App() {
     const rs = await getGridGPS(); // 위도,경도를 기상청 api에 활용 가능한 x,y로 바꾸는 함수
     await getWeather(rs.x, rs.y); // 좌표 값 사용하여 날씨데이터 받아오는 함수
 
+    /**
+     * 현재 기온 및 상세 예보용
+     */
     const temp = ultSrtWeatherObj[25].fcstValue; // 현재 기온
     const wind = ultSrtWeatherObj[55].fcstValue; // 현재 풍속
     const humidity = ultSrtWeatherObj[31].fcstValue; // 현재 습도
@@ -386,12 +413,44 @@ export default function App() {
     setHumidity(humidity);
   };
 
+  // const wf3Am = getWeather10Img(midLandWeatherObj[0].wf3Am);
+  // const wf4Am = getWeather10Img(midLandWeatherObj[0].wf4Am);
+  // const wf5Am = getWeather10Img(midLandWeatherObj[0].wf5Am);
+  // const wf6Am = getWeather10Img(midLandWeatherObj[0].wf6Am);
+  // const wf7Am = getWeather10Img(midLandWeatherObj[0].wf7Am);
+  // const wf8 = getWeather10Img(midLandWeatherObj[0].wf8);
+  // const wf9 = getWeather10Img(midLandWeatherObj[0].wf9);
+  // const wf10 = getWeather10Img(midLandWeatherObj[0].wf10);
+
+  getWeather10Img = (sky) => {
+    let code;
+
+    if (sky == "맑음") {
+      code = 0;
+    } else if (sky == "흐림") {
+      code = 1;
+    } else if (sky == "구름많음") {
+      code = 2;
+    } else if (
+      sky == "구름많고 비" ||
+      sky == "구름많고 소나기" ||
+      sky == "흐리고 소나기" ||
+      sky == "구름많고 비/눈" ||
+      sky == "흐리고 비/눈"
+    ) {
+      code = 3;
+    } else if (sky == "구름많고 눈" || sky == "흐리고 눈") {
+      code = 4;
+    }
+    return code;
+  };
   /**
    * 한글 주소 얻음
    */
   getAddress = async (latitude, longitude) => {
     const worldOpenkey = "D2914382-1CF1-340A-B872-29911F460AEF";
     const url = `http://api.vworld.kr/req/address?service=address&request=getAddress&version=2.0&crs=epsg:4326&point=${longitude},${latitude}&format=json&type=PARCEL&zipcode=false&simple=true&key=${worldOpenkey}`;
+    console.log("getAddress url :" + url);
 
     await axios
       .get(url)
@@ -1206,13 +1265,13 @@ export default function App() {
                 >
                   <Text style={styles.txt_subtitle1_b_r}>일요일</Text>
                   <Text style={[styles.txt_caption_r_r, { marginLeft: 5 }]}>
-                    모레
+                    {midLandWeatherObj[0].wf3Am}
                   </Text>
                 </View>
                 <View>
                   <Image
                     style={{ resizeMode: "contain" }}
-                    source={require("./assets/img/weather10/sun.png")}
+                    source={IMG_WEATHER10_SRC[getWeather10Img("흐림")].image}
                   />
                 </View>
                 <View style={{ flexDirection: "row" }}>
