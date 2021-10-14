@@ -1,20 +1,13 @@
-import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useState } from "react";
-import {
-  Alert,
-  StyleSheet,
-  Text,
-  View,
-  Image,
-  ScrollView,
-  SafeAreaView,
-} from "react-native";
+import { Alert, StyleSheet, Text, View, Image, ScrollView } from "react-native";
 import * as Location from "expo-location";
 import axios from "axios";
 import moment from "moment";
 import Loading from "./Loading";
 import firebase from "firebase/app";
+import HeaderComponent from "./src/components/HeaderComponent";
 import { useFonts, NotoSans_300Regular } from "@expo-google-fonts/noto-sans";
+import "moment/locale/ko";
 import {
   NotoSansKR_300Light,
   NotoSansKR_400Regular,
@@ -399,9 +392,9 @@ export default function App() {
         if (sky == 1) {
           icon = 0;
         } else if (sky == 3) {
-          icon = 1;
-        } else if (sky == 4) {
           icon = 2;
+        } else if (sky == 4) {
+          icon = 1;
         }
       }
     }
@@ -422,8 +415,10 @@ export default function App() {
   // const wf9 = getWeather10Img(midLandWeatherObj[0].wf9);
   // const wf10 = getWeather10Img(midLandWeatherObj[0].wf10);
 
-  getWeather10Img = (sky) => {
+  getWeather10Img = (wfCode) => {
     let code;
+    const obj = midLandWeatherObj[0];
+    const sky = obj[wfCode];
 
     if (sky == "맑음") {
       code = 0;
@@ -434,6 +429,7 @@ export default function App() {
     } else if (
       sky == "구름많고 비" ||
       sky == "구름많고 소나기" ||
+      sky == "흐리고 비" ||
       sky == "흐리고 소나기" ||
       sky == "구름많고 비/눈" ||
       sky == "흐리고 비/눈"
@@ -858,639 +854,761 @@ export default function App() {
   return isLoading ? (
     <Loading />
   ) : (
-    <SafeAreaView style={styles.container}>
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        showsHorizontalScrollIndicator={false}
-      >
-        <StatusBar style="auto" />
-        <View style={styles.header} />
+    <HeaderComponent>
+      <Text style={[styles.txt_h5_b]}>
+        {addrObj.addrGu} {addrObj.addrDong}
+      </Text>
 
-        <View style={styles.content}>
-          <Text style={[styles.txt_h5_b]}>
-            {addrObj.addrGu} {addrObj.addrDong}
-          </Text>
-
-          <View style={styles.content_padding}>
-            <View style={styles.ractangle1}>
-              <Image
-                style={styles.img_weathericon}
-                source={IMG_WEATHER_SRC[imageVar].image}
-              />
-              <View style={styles.content_weather}>
-                <Text style={styles.txt_weather}>{crtTemp}°</Text>
-                <Text style={[styles.txt_subtitle2_r_w, { marginTop: 5 }]}>
-                  최고:24° 최저:17°
-                </Text>
-              </View>
-            </View>
-          </View>
-
-          <View style={[styles.ractangle_bg, { height: 200 }]}>
-            <View style={styles.content_padding}>
-              <Text style={styles.txt_h6_b}>상세 예보</Text>
-            </View>
-            <View style={styles.content_padding_row}>
-              <View style={[styles.ractangle_detail, { height: 120 }]}>
-                <Image
-                  style={styles.img_detail}
-                  source={require("./assets/img/temperatures.png")}
-                />
-                <View>
-                  <Text
-                    style={[
-                      styles.txt_caption_r,
-                      { marginLeft: "15%", marginBottom: "3%" },
-                    ]}
-                  >
-                    체감온도
-                  </Text>
-                  <Text
-                    style={[
-                      styles.txt_subtitle1_b,
-                      { marginLeft: "15%", marginBottom: "15%" },
-                    ]}
-                  >
-                    더움 {feelTemp}°
-                  </Text>
-                </View>
-              </View>
-              <View
-                style={[
-                  styles.ractangle_detail,
-                  { height: 120, marginLeft: "2.5%" },
-                ]}
-              >
-                <Image
-                  style={styles.img_detail}
-                  source={require("./assets/img/humidity.png")}
-                />
-                <Text
-                  style={[
-                    styles.txt_caption_r,
-                    { marginLeft: "15%", marginBottom: "3%" },
-                  ]}
-                >
-                  습도
-                </Text>
-                <Text
-                  style={[
-                    styles.txt_subtitle1_b,
-                    {
-                      marginLeft: "15%",
-                      marginBottom: "15%",
-                    },
-                  ]}
-                >
-                  습함 {humidity}%
-                </Text>
-              </View>
-              <View
-                style={[
-                  styles.ractangle_detail,
-                  { height: 120, marginLeft: "2.5%" },
-                ]}
-              >
-                <Image
-                  style={styles.img_detail}
-                  source={require("./assets/img/windspeed.png")}
-                />
-                <Text
-                  style={[
-                    styles.txt_caption_r,
-                    { marginLeft: "13%", marginBottom: "3%" },
-                  ]}
-                >
-                  서풍
-                </Text>
-                <Text
-                  style={[
-                    styles.txt_subtitle1_b,
-                    { marginLeft: "13%", marginBottom: "15%" },
-                  ]}
-                >
-                  약함 {crtWindSpd}m/s
-                </Text>
-              </View>
-            </View>
-          </View>
-
-          <View style={[styles.ractangle_bg_row, { height: 50 }]}>
-            <View style={styles.content_padding_row}>
-              <View style={styles.content_umbrella}>
-                <Image
-                  style={styles.img_contain}
-                  source={require("./assets/img/umbrella.png")}
-                />
-                <Text style={[styles.txt_subtitle1_b, { marginLeft: "3%" }]}>
-                  3시부터 비
-                </Text>
-                <Text style={[styles.txt_subtitle1_r, { marginLeft: 3 }]}>
-                  예보
-                </Text>
-              </View>
-            </View>
-          </View>
-
-          <View style={[styles.ractangle_bg, { height: 300 }]}>
-            <View style={styles.content_padding}>
-              <Text style={([styles.txt_caption_r], { paddingTop: "5%" })}>
-                옷차림 알림
-              </Text>
-            </View>
-            <View style={styles.devider}></View>
-            <View style={styles.content_padding}>
-              <Image
-                style={styles.img_clothes}
-                source={require("./assets/img/rectangle/rectangle_clothes1.png")}
-              />
-              <View
-                style={{
-                  marginTop: "-38%",
-                  marginLeft: "5.5%",
-                  marginRight: "5.5%",
-                }}
-              >
-                <Text style={[styles.txt_h6_b]}>아주더움</Text>
-                <Text style={styles.txt_subtitle2_r}>어제보다 6° 낮아요</Text>
-                <Text style={[styles.txt_caption_r, { marginTop: 7 }]}>
-                  아주더운 한여름 날씨에요! 민소매, 반팔, 반바지등의 얇은 옷이
-                  좋아요
-                </Text>
-              </View>
-
-              <View
-                style={{
-                  flexDirection: "row",
-                  marginTop: "15%",
-                  marginLeft: "2.5%",
-                  marginRight: "2.5%",
-                  justifyContent: "space-between",
-                }}
-              >
-                <View style={{ flex: 1, alignItems: "center" }}>
-                  <Image
-                    style={styles.img_contain_clothes}
-                    source={require("./assets/img/clothes/clothes1.png")}
-                  />
-                  <Text style={styles.txt_caption_b}>28°~</Text>
-                </View>
-
-                <View style={{ flex: 1, alignItems: "center" }}>
-                  <Image
-                    style={styles.img_contain_clothes}
-                    source={require("./assets/img/clothes/clothes2.png")}
-                  />
-                  <Text style={styles.txt_caption_r}>23°</Text>
-                </View>
-
-                <View style={{ flex: 1, alignItems: "center" }}>
-                  <Image
-                    style={styles.img_contain_clothes}
-                    source={require("./assets/img/clothes/clothes3.png")}
-                  />
-                  <Text style={styles.txt_caption_r}>20°</Text>
-                </View>
-
-                <View style={{ flex: 1, alignItems: "center" }}>
-                  <Image
-                    style={styles.img_contain_clothes}
-                    source={require("./assets/img/clothes/clothes4.png")}
-                  />
-                  <Text style={styles.txt_caption_r}>17°</Text>
-                </View>
-
-                <View style={{ flex: 1, alignItems: "center" }}>
-                  <Image
-                    style={styles.img_contain_clothes}
-                    source={require("./assets/img/clothes/clothes5.png")}
-                  />
-                  <Text style={styles.txt_caption_r}>12°</Text>
-                </View>
-              </View>
-            </View>
-          </View>
-          <View style={styles.content_padding}>
-            <Text style={styles.txt_h6_b}>미세먼지 단계</Text>
-          </View>
-          <View style={styles.content_padding_row}>
-            <View style={[styles.ractangle_w_r, { height: 90 }]}>
-              <Image
-                style={styles.img_contain}
-                source={require("./assets/img/dust/reallybad.png")}
-              />
-              <View style={{ marginLeft: "6%" }}>
-                <Text style={[styles.txt_subtitle1_b, { marginBottom: "1%" }]}>
-                  많이 나쁨
-                </Text>
-                <Text style={styles.txt_body2_r}>미세먼지</Text>
-              </View>
-            </View>
-
-            <View
-              style={[styles.ractangle_w_r, { height: 90, marginLeft: "2.5%" }]}
-            >
-              <Image
-                style={styles.img_contain}
-                source={require("./assets/img/dust/verybad.png")}
-              />
-              <View style={{ marginLeft: "6%" }}>
-                <Text style={[styles.txt_subtitle1_b, { marginBottom: "1%" }]}>
-                  아주 나쁨
-                </Text>
-                <Text style={styles.txt_body2_r}>초미세먼지</Text>
-              </View>
-            </View>
-          </View>
-
-          <View style={styles.content_padding}>
-            <Text style={[styles.txt_h6_b, { marginTop: "3%" }]}>
-              코로나 19 확진자 수
+      <View style={styles.content_padding}>
+        <View style={styles.ractangle1}>
+          <Image
+            style={styles.img_weathericon}
+            source={IMG_WEATHER_SRC[imageVar].image}
+          />
+          <View style={styles.content_weather}>
+            <Text style={styles.txt_weather}>{crtTemp}°</Text>
+            <Text style={[styles.txt_subtitle2_r_w, { marginTop: 5 }]}>
+              최고:24° 최저:17°
             </Text>
           </View>
-          <View style={styles.content_padding_row}>
-            <View style={[styles.ractangle_w_r, { height: 70 }]}>
-              <Text style={[styles.txt_body2_r]}>전국</Text>
-              <Text style={[styles.txt_subtitle1_b, { marginLeft: "3%" }]}>
-                1,597명
-              </Text>
-              <Image
-                style={styles.img_arrow}
-                source={require("./assets/img/up_r.png")}
-                marginLeft="3%"
-              />
-            </View>
+        </View>
+      </View>
 
-            <View
-              style={[styles.ractangle_w_r, { height: 70, marginLeft: "2.5%" }]}
-            >
-              <Text style={[styles.txt_body2_r]}>서울</Text>
-              <Text style={[styles.txt_subtitle1_b, { marginLeft: "3%" }]}>
-                697명
+      <View style={[styles.ractangle_bg, { height: 200 }]}>
+        <View style={styles.content_padding}>
+          <Text style={styles.txt_h6_b}>상세 예보</Text>
+        </View>
+        <View style={styles.content_padding_row}>
+          <View style={[styles.ractangle_detail, { height: 120 }]}>
+            <Image
+              style={styles.img_detail}
+              source={require("./assets/img/temperatures.png")}
+            />
+            <View>
+              <Text
+                style={[
+                  styles.txt_caption_r,
+                  { marginLeft: "15%", marginBottom: "3%" },
+                ]}
+              >
+                체감온도
               </Text>
-              <Image
-                style={styles.img_arrow}
-                source={require("./assets/img/down_g.png")}
-                marginLeft="3%"
-              />
+              <Text
+                style={[
+                  styles.txt_subtitle1_b,
+                  { marginLeft: "15%", marginBottom: "15%" },
+                ]}
+              >
+                더움 {feelTemp}°
+              </Text>
             </View>
+          </View>
+          <View
+            style={[
+              styles.ractangle_detail,
+              { height: 120, marginLeft: "2.5%" },
+            ]}
+          >
+            <Image
+              style={styles.img_detail}
+              source={require("./assets/img/humidity.png")}
+            />
+            <Text
+              style={[
+                styles.txt_caption_r,
+                { marginLeft: "15%", marginBottom: "3%" },
+              ]}
+            >
+              습도
+            </Text>
+            <Text
+              style={[
+                styles.txt_subtitle1_b,
+                {
+                  marginLeft: "15%",
+                  marginBottom: "15%",
+                },
+              ]}
+            >
+              습함 {humidity}%
+            </Text>
+          </View>
+          <View
+            style={[
+              styles.ractangle_detail,
+              { height: 120, marginLeft: "2.5%" },
+            ]}
+          >
+            <Image
+              style={styles.img_detail}
+              source={require("./assets/img/windspeed.png")}
+            />
+            <Text
+              style={[
+                styles.txt_caption_r,
+                { marginLeft: "13%", marginBottom: "3%" },
+              ]}
+            >
+              서풍
+            </Text>
+            <Text
+              style={[
+                styles.txt_subtitle1_b,
+                { marginLeft: "13%", marginBottom: "15%" },
+              ]}
+            >
+              약함 {crtWindSpd}m/s
+            </Text>
+          </View>
+        </View>
+      </View>
+
+      <View style={[styles.ractangle_bg_row, { height: 50 }]}>
+        <View style={styles.content_padding_row}>
+          <View style={styles.content_umbrella}>
+            <Image
+              style={styles.img_contain}
+              source={require("./assets/img/umbrella.png")}
+            />
+            <Text style={[styles.txt_subtitle1_b, { marginLeft: "3%" }]}>
+              3시부터 비
+            </Text>
+            <Text style={[styles.txt_subtitle1_r, { marginLeft: 3 }]}>
+              예보
+            </Text>
+          </View>
+        </View>
+      </View>
+
+      <View style={[styles.ractangle_bg, { height: 300 }]}>
+        <View style={styles.content_padding}>
+          <Text style={([styles.txt_caption_r], { paddingTop: "5%" })}>
+            옷차림 알림
+          </Text>
+        </View>
+        <View style={styles.devider}></View>
+        <View style={styles.content_padding}>
+          <Image
+            style={styles.img_clothes}
+            source={require("./assets/img/rectangle/rectangle_clothes1.png")}
+          />
+          <View
+            style={{
+              marginTop: "-38%",
+              marginLeft: "5.5%",
+              marginRight: "5.5%",
+            }}
+          >
+            <Text style={[styles.txt_h6_b]}>아주더움</Text>
+            <Text style={styles.txt_subtitle2_r}>어제보다 6° 낮아요</Text>
+            <Text style={[styles.txt_caption_r, { marginTop: 7 }]}>
+              아주더운 한여름 날씨에요! 민소매, 반팔, 반바지등의 얇은 옷이
+              좋아요
+            </Text>
           </View>
 
           <View
-            style={[styles.ractangle_bg, { height: 195, marginTop: "10%" }]}
+            style={{
+              flexDirection: "row",
+              marginTop: "15%",
+              marginLeft: "2.5%",
+              marginRight: "2.5%",
+              justifyContent: "space-between",
+            }}
           >
-            <View style={styles.content_padding}>
-              <Text style={styles.txt_h6_b}>3일 예보</Text>
-              <ScrollView
-                horizontal
-                style={{ height: 120 }}
-                showsHorizontalScrollIndicator={false}
-              >
-                <View style={styles.ractangle_weather3}>
-                  <Image
-                    style={{ resizeMode: "contain" }}
-                    source={require("./assets/img/weather3/sun.png")}
-                  />
-                  <Text style={styles.txt_body2_b}>18°</Text>
-                  <Text style={styles.txt_overline_r}>오전 11시</Text>
-                </View>
-                <View style={styles.ractangle_weather3_margin}>
-                  <Image
-                    style={{ resizeMode: "contain" }}
-                    source={require("./assets/img/weather3/sun.png")}
-                  />
-                  <Text style={styles.txt_body2_b}>18°</Text>
-                  <Text style={styles.txt_overline_r}>오전 11시</Text>
-                </View>
-                <View style={styles.ractangle_weather3_margin}>
-                  <Image
-                    style={{ resizeMode: "contain" }}
-                    source={require("./assets/img/weather3/sun.png")}
-                  />
-                  <Text style={styles.txt_body2_b}>18°</Text>
-                  <Text style={styles.txt_overline_r}>오전 11시</Text>
-                </View>
-                <View style={styles.ractangle_weather3_margin}>
-                  <Image
-                    style={{ resizeMode: "contain" }}
-                    source={require("./assets/img/weather3/rainy.png")}
-                  />
-                  <Text style={styles.txt_body2_b}>18°</Text>
-                  <Text style={styles.txt_overline_r}>오전 11시</Text>
-                </View>
-                <View style={styles.ractangle_weather3_margin}>
-                  <Image
-                    style={{ resizeMode: "contain" }}
-                    source={require("./assets/img/weather3/cloudy.png")}
-                  />
-                  <Text style={styles.txt_body2_b}>18°</Text>
-                  <Text style={styles.txt_overline_r}>오전 11시</Text>
-                </View>
-                <View style={styles.ractangle_weather3_margin}>
-                  <Image
-                    style={{ resizeMode: "contain" }}
-                    source={require("./assets/img/weather3/sun.png")}
-                  />
-                  <Text style={styles.txt_body2_b}>18°</Text>
-                  <Text style={styles.txt_overline_r}>오전 11시</Text>
-                </View>
-              </ScrollView>
+            <View style={{ flex: 1, alignItems: "center" }}>
+              <Image
+                style={styles.img_contain_clothes}
+                source={require("./assets/img/clothes/clothes1.png")}
+              />
+              <Text style={styles.txt_caption_b}>28°~</Text>
+            </View>
+
+            <View style={{ flex: 1, alignItems: "center" }}>
+              <Image
+                style={styles.img_contain_clothes}
+                source={require("./assets/img/clothes/clothes2.png")}
+              />
+              <Text style={styles.txt_caption_r}>23°</Text>
+            </View>
+
+            <View style={{ flex: 1, alignItems: "center" }}>
+              <Image
+                style={styles.img_contain_clothes}
+                source={require("./assets/img/clothes/clothes3.png")}
+              />
+              <Text style={styles.txt_caption_r}>20°</Text>
+            </View>
+
+            <View style={{ flex: 1, alignItems: "center" }}>
+              <Image
+                style={styles.img_contain_clothes}
+                source={require("./assets/img/clothes/clothes4.png")}
+              />
+              <Text style={styles.txt_caption_r}>17°</Text>
+            </View>
+
+            <View style={{ flex: 1, alignItems: "center" }}>
+              <Image
+                style={styles.img_contain_clothes}
+                source={require("./assets/img/clothes/clothes5.png")}
+              />
+              <Text style={styles.txt_caption_r}>12°</Text>
             </View>
           </View>
+        </View>
+      </View>
+      <View style={styles.content_padding}>
+        <Text style={styles.txt_h6_b}>미세먼지 단계</Text>
+      </View>
+      <View style={styles.content_padding_row}>
+        <View style={[styles.ractangle_w_r, { height: 90 }]}>
+          <Image
+            style={styles.img_contain}
+            source={require("./assets/img/dust/reallybad.png")}
+          />
+          <View style={{ marginLeft: "6%" }}>
+            <Text style={[styles.txt_subtitle1_b, { marginBottom: "1%" }]}>
+              많이 나쁨
+            </Text>
+            <Text style={styles.txt_body2_r}>미세먼지</Text>
+          </View>
+        </View>
 
-          <View style={[styles.ractangle_bg, { height: 550 }]}>
-            <View style={styles.content_padding}>
-              <Text style={styles.txt_h6_b}>10일 예보</Text>
-              <View style={styles.content_weather10_first}>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                  }}
-                >
-                  <Text style={styles.txt_subtitle1_b}>금요일</Text>
-                  <Text style={[styles.txt_caption_r_b, { marginLeft: 5 }]}>
-                    오늘
-                  </Text>
-                </View>
-                <View>
-                  <Image
-                    style={{ resizeMode: "contain" }}
-                    source={require("./assets/img/weather10/sun.png")}
-                  />
-                </View>
+        <View
+          style={[styles.ractangle_w_r, { height: 90, marginLeft: "2.5%" }]}
+        >
+          <Image
+            style={styles.img_contain}
+            source={require("./assets/img/dust/verybad.png")}
+          />
+          <View style={{ marginLeft: "6%" }}>
+            <Text style={[styles.txt_subtitle1_b, { marginBottom: "1%" }]}>
+              아주 나쁨
+            </Text>
+            <Text style={styles.txt_body2_r}>초미세먼지</Text>
+          </View>
+        </View>
+      </View>
 
-                <View style={{ flexDirection: "row" }}>
-                  <Text style={styles.txt_subtitle1_b}>30°</Text>
-                  <Text style={[styles.txt_subtitle1_r_g, { marginLeft: 5 }]}>
-                    20°
-                  </Text>
-                </View>
+      <View style={styles.content_padding}>
+        <Text style={[styles.txt_h6_b, { marginTop: "3%" }]}>
+          코로나 19 확진자 수
+        </Text>
+      </View>
+      <View style={styles.content_padding_row}>
+        <View style={[styles.ractangle_w_r, { height: 70 }]}>
+          <Text style={[styles.txt_body2_r]}>전국</Text>
+          <Text style={[styles.txt_subtitle1_b, { marginLeft: "3%" }]}>
+            1,597명
+          </Text>
+          <Image
+            style={styles.img_arrow}
+            source={require("./assets/img/up_r.png")}
+            marginLeft="3%"
+          />
+        </View>
+
+        <View
+          style={[styles.ractangle_w_r, { height: 70, marginLeft: "2.5%" }]}
+        >
+          <Text style={[styles.txt_body2_r]}>서울</Text>
+          <Text style={[styles.txt_subtitle1_b, { marginLeft: "3%" }]}>
+            697명
+          </Text>
+          <Image
+            style={styles.img_arrow}
+            source={require("./assets/img/down_g.png")}
+            marginLeft="3%"
+          />
+        </View>
+      </View>
+
+      <View style={[styles.ractangle_bg, { height: 195, marginTop: "10%" }]}>
+        <View style={styles.content_padding}>
+          <Text style={styles.txt_h6_b}>3일 예보</Text>
+          <ScrollView
+            horizontal
+            style={{ height: 120 }}
+            showsHorizontalScrollIndicator={false}
+          >
+            <View style={styles.ractangle_weather3}>
+              <Image
+                style={{ resizeMode: "contain" }}
+                source={require("./assets/img/weather3/sun.png")}
+              />
+              <Text style={styles.txt_body2_b}>18°</Text>
+              <Text style={styles.txt_overline_r}>오전 11시</Text>
+            </View>
+            <View style={styles.ractangle_weather3_margin}>
+              <Image
+                style={{ resizeMode: "contain" }}
+                source={require("./assets/img/weather3/sun.png")}
+              />
+              <Text style={styles.txt_body2_b}>18°</Text>
+              <Text style={styles.txt_overline_r}>오전 11시</Text>
+            </View>
+            <View style={styles.ractangle_weather3_margin}>
+              <Image
+                style={{ resizeMode: "contain" }}
+                source={require("./assets/img/weather3/sun.png")}
+              />
+              <Text style={styles.txt_body2_b}>18°</Text>
+              <Text style={styles.txt_overline_r}>오전 11시</Text>
+            </View>
+            <View style={styles.ractangle_weather3_margin}>
+              <Image
+                style={{ resizeMode: "contain" }}
+                source={require("./assets/img/weather3/rainy.png")}
+              />
+              <Text style={styles.txt_body2_b}>18°</Text>
+              <Text style={styles.txt_overline_r}>오전 11시</Text>
+            </View>
+            <View style={styles.ractangle_weather3_margin}>
+              <Image
+                style={{ resizeMode: "contain" }}
+                source={require("./assets/img/weather3/cloudy.png")}
+              />
+              <Text style={styles.txt_body2_b}>18°</Text>
+              <Text style={styles.txt_overline_r}>오전 11시</Text>
+            </View>
+            <View style={styles.ractangle_weather3_margin}>
+              <Image
+                style={{ resizeMode: "contain" }}
+                source={require("./assets/img/weather3/sun.png")}
+              />
+              <Text style={styles.txt_body2_b}>18°</Text>
+              <Text style={styles.txt_overline_r}>오전 11시</Text>
+            </View>
+          </ScrollView>
+        </View>
+      </View>
+
+      <View style={[styles.ractangle_bg, { height: 550 }]}>
+        <View style={styles.content_padding}>
+          <Text style={styles.txt_h6_b}>10일 예보</Text>
+          <View style={styles.content_weather10_first}>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+              }}
+            >
+              <Text
+                style={[styles.txt_subtitle1_b, styles.color_weather10_1st]}
+              >
+                {moment().format("dddd")}
+              </Text>
+
+              <Text
+                style={[
+                  styles.txt_weather10_1st,
+                  styles.color_weather10_1st,
+                  { marginLeft: 5, width: 30 },
+                ]}
+              >
+                오늘
+              </Text>
+            </View>
+            <View>
+              <Image
+                style={{ resizeMode: "contain" }}
+                source={require("./assets/img/weather10/sun.png")}
+              />
+            </View>
+
+            <View style={{ flexDirection: "row" }}>
+              <View style={styles.content_weather10_taMax}>
+                <Text style={styles.txt_subtitle1_b}>9°</Text>
               </View>
-              <View style={styles.devider_weather10}></View>
-
-              <View style={styles.content_weather10}>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                  }}
-                >
-                  <Text style={styles.txt_subtitle1_b_r}>토요일</Text>
-                  <Text style={[styles.txt_caption_r_r, { marginLeft: 5 }]}>
-                    내일
-                  </Text>
-                </View>
-                <View>
-                  <Image
-                    style={{ resizeMode: "contain" }}
-                    source={require("./assets/img/weather10/sun.png")}
-                  />
-                </View>
-                <View style={{ flexDirection: "row" }}>
-                  <Text style={styles.txt_subtitle1_b}>30°</Text>
-                  <Text style={[styles.txt_subtitle1_r_g, { marginLeft: 5 }]}>
-                    19°
-                  </Text>
-                </View>
+              <View style={styles.content_weather10_taMin}>
+                <Text style={[styles.txt_subtitle1_r_g]}>20°</Text>
               </View>
-              <View style={styles.devider_weather10}></View>
+            </View>
+          </View>
+          <View style={styles.devider_weather10}></View>
 
-              <View style={styles.content_weather10}>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                  }}
-                >
-                  <Text style={styles.txt_subtitle1_b_r}>일요일</Text>
-                  <Text style={[styles.txt_caption_r_r, { marginLeft: 5 }]}>
-                    {midLandWeatherObj[0].wf3Am}
-                  </Text>
-                </View>
-                <View>
-                  <Image
-                    style={{ resizeMode: "contain" }}
-                    source={IMG_WEATHER10_SRC[getWeather10Img("흐림")].image}
-                  />
-                </View>
-                <View style={{ flexDirection: "row" }}>
-                  <Text style={styles.txt_subtitle1_b}>
-                    {midTaWeatherObj[0].taMax3}°
-                  </Text>
-                  <Text style={[styles.txt_subtitle1_r_g, { marginLeft: 5 }]}>
-                    {midTaWeatherObj[0].taMin3}°
-                  </Text>
-                </View>
+          <View style={styles.content_weather10}>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+              }}
+            >
+              <Text
+                style={[styles.txt_subtitle1_b_r, styles.color_weather10_2nd]}
+              >
+                {moment().add(1, "days").format("dddd")}
+              </Text>
+              <Text
+                style={[
+                  styles.txt_caption_r_r,
+                  styles.color_weather10_2nd,
+                  { marginLeft: 5, width: 30 },
+                ]}
+              >
+                내일
+              </Text>
+            </View>
+            <View>
+              <Image
+                style={{ resizeMode: "contain" }}
+                source={require("./assets/img/weather10/sun.png")}
+              />
+            </View>
+            <View style={{ flexDirection: "row" }}>
+              <View style={styles.content_weather10_taMax}>
+                <Text style={styles.txt_subtitle1_b}>35°</Text>
               </View>
-              <View style={styles.devider_weather10}></View>
-
-              <View style={styles.content_weather10}>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                  }}
-                >
-                  <Text style={styles.txt_subtitle1_b}>월요일</Text>
-                  <Text style={[styles.txt_caption_r_b, { marginLeft: 5 }]}>
-                    10.4
-                  </Text>
-                </View>
-                <View>
-                  <Image
-                    style={{ resizeMode: "contain" }}
-                    source={require("./assets/img/weather10/sun.png")}
-                  />
-                </View>
-                <View style={{ flexDirection: "row" }}>
-                  <Text style={styles.txt_subtitle1_b}>
-                    {midTaWeatherObj[0].taMax4}°
-                  </Text>
-                  <Text style={[styles.txt_subtitle1_r_g, { marginLeft: 5 }]}>
-                    {midTaWeatherObj[0].taMin4}°
-                  </Text>
-                </View>
+              <View style={styles.content_weather10_taMin}>
+                <Text style={[styles.txt_subtitle1_r_g]}>19°</Text>
               </View>
-              <View style={styles.devider_weather10}></View>
+            </View>
+          </View>
+          <View style={styles.devider_weather10}></View>
 
-              <View style={styles.content_weather10}>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                  }}
-                >
-                  <Text style={styles.txt_subtitle1_b}>화요일</Text>
-                  <Text style={[styles.txt_caption_r_b, { marginLeft: 5 }]}>
-                    10.5
-                  </Text>
-                </View>
-                <View>
-                  <Image
-                    style={{ resizeMode: "contain" }}
-                    source={require("./assets/img/weather10/sun.png")}
-                  />
-                </View>
-                <View style={{ flexDirection: "row" }}>
-                  <Text style={styles.txt_subtitle1_b}>
-                    {midTaWeatherObj[0].taMax5}°
-                  </Text>
-                  <Text style={[styles.txt_subtitle1_r_g, { marginLeft: 5 }]}>
-                    {midTaWeatherObj[0].taMin5}°
-                  </Text>
-                </View>
+          <View style={styles.content_weather10}>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+              }}
+            >
+              <Text
+                style={[styles.txt_subtitle1_b_r, styles.color_weather10_3rd]}
+              >
+                {moment().add(2, "days").format("dddd")}
+              </Text>
+              <Text
+                style={[
+                  styles.txt_caption_r_r,
+                  styles.color_weather10_3rd,
+                  { marginLeft: 5, width: 30 },
+                ]}
+              >
+                모레
+              </Text>
+            </View>
+            <View>
+              <Image
+                style={{ resizeMode: "contain" }}
+                source={require("./assets/img/weather10/sun.png")}
+              />
+            </View>
+            <View style={{ flexDirection: "row" }}>
+              <View style={styles.content_weather10_taMax}>
+                <Text style={styles.txt_subtitle1_b}>20°</Text>
               </View>
-              <View style={styles.devider_weather10}></View>
 
-              <View style={styles.content_weather10}>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                  }}
-                >
-                  <Text style={styles.txt_subtitle1_b}>수요일</Text>
-                  <Text style={[styles.txt_caption_r_b, { marginLeft: 5 }]}>
-                    10.6
-                  </Text>
-                </View>
-                <View>
-                  <Image
-                    style={{ resizeMode: "contain" }}
-                    source={require("./assets/img/weather10/sun.png")}
-                  />
-                </View>
-                <View style={{ flexDirection: "row" }}>
-                  <Text style={styles.txt_subtitle1_b}>
-                    {midTaWeatherObj[0].taMax6}°
-                  </Text>
-                  <Text style={[styles.txt_subtitle1_r_g, { marginLeft: 5 }]}>
-                    {midTaWeatherObj[0].taMin6}°
-                  </Text>
-                </View>
+              <View style={styles.content_weather10_taMin}>
+                <Text style={[styles.txt_subtitle1_r_g]}>20°</Text>
               </View>
-              <View style={styles.devider_weather10}></View>
+            </View>
+          </View>
+          <View style={styles.devider_weather10}></View>
 
-              <View style={styles.content_weather10}>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                  }}
-                >
-                  <Text style={styles.txt_subtitle1_b}>목요일</Text>
-                  <Text style={[styles.txt_caption_r_b, { marginLeft: 5 }]}>
-                    10.7
-                  </Text>
-                </View>
-                <View>
-                  <Image
-                    style={{ resizeMode: "contain" }}
-                    source={require("./assets/img/weather10/sun.png")}
-                  />
-                </View>
-                <View style={{ flexDirection: "row" }}>
-                  <Text style={styles.txt_subtitle1_b}>
-                    {midTaWeatherObj[0].taMax7}°
-                  </Text>
-                  <Text style={[styles.txt_subtitle1_r_g, { marginLeft: 5 }]}>
-                    {midTaWeatherObj[0].taMin7}°
-                  </Text>
-                </View>
+          <View style={styles.content_weather10}>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+              }}
+            >
+              <Text
+                style={[styles.txt_subtitle1_b, styles.color_weather10_4th]}
+              >
+                {moment().add(3, "days").format("dddd")}
+              </Text>
+              <Text
+                style={[
+                  styles.txt_caption_r_b,
+                  styles.color_weather10_4th,
+                  { marginLeft: 5, width: 30 },
+                ]}
+              >
+                {moment().add(3, "days").format("MM.DD")}
+              </Text>
+            </View>
+            <View>
+              <Image
+                style={{ resizeMode: "contain" }}
+                source={IMG_WEATHER10_SRC[getWeather10Img("wf3Am")].image}
+              />
+            </View>
+            <View style={{ flexDirection: "row" }}>
+              <View style={styles.content_weather10_taMax}>
+                <Text style={styles.txt_subtitle1_b}>
+                  {midTaWeatherObj[0].taMax3}°
+                </Text>
               </View>
-              <View style={styles.devider_weather10}></View>
-
-              <View style={styles.content_weather10}>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                  }}
-                >
-                  <Text style={styles.txt_subtitle1_b}>금요일</Text>
-                  <Text style={[styles.txt_caption_r_b, { marginLeft: 5 }]}>
-                    10.8
-                  </Text>
-                </View>
-                <View>
-                  <Image
-                    style={{ resizeMode: "contain" }}
-                    source={require("./assets/img/weather10/sun.png")}
-                  />
-                </View>
-                <View style={{ flexDirection: "row" }}>
-                  <Text style={styles.txt_subtitle1_b}>
-                    {midTaWeatherObj[0].taMax8}°
-                  </Text>
-                  <Text style={[styles.txt_subtitle1_r_g, { marginLeft: 5 }]}>
-                    {midTaWeatherObj[0].taMin8}°
-                  </Text>
-                </View>
+              <View style={styles.content_weather10_taMin}>
+                <Text style={[styles.txt_subtitle1_r_g]}>
+                  {midTaWeatherObj[0].taMin3}°
+                </Text>
               </View>
-              <View style={styles.devider_weather10}></View>
+            </View>
+          </View>
+          <View style={styles.devider_weather10}></View>
 
-              <View style={styles.content_weather10}>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                  }}
-                >
-                  <Text style={styles.txt_subtitle1_b_r}>토요일</Text>
-                  <Text style={[styles.txt_caption_r_r, { marginLeft: 5 }]}>
-                    10.9
-                  </Text>
-                </View>
-                <View>
-                  <Image
-                    style={{ resizeMode: "contain" }}
-                    source={require("./assets/img/weather10/sun.png")}
-                  />
-                </View>
-                <View style={{ flexDirection: "row" }}>
-                  <Text style={styles.txt_subtitle1_b}>
-                    {midTaWeatherObj[0].taMax9}°
-                  </Text>
-                  <Text style={[styles.txt_subtitle1_r_g, { marginLeft: 5 }]}>
-                    {midTaWeatherObj[0].taMin9}°
-                  </Text>
-                </View>
+          <View style={styles.content_weather10}>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+              }}
+            >
+              <Text
+                style={[styles.txt_subtitle1_b, styles.color_weather10_5th]}
+              >
+                {moment().add(4, "days").format("dddd")}
+              </Text>
+              <Text
+                style={[
+                  styles.txt_caption_r_b,
+                  styles.color_weather10_5th,
+                  { marginLeft: 5, width: 30 },
+                ]}
+              >
+                {moment().add(4, "days").format("MM.DD")}
+              </Text>
+            </View>
+            <View>
+              <Image
+                style={{ resizeMode: "contain" }}
+                source={IMG_WEATHER10_SRC[getWeather10Img("wf4Am")].image}
+              />
+            </View>
+            <View style={{ flexDirection: "row" }}>
+              <View style={styles.content_weather10_taMax}>
+                <Text style={styles.txt_subtitle1_b}>
+                  {midTaWeatherObj[0].taMax4}°
+                </Text>
               </View>
-              <View style={styles.devider_weather10}></View>
+              <View style={styles.content_weather10_taMin}>
+                <Text style={[styles.txt_subtitle1_r_g]}>
+                  {midTaWeatherObj[0].taMin4}°
+                </Text>
+              </View>
+            </View>
+          </View>
+          <View style={styles.devider_weather10}></View>
 
-              <View style={styles.content_weather10}>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                  }}
-                >
-                  <Text style={styles.txt_subtitle1_b_r}>일요일</Text>
-                  <Text style={[styles.txt_caption_r_r, { marginLeft: 5 }]}>
-                    10.10
-                  </Text>
-                </View>
-                <View>
-                  <Image
-                    style={{ resizeMode: "contain" }}
-                    source={require("./assets/img/weather10/sun.png")}
-                  />
-                </View>
-                <View style={{ flexDirection: "row" }}>
-                  <Text style={styles.txt_subtitle1_b}>
-                    {midTaWeatherObj[0].taMax10}°
-                  </Text>
-                  <Text style={[styles.txt_subtitle1_r_g, { marginLeft: 5 }]}>
-                    {midTaWeatherObj[0].taMin10}°
-                  </Text>
-                </View>
+          <View style={styles.content_weather10}>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+              }}
+            >
+              <Text
+                style={[styles.txt_subtitle1_b, styles.color_weather10_6th]}
+              >
+                {moment().add(5, "days").format("dddd")}
+              </Text>
+              <Text
+                style={[
+                  styles.txt_caption_r_b,
+                  styles.color_weather10_6th,
+                  { marginLeft: 5, width: 30 },
+                ]}
+              >
+                {moment().add(5, "days").format("MM.DD")}
+              </Text>
+            </View>
+            <View>
+              <Image
+                style={{ resizeMode: "contain" }}
+                source={IMG_WEATHER10_SRC[getWeather10Img("wf5Am")].image}
+              />
+            </View>
+            <View style={{ flexDirection: "row" }}>
+              <View style={styles.content_weather10_taMax}>
+                <Text style={styles.txt_subtitle1_b}>
+                  {midTaWeatherObj[0].taMax5}°
+                </Text>
+              </View>
+              <View style={styles.content_weather10_taMin}>
+                <Text style={[styles.txt_subtitle1_r_g]}>
+                  {midTaWeatherObj[0].taMin5}°
+                </Text>
+              </View>
+            </View>
+          </View>
+          <View style={styles.devider_weather10}></View>
+
+          <View style={styles.content_weather10}>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+              }}
+            >
+              <Text
+                style={[styles.txt_subtitle1_b, styles.color_weather10_7th]}
+              >
+                {moment().add(6, "days").format("dddd")}
+              </Text>
+              <Text
+                style={[
+                  styles.txt_caption_r_b,
+                  styles.color_weather10_7th,
+                  { marginLeft: 5, width: 30 },
+                ]}
+              >
+                {moment().add(6, "days").format("MM.DD")}
+              </Text>
+            </View>
+            <View>
+              <Image
+                style={{ resizeMode: "contain" }}
+                source={IMG_WEATHER10_SRC[getWeather10Img("wf6Am")].image}
+              />
+            </View>
+            <View style={{ flexDirection: "row" }}>
+              <View style={styles.content_weather10_taMax}>
+                <Text style={styles.txt_subtitle1_b}>
+                  {midTaWeatherObj[0].taMax6}°
+                </Text>
+              </View>
+              <View style={styles.content_weather10_taMin}>
+                <Text style={[styles.txt_subtitle1_r_g]}>
+                  {midTaWeatherObj[0].taMin6}°
+                </Text>
+              </View>
+            </View>
+          </View>
+          <View style={styles.devider_weather10}></View>
+
+          <View style={styles.content_weather10}>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+              }}
+            >
+              <Text
+                style={[styles.txt_subtitle1_b, styles.color_weather10_8th]}
+              >
+                {moment().add(7, "days").format("dddd")}
+              </Text>
+              <Text
+                style={[
+                  styles.txt_caption_r_b,
+                  styles.color_weather10_8th,
+                  { marginLeft: 5, width: 30 },
+                ]}
+              >
+                {moment().add(7, "days").format("MM.DD")}
+              </Text>
+            </View>
+            <View>
+              <Image
+                style={{ resizeMode: "contain" }}
+                source={IMG_WEATHER10_SRC[getWeather10Img("wf7Am")].image}
+              />
+            </View>
+            <View style={{ flexDirection: "row" }}>
+              <View style={styles.content_weather10_taMax}>
+                <Text style={styles.txt_subtitle1_b}>
+                  {midTaWeatherObj[0].taMax7}°
+                </Text>
+              </View>
+              <View style={styles.content_weather10_taMin}>
+                <Text style={[styles.txt_subtitle1_r_g]}>
+                  {midTaWeatherObj[0].taMin7}°
+                </Text>
+              </View>
+            </View>
+          </View>
+          <View style={styles.devider_weather10}></View>
+
+          <View style={styles.content_weather10}>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+              }}
+            >
+              <Text
+                style={[styles.txt_subtitle1_b_r, styles.color_weather10_9th]}
+              >
+                {moment().add(8, "days").format("dddd")}
+              </Text>
+              <Text
+                style={[
+                  styles.txt_caption_r_r,
+                  styles.color_weather10_9th,
+                  { marginLeft: 5, width: 30 },
+                ]}
+              >
+                {moment().add(8, "days").format("MM.DD")}
+              </Text>
+            </View>
+            <View>
+              <Image
+                style={{ resizeMode: "contain" }}
+                source={IMG_WEATHER10_SRC[getWeather10Img("wf8")].image}
+              />
+            </View>
+            <View style={{ flexDirection: "row" }}>
+              <View style={styles.content_weather10_taMax}>
+                <Text style={styles.txt_subtitle1_b}>
+                  {midTaWeatherObj[0].taMax8}°
+                </Text>
+              </View>
+              <View style={styles.content_weather10_taMin}>
+                <Text style={[styles.txt_subtitle1_r_g]}>
+                  {midTaWeatherObj[0].taMin8}°
+                </Text>
+              </View>
+            </View>
+          </View>
+          <View style={styles.devider_weather10}></View>
+
+          <View style={styles.content_weather10}>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+              }}
+            >
+              <Text
+                style={[styles.txt_subtitle1_b_r, styles.color_weather10_10th]}
+              >
+                {moment().add(9, "days").format("dddd")}
+              </Text>
+              <Text
+                style={[
+                  styles.txt_caption_r_r,
+                  styles.color_weather10_10th,
+                  { marginLeft: 5, width: 30 },
+                ]}
+              >
+                {moment().add(9, "days").format("MM.DD")}
+              </Text>
+            </View>
+            <View>
+              <Image
+                style={{ resizeMode: "contain" }}
+                source={IMG_WEATHER10_SRC[getWeather10Img("wf9")].image}
+              />
+            </View>
+            <View style={{ flexDirection: "row" }}>
+              <View style={styles.content_weather10_taMax}>
+                <Text style={styles.txt_subtitle1_b}>
+                  {midTaWeatherObj[0].taMax9}°
+                </Text>
+              </View>
+              <View style={styles.content_weather10_taMin}>
+                <Text style={[styles.txt_subtitle1_r_g]}>
+                  {midTaWeatherObj[0].taMin9}°
+                </Text>
               </View>
             </View>
           </View>
         </View>
-      </ScrollView>
-    </SafeAreaView>
+      </View>
+    </HeaderComponent>
   );
 }
 
@@ -1537,6 +1655,16 @@ const styles = StyleSheet.create({
     paddingTop: "4%",
     justifyContent: "space-between",
     flexDirection: "row",
+  },
+
+  content_weather10_taMax: {
+    width: 30,
+    alignItems: "flex-end",
+  },
+
+  content_weather10_taMin: {
+    width: 32,
+    alignItems: "flex-end",
   },
 
   content_umbrella: {
@@ -1649,6 +1777,14 @@ const styles = StyleSheet.create({
     lineHeight: 15,
   },
 
+  txt_weather10_1st: {
+    fontSize: 12,
+    color:
+      moment().format("dddd") == ("토요일" || "일요일") ? "#FF3B30" : "black",
+    fontFamily: "NotoSansKR_400Regular",
+    lineHeight: 15,
+  },
+
   txt_caption_r_b: {
     fontSize: 12,
     color: "black",
@@ -1668,6 +1804,85 @@ const styles = StyleSheet.create({
     color: "#85858C",
     fontFamily: "NotoSansKR_400Regular",
     lineHeight: 14,
+  },
+
+  color_weather10_1st: {
+    color:
+      moment().format("dddd") == "토요일" || moment().format("dddd") == "일요일"
+        ? "#FF3B30"
+        : "black",
+  },
+
+  color_weather10_2nd: {
+    color:
+      moment().add(1, "days").format("dddd") == "토요일" ||
+      moment().add(1, "days").format("dddd") == "일요일"
+        ? "#FF3B30"
+        : "black",
+  },
+
+  color_weather10_3rd: {
+    color:
+      moment().add(2, "days").format("dddd") == "토요일" ||
+      moment().add(2, "days").format("dddd") == "일요일"
+        ? "#FF3B30"
+        : "black",
+  },
+
+  color_weather10_4th: {
+    color:
+      moment().add(3, "days").format("dddd") == "토요일" ||
+      moment().add(3, "days").format("dddd") == "일요일"
+        ? "#FF3B30"
+        : "black",
+  },
+
+  color_weather10_5th: {
+    color:
+      moment().add(4, "days").format("dddd") == "토요일" ||
+      moment().add(4, "days").format("dddd") == "일요일"
+        ? "#FF3B30"
+        : "black",
+  },
+
+  color_weather10_6th: {
+    color:
+      moment().add(5, "days").format("dddd") == "토요일" ||
+      moment().add(5, "days").format("dddd") == "일요일"
+        ? "#FF3B30"
+        : "black",
+  },
+
+  color_weather10_7th: {
+    color:
+      moment().add(6, "days").format("dddd") == "토요일" ||
+      moment().add(6, "days").format("dddd") == "일요일"
+        ? "#FF3B30"
+        : "black",
+  },
+
+  color_weather10_8th: {
+    color:
+      moment().add(7, "days").format("dddd") == "토요일" ||
+      moment().add(7, "days").format("dddd") == "일요일"
+        ? "#FF3B30"
+        : "black",
+  },
+
+  color_weather10_9th: {
+    color:
+      moment().add(8, "days").format("dddd") == "토요일" ||
+      moment().add(8, "days").format("dddd") == "일요일"
+        ? "#FF3B30"
+        : "black",
+  },
+
+  color_weather10_10th: {
+    color:
+      moment().add(9, "days").format("dddd") == "토요일" ||
+      moment().add(9, "days").format("dddd") == "일요일"
+        ? "#FF3B30"
+        : "black",
   },
 
   ractangle1: {
