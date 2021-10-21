@@ -47,10 +47,22 @@ export default function App() {
     NotoSansKR_900Black,
   });
 
+  /**
+   * 기상청 조회용 API 키
+   */
+  const API_KEY =
+    "Skm8Sx%2BhuSd8PBsZeDzGPZVXFlXODLxEJR2MRRajPQqn1aID2DYuEYoMC97NhdpJ4AzetqrX2xTDHtIUKnTX1g%3D%3D";
+
+  /**
+   * 위치 조회용 변수
+   */
   const [isLoading, setIsLoading] = useState(true);
 
   const [latitude, setLatitude] = useState(null);
   const [longitude, setLongitude] = useState(null);
+
+  const [gridX, seGridX] = useState(null);
+  const [gridY, seGridY] = useState(null);
 
   /**
    * 초단기실황조회용 변수
@@ -72,6 +84,7 @@ export default function App() {
   const [srtBaseDate, setSrtBaseDate] = useState(null);
   const [srtBaseTime, setSrtBaseTime] = useState("0200");
   const [srtWeatherObj, setSrtWeatherObj] = useState({});
+  const [srtWeather10Obj, setSrtWeather10Obj] = useState({});
 
   /**
    * 중기예보조회용 변수
@@ -355,6 +368,9 @@ export default function App() {
     await getRegId();
 
     const rs = await getGridGPS(); // 위도,경도를 기상청 api에 활용 가능한 x,y로 바꾸는 함수
+    seGridX(rs.x);
+    seGridY(rs.y);
+
     await getWeather(rs.x, rs.y); // 좌표 값 사용하여 날씨데이터 받아오는 함수
 
     /**
@@ -406,40 +422,45 @@ export default function App() {
     setHumidity(humidity);
   };
 
-  // const wf3Am = getWeather10Img(midLandWeatherObj[0].wf3Am);
-  // const wf4Am = getWeather10Img(midLandWeatherObj[0].wf4Am);
-  // const wf5Am = getWeather10Img(midLandWeatherObj[0].wf5Am);
-  // const wf6Am = getWeather10Img(midLandWeatherObj[0].wf6Am);
-  // const wf7Am = getWeather10Img(midLandWeatherObj[0].wf7Am);
-  // const wf8 = getWeather10Img(midLandWeatherObj[0].wf8);
-  // const wf9 = getWeather10Img(midLandWeatherObj[0].wf9);
-  // const wf10 = getWeather10Img(midLandWeatherObj[0].wf10);
-
+  /**
+   * 10일 예보 날씨 아이콘 표시
+   */
   getWeather10Img = (wfCode) => {
     let code;
-    const obj = midLandWeatherObj[0];
-    const sky = obj[wfCode];
+    if (isNaN(wfCode)) {
+      const obj = midLandWeatherObj[0];
+      const sky = obj[wfCode];
 
-    if (sky == "맑음") {
-      code = 0;
-    } else if (sky == "흐림") {
-      code = 1;
-    } else if (sky == "구름많음") {
-      code = 2;
-    } else if (
-      sky == "구름많고 비" ||
-      sky == "구름많고 소나기" ||
-      sky == "흐리고 비" ||
-      sky == "흐리고 소나기" ||
-      sky == "구름많고 비/눈" ||
-      sky == "흐리고 비/눈"
-    ) {
-      code = 3;
-    } else if (sky == "구름많고 눈" || sky == "흐리고 눈") {
-      code = 4;
+      if (sky == "맑음") {
+        code = 0;
+      } else if (sky == "흐림") {
+        code = 1;
+      } else if (sky == "구름많음") {
+        code = 2;
+      } else if (
+        sky == "구름많고 비" ||
+        sky == "구름많고 소나기" ||
+        sky == "흐리고 비" ||
+        sky == "흐리고 소나기" ||
+        sky == "구름많고 비/눈" ||
+        sky == "흐리고 비/눈"
+      ) {
+        code = 3;
+      } else if (sky == "구름많고 눈" || sky == "흐리고 눈") {
+        code = 4;
+      }
+    } else {
+      if (wfCode == 1) {
+        code = 0;
+      } else if (wfCode == 3) {
+        code = 2;
+      } else if (wfCode == 4) {
+        code = 1;
+      }
     }
     return code;
   };
+
   /**
    * 한글 주소 얻음
    */
@@ -743,9 +764,6 @@ export default function App() {
 
   // nx,ny : 위,경도를 좌표로 바꾼 각각의 값
   getWeather = async (nx, ny) => {
-    const API_KEY =
-      "Skm8Sx%2BhuSd8PBsZeDzGPZVXFlXODLxEJR2MRRajPQqn1aID2DYuEYoMC97NhdpJ4AzetqrX2xTDHtIUKnTX1g%3D%3D";
-
     /**
      * [초단기실황조회용 HTTP 비동기 통신 ]
      */
@@ -788,26 +806,21 @@ export default function App() {
     /**
      * [단기예보조회용 HTTP 비동기 통신 ]
      */
-    const srtUrl = `http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?serviceKey=${API_KEY}&numOfRows=10&pageNo=1&dataType=JSON&base_date=${srtBaseDate}&base_time=${srtBaseTime}&nx=${nx}&ny=${ny}`;
+    const srtUrl = `http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?serviceKey=${API_KEY}&numOfRows=1000&pageNo=1&dataType=JSON&base_date=${srtBaseDate}&base_time=${srtBaseTime}&nx=${nx}&ny=${ny}`;
     console.log("단기예보 url : " + srtUrl);
     await axios
       .get(srtUrl)
       .then(function (response) {
         const srtWeatherResponseData = response.data.response.body.items.item; //필요한 정보만 받아오기 전부 다 받아 오려면 response.data 까지만 적는다.
         setSrtWeatherObj(srtWeatherResponseData);
-        // WeatherResponseData.map(function (arr, i) {
-        //   setSrtWeatherObj ({
-        //     category = arr.category,
-        //   })
-        // });
       })
       .catch(function (error) {
         console.log("getSrtWeather 실패 : " + error);
       });
 
-    // /**
-    //  * [중기육상예보조회용 HTTP 비동기 통신 ]
-    //  */
+    /**
+     * [중기육상예보조회용 HTTP 비동기 통신 ]
+     */
     const midLandUrl = `http://apis.data.go.kr/1360000/MidFcstInfoService/getMidLandFcst?serviceKey=${API_KEY}&dataType=JSON&tmFc=${midTmFc}&regId=${midLandRegId}`;
     console.log("중기육상예보 url : " + midLandUrl);
     await axios
@@ -822,7 +835,6 @@ export default function App() {
         console.log("getMidWeather 실패 : " + error);
       });
 
-    //여기부터 수정 Unhandled promise rejection: ReferenceError: Can't find variable: getMidTaWeather 에러 잡아야함.
     /**
      * [중기기온예보조회용 HTTP 비동기 통신 ]
      */
@@ -838,19 +850,101 @@ export default function App() {
       .catch(function (error) {
         console.log("getMidWeather 실패 : " + error);
       });
-    setIsLoading(false);
   };
 
-  // 클래스 생명주기 메서드 중 componentDidMount() 와 동일한 기능을 한다.
-  // useEffect는첫번째 렌더링과 이후의 모든 업데이트에서 수행됩니다.
+  /**
+   * [10일 예보용 단기예보조회 HTTP 비동기 통신 ]
+   */
+  const strWeather = async () => {
+    const base_time = "0200";
+    const base_date = moment().format("YYYYMMDD");
+    const srtUrl = `http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?serviceKey=${API_KEY}&numOfRows=1000&pageNo=1&dataType=JSON&base_date=${base_date}&base_time=${base_time}&nx=${gridX}&ny=${gridY}`;
+    let srtWeatherResponseData;
+    console.log("10일 예보용 단기예보 url : " + srtUrl);
+    await axios
+      .get(srtUrl)
+      .then(function (response) {
+        srtWeatherResponseData = response.data.response.body.items.item; //필요한 정보만 받아오기 전부 다 받아 오려면 response.data 까지만 적는다.
+
+        srtWeatherResponseData = srtWeatherResponseData.filter((ele) => {
+          return (
+            ele.category == "TMN" ||
+            ele.category == "TMX" ||
+            (ele.category == "SKY" && ele.fcstTime == "0900") ||
+            (ele.category == "POP" && Number(ele.fcstValue) >= 40)
+          );
+        });
+
+        srtWeatherResponseData = srtWeatherResponseData
+          .filter((ele) => ele.category != "POP")
+          .concat(
+            srtWeatherResponseData.filter((ele) => ele.category == "POP")
+          );
+        //console.log("srtWeatherResponseData =" + srtWeatherResponseData);
+        console.log(
+          "strWeather10Obj = " + JSON.stringify(srtWeatherResponseData)
+        );
+        setSrtWeather10Obj(srtWeatherResponseData);
+        setIsLoading(false);
+        // WeatherResponseData.map(function (arr, i) {
+        //   setSrtWeatherObj ({
+        //     category = arr.category,
+        //   })
+        // });
+      })
+      .catch(function (error) {
+        console.log("getSrtWeather 실패 : " + error);
+      });
+  };
+
+  /**
+   * 배열에서 최빈 값 구하는 함수
+   */
+  // function getMode(array) {
+  //   // 1. 출연 빈도 구하기
+  //   const counts = array.reduce((pv, cv) => {
+  //     pv[cv] = (pv[cv] || 0) + 1;
+  //     return pv;
+  //   }, {});
+  //   // 2. 최빈값 구하기
+  //   const keys = Object.keys(counts);
+  //   let mode = keys[0];
+  //   keys.forEach((val, idx) => {
+  //     if (counts[val] > counts[mode]) {
+  //       mode = val;
+  //     }
+  //   });
+  //   console.log("mode = " + mode);
+  //   return mode;
+  // }
+
+  // const strings = ["a", "b", "b", "c", "c", "c", "d", "d", "d", "d"];
+  // getMode(strings);
+
+  // async function getWeather10() {
+  //   strWeather10Data = await strWeather10Obj();
+  //   strWeather10Data = strWeather10Data[0]["fcstValue"];
+  //   console.log(
+  //     "strWeather = " + JSON.stringify(strWeather10Data[0]["fcstValue"])
+  //   );
+  //   return strWeather10Data[0].fcstValue;
+  // }
+
+  /**
+   * 클래스 생명주기 메서드 중 componentDidMount() 와 동일한 기능을 한다.
+   * useEffect는첫번째 렌더링과 이후의 모든 업데이트에서 수행됩니다.
+   */
   useEffect(() => {
     getTime();
     getLocation();
+    strWeather();
   }, []);
-  // 빈 배열을 넣어 주면 처음 랜더링 될 때 한번만 실행 된다. 넣지 않으면 모든 업데이트에서 실행되며
-  // 배열안에 [count] 같이 인자를 넣어주면 해당 인자가 업데이트 될 때 마다 실행된다.
-  // {Math.round(ultSrtWeatherObj[3].obsrValue)}
 
+  /**
+   * 빈 배열을 넣어 주면 처음 랜더링 될 때 한번만 실행 된다. 넣지 않으면 모든 업데이트에서 실행되며
+   * 배열안에 [count] 같이 인자를 넣어주면 해당 인자가 업데이트 될 때 마다 실행된다.
+   * {Math.round(ultSrtWeatherObj[3].obsrValue)}
+   */
   return isLoading ? (
     <Loading />
   ) : (
@@ -868,7 +962,8 @@ export default function App() {
           <View style={styles.content_weather}>
             <Text style={styles.txt_weather}>{crtTemp}°</Text>
             <Text style={[styles.txt_subtitle2_r_w, { marginTop: 5 }]}>
-              최고:24° 최저:17°
+              최고:{Math.round(srtWeather10Obj[2].fcstValue)}° 최저:
+              {Math.round(srtWeather10Obj[0].fcstValue)}°
             </Text>
           </View>
         </View>
@@ -1137,7 +1232,9 @@ export default function App() {
                 style={{ resizeMode: "contain" }}
                 source={require("./assets/img/weather3/sun.png")}
               />
-              <Text style={styles.txt_body2_b}>18°</Text>
+              <Text style={styles.txt_body2_b}>
+                {srtWeatherObj[0].category}°
+              </Text>
               <Text style={styles.txt_overline_r}>오전 11시</Text>
             </View>
             <View style={styles.ractangle_weather3_margin}>
@@ -1213,16 +1310,24 @@ export default function App() {
             <View>
               <Image
                 style={{ resizeMode: "contain" }}
-                source={require("./assets/img/weather10/sun.png")}
+                source={
+                  IMG_WEATHER10_SRC[
+                    getWeather10Img(srtWeather10Obj[1].fcstValue)
+                  ].image
+                }
               />
             </View>
 
             <View style={{ flexDirection: "row" }}>
               <View style={styles.content_weather10_taMax}>
-                <Text style={styles.txt_subtitle1_b}>9°</Text>
+                <Text style={styles.txt_subtitle1_b}>
+                  {Math.round(srtWeather10Obj[2].fcstValue)}°
+                </Text>
               </View>
               <View style={styles.content_weather10_taMin}>
-                <Text style={[styles.txt_subtitle1_r_g]}>20°</Text>
+                <Text style={[styles.txt_subtitle1_r_g]}>
+                  {Math.round(srtWeather10Obj[0].fcstValue)}°
+                </Text>
               </View>
             </View>
           </View>
@@ -1253,15 +1358,23 @@ export default function App() {
             <View>
               <Image
                 style={{ resizeMode: "contain" }}
-                source={require("./assets/img/weather10/sun.png")}
+                source={
+                  IMG_WEATHER10_SRC[
+                    getWeather10Img(srtWeather10Obj[4].fcstValue)
+                  ].image
+                }
               />
             </View>
             <View style={{ flexDirection: "row" }}>
               <View style={styles.content_weather10_taMax}>
-                <Text style={styles.txt_subtitle1_b}>35°</Text>
+                <Text style={styles.txt_subtitle1_b}>
+                  {Math.round(srtWeather10Obj[5].fcstValue)}°
+                </Text>
               </View>
               <View style={styles.content_weather10_taMin}>
-                <Text style={[styles.txt_subtitle1_r_g]}>19°</Text>
+                <Text style={[styles.txt_subtitle1_r_g]}>
+                  {Math.round(srtWeather10Obj[3].fcstValue)}°
+                </Text>
               </View>
             </View>
           </View>
@@ -1292,16 +1405,24 @@ export default function App() {
             <View>
               <Image
                 style={{ resizeMode: "contain" }}
-                source={require("./assets/img/weather10/sun.png")}
+                source={
+                  IMG_WEATHER10_SRC[
+                    getWeather10Img(srtWeather10Obj[7].fcstValue)
+                  ].image
+                }
               />
             </View>
             <View style={{ flexDirection: "row" }}>
               <View style={styles.content_weather10_taMax}>
-                <Text style={styles.txt_subtitle1_b}>20°</Text>
+                <Text style={styles.txt_subtitle1_b}>
+                  {Math.round(srtWeather10Obj[8].fcstValue)}°
+                </Text>
               </View>
 
               <View style={styles.content_weather10_taMin}>
-                <Text style={[styles.txt_subtitle1_r_g]}>20°</Text>
+                <Text style={[styles.txt_subtitle1_r_g]}>
+                  {Math.round(srtWeather10Obj[6].fcstValue)}°
+                </Text>
               </View>
             </View>
           </View>
