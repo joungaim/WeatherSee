@@ -84,6 +84,16 @@ export default function App() {
   const [srtBaseDate, setSrtBaseDate] = useState(null);
   const [srtBaseTime, setSrtBaseTime] = useState("0200");
   const [srtWeatherObj, setSrtWeatherObj] = useState({});
+  /**
+   * 단기예보 3일 예보 조회용 변수
+   */
+  const [strWeatherTmpObj, setStrWeatherTmpObj] = useState({});
+  const [strWeatherSkyObj, setStrWeatherSkyObj] = useState({});
+  const [strWeatherPtyObj, setStrWeatherPtyObj] = useState({});
+  const [strWeatherPopObj, setStrWeatherPopObj] = useState({});
+  /**
+   * 단기예보 10일 예보 조회용 변수
+   */
   const [srtWeather10Obj, setSrtWeather10Obj] = useState({});
 
   /**
@@ -103,18 +113,6 @@ export default function App() {
   const [feelTemp, setFeelTemp] = useState(); // 체감 온도
   const [humidity, setHumidity] = useState(); // 습도
   const [imageVar, setImageVar] = useState(0); // 현재 기온 아이콘 이름
-
-  const [reh, setReh] = useState(); // 습도 단위 : %
-  const [sno, setSno] = useState(); // 1시간 신적설(눈 쌓인 양)
-  const [sky, setSky] = useState(); // 하늘상태
-  const [tmp, setTmp] = useState(); // 1시간 기온 단위 :℃
-  const [tmn, setTmn] = useState(); // 일 최저기온 단위 :℃
-  const [tmx, setTmx] = useState(); // 일 최고기온 단위 :℃
-  const [uuu, setUuu] = useState(); // 풍속(동서성분) : m/s
-  const [vvv, setVvv] = useState(); // 풍속(남북성분) : m/s
-  const [vec, setVec] = useState(); // 풍향 : deg
-  const [wsd, setWsd] = useState(); // 풍속 : m/s
-  // 날씨 데이터
 
   const IMG_WEATHER_SRC = [
     {
@@ -161,6 +159,30 @@ export default function App() {
     },
     {
       image: require("./assets/img/weather10/rainy-thunder.png"),
+    },
+  ];
+
+  const IMG_WEATHER3_SRC = [
+    {
+      image: require("./assets/img/weather3/sun.png"),
+    },
+    {
+      image: require("./assets/img/weather3/cloudy.png"),
+    },
+    {
+      image: require("./assets/img/weather3/slightly-cloudy.png"),
+    },
+    {
+      image: require("./assets/img/weather3/rainy.png"),
+    },
+    {
+      image: require("./assets/img/weather3/snowy.png"),
+    },
+    {
+      image: require("./assets/img/weather3/thunder.png"),
+    },
+    {
+      image: require("./assets/img/weather3/rainy-thunder.png"),
     },
   ];
 
@@ -425,7 +447,7 @@ export default function App() {
   /**
    * 10일 예보 날씨 아이콘 표시
    */
-  getWeather10Img = (wfCode) => {
+  getWeather10Img = (wfCode, ptyCode = 0) => {
     let code;
     if (isNaN(wfCode)) {
       const obj = midLandWeatherObj[0];
@@ -450,12 +472,20 @@ export default function App() {
         code = 4;
       }
     } else {
-      if (wfCode == 1) {
-        code = 0;
-      } else if (wfCode == 3) {
-        code = 2;
-      } else if (wfCode == 4) {
-        code = 1;
+      if (ptyCode > 0) {
+        if (ptyCode == 1 || ptyCode == 2 || ptyCode == 4) {
+          code = 3;
+        } else if (ptyCode == 3) {
+          code = 4;
+        }
+      } else {
+        if (wfCode == 1) {
+          code = 0;
+        } else if (wfCode == 3) {
+          code = 2;
+        } else if (wfCode == 4) {
+          code = 1;
+        }
       }
     }
     return code;
@@ -804,7 +834,7 @@ export default function App() {
       });
 
     /**
-     * [단기예보조회용 HTTP 비동기 통신 ]
+     * [단기예보조회용 HTTP 비동기 통신 (3일 예보에 사용) ]
      */
     const srtUrl = `http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?serviceKey=${API_KEY}&numOfRows=1000&pageNo=1&dataType=JSON&base_date=${srtBaseDate}&base_time=${srtBaseTime}&nx=${nx}&ny=${ny}`;
     console.log("단기예보 url : " + srtUrl);
@@ -813,6 +843,27 @@ export default function App() {
       .then(function (response) {
         const srtWeatherResponseData = response.data.response.body.items.item; //필요한 정보만 받아오기 전부 다 받아 오려면 response.data 까지만 적는다.
         setSrtWeatherObj(srtWeatherResponseData);
+
+        // 3일 예보 조회용 배열 쪼개기 (TMP:기온 / SKY:하늘상태[맑음(1), 구름많음(3), 흐림(4)] / PTY:강수형태(없음(0), 비(1), 비/눈(2), 눈(3), 소나기(4) / fcstTime:기준시간)
+        const strWeatherTmpObj = srtWeatherResponseData.filter((ele) => {
+          return ele.category == "TMP";
+        });
+        setStrWeatherTmpObj(strWeatherTmpObj);
+
+        const strWeatherSkyObj = srtWeatherResponseData.filter((ele) => {
+          return ele.category == "SKY";
+        });
+        setStrWeatherSkyObj(strWeatherSkyObj);
+
+        const strWeatherPtyObj = srtWeatherResponseData.filter((ele) => {
+          return ele.category == "PTY";
+        });
+        setStrWeatherPtyObj(strWeatherPtyObj);
+
+        const strWeatherPopObj = srtWeatherResponseData.filter((ele) => {
+          return ele.category == "POP";
+        });
+        setStrWeatherPopObj(strWeatherPopObj);
       })
       .catch(function (error) {
         console.log("getSrtWeather 실패 : " + error);
@@ -875,6 +926,7 @@ export default function App() {
           );
         });
 
+        // POP가 중간중간 끼여 있으면 TMN TMX SKY 를 순서대로 쓰기에 불편하기 때문에 배열 뒤로 보내는 코드
         srtWeatherResponseData = srtWeatherResponseData
           .filter((ele) => ele.category != "POP")
           .concat(
@@ -1227,56 +1279,45 @@ export default function App() {
             style={{ height: 120 }}
             showsHorizontalScrollIndicator={false}
           >
-            <View style={styles.ractangle_weather3}>
-              <Image
-                style={{ resizeMode: "contain" }}
-                source={require("./assets/img/weather3/sun.png")}
-              />
-              <Text style={styles.txt_body2_b}>
-                {srtWeatherObj[0].category}°
-              </Text>
-              <Text style={styles.txt_overline_r}>오전 11시</Text>
-            </View>
-            <View style={styles.ractangle_weather3_margin}>
-              <Image
-                style={{ resizeMode: "contain" }}
-                source={require("./assets/img/weather3/sun.png")}
-              />
-              <Text style={styles.txt_body2_b}>18°</Text>
-              <Text style={styles.txt_overline_r}>오전 11시</Text>
-            </View>
-            <View style={styles.ractangle_weather3_margin}>
-              <Image
-                style={{ resizeMode: "contain" }}
-                source={require("./assets/img/weather3/sun.png")}
-              />
-              <Text style={styles.txt_body2_b}>18°</Text>
-              <Text style={styles.txt_overline_r}>오전 11시</Text>
-            </View>
-            <View style={styles.ractangle_weather3_margin}>
-              <Image
-                style={{ resizeMode: "contain" }}
-                source={require("./assets/img/weather3/rainy.png")}
-              />
-              <Text style={styles.txt_body2_b}>18°</Text>
-              <Text style={styles.txt_overline_r}>오전 11시</Text>
-            </View>
-            <View style={styles.ractangle_weather3_margin}>
-              <Image
-                style={{ resizeMode: "contain" }}
-                source={require("./assets/img/weather3/cloudy.png")}
-              />
-              <Text style={styles.txt_body2_b}>18°</Text>
-              <Text style={styles.txt_overline_r}>오전 11시</Text>
-            </View>
-            <View style={styles.ractangle_weather3_margin}>
-              <Image
-                style={{ resizeMode: "contain" }}
-                source={require("./assets/img/weather3/sun.png")}
-              />
-              <Text style={styles.txt_body2_b}>18°</Text>
-              <Text style={styles.txt_overline_r}>오전 11시</Text>
-            </View>
+            {strWeatherTmpObj.map((arr, i) => (
+              <View
+                style={
+                  i == 0
+                    ? styles.ractangle_weather3
+                    : styles.ractangle_weather3_margin
+                }
+                id={i}
+              >
+                <Image
+                  style={{ resizeMode: "contain" }}
+                  source={
+                    IMG_WEATHER3_SRC[
+                      getWeather10Img(
+                        strWeatherSkyObj[i].fcstValue,
+                        strWeatherPtyObj[i].fcstValue
+                      )
+                    ].image
+                  }
+                  id={i}
+                />
+                <Text style={styles.txt_body2_b}>
+                  {strWeatherTmpObj[i].fcstValue}°
+                </Text>
+                <Text style={styles.txt_overline_r}>
+                  {Number(strWeatherTmpObj[i].fcstTime.substr(0, 2)) == 12
+                    ? "오후 12시"
+                    : Number(strWeatherTmpObj[i].fcstTime.substr(0, 2)) == 0
+                    ? "오전 12시"
+                    : Number(strWeatherTmpObj[i].fcstTime.substr(0, 2)) < 12
+                    ? "오전 " +
+                      (Number(strWeatherTmpObj[i].fcstTime.substr(0, 2)) % 12) +
+                      "시"
+                    : "오후 " +
+                      (Number(strWeatherTmpObj[i].fcstTime.substr(0, 2)) % 12) +
+                      "시"}
+                </Text>
+              </View>
+            ))}
           </ScrollView>
         </View>
       </View>
