@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useReducer } from "react";
 import { Alert, StyleSheet, Text, View, Image, ScrollView } from "react-native";
 import * as Location from "expo-location";
 import axios from "axios";
@@ -53,66 +53,125 @@ export default function App() {
   const API_KEY =
     "Skm8Sx%2BhuSd8PBsZeDzGPZVXFlXODLxEJR2MRRajPQqn1aID2DYuEYoMC97NhdpJ4AzetqrX2xTDHtIUKnTX1g%3D%3D";
 
+  const initialState = {
+    // [로딩화면 boolean 값 : 데이터 다 받아오면 false 할당]
+    isLoading: true,
+
+    // [위,경도를 각각 X좌표, Y좌표로 변환한 값]
+    gridX: "",
+    gridY: "",
+
+    // [위,경도에 해당하는 한글 주소값 객체 (시,군,구)]
+    addrObj: {},
+
+    // [초단기예보 조회용 변수]
+    ultSrtBaseTime: "0000",
+    ultSrtBaseDate: "",
+    ultSrtWeatherObj: {},
+
+    // [단기예보 조회용 변수]
+    srtBaseTime: "0200",
+    srtBaseDate: "",
+    srtWeatherObj: {},
+
+    // [단기 3일예보 노출용 변수]
+    // *3일 예보는 단기예보 데이터 그대로 사용. 10일 예보는 baseTime을 0200으로 세팅하여 단기예보 API 따로 한번 더 호출하여 사용
+    strWeatherTmpObj: {},
+    strWeatherSkyObj: {},
+    strWeatherPtyObj: {},
+    strWeatherPopObj: {},
+
+    // [단기 10일예보 조회용 변수]
+    srtWeather10Obj: {},
+
+    // [중기예보 조회용 변수] ( midLandWeatherObj : 중기육상예보조회용 객체 / midTaWeatherObj : 중기기온예보조회용 객체 )
+    midBaseDateTime: "",
+    midLandWeatherObj: {},
+    midTaWeatherObj: {},
+
+    // [현재 날씨 노출용 변수] (crtTemp:현재 기온 / crtWindSpd:현재 풍속 / feelTemp:체감 온도 / humidity:습도 / imageVar:현재 기온 아이콘)
+    crtTemp: "",
+    crtWindSpd: "",
+    feelTemp: "",
+    humidity: "",
+    imageVar: "",
+  };
+
+  function reducer(state, action) {
+    switch (action.type) {
+      case "SET_ISLOADING":
+        return { ...state, isLoading: false };
+      case "SET_GRID":
+        return { ...state, gridX: action.gridX, gridY: action.gridY };
+      case "SET_ADDR_OBJ":
+        return { ...state, addrObj: action.addrObj };
+      case "SET_WEATHER_BASETIME":
+        return {
+          ...state,
+          srtBaseTime: action.srtBaseTime,
+          srtBaseDate: action.srtBaseDate,
+          ultSrtBaseTime: action.ultSrtBaseTime,
+          ultSrtBaseDate: action.ultSrtBaseDate,
+          midBaseDateTime: action.midBaseDateTime,
+        };
+      case "SET_ULTSTR_WEATHER_OBJ":
+        return {
+          ...state,
+          ultSrtWeatherObj: action.ultSrtWeatherObj,
+        };
+      case "SET_STR_WEATHER_OBJ":
+        return {
+          ...state,
+          srtWeatherObj: action.srtWeatherObj,
+          strWeatherTmpObj: action.strWeatherTmpObj,
+          strWeatherSkyObj: action.strWeatherSkyObj,
+          strWeatherPtyObj: action.strWeatherPtyObj,
+          strWeatherPopObj: action.strWeatherPopObj,
+        };
+      case "SET_STR_WEATHER10_OBJ":
+        return {
+          ...state,
+          srtWeather10Obj: action.srtWeather10Obj,
+        };
+      case "SET_MID_LAND_WEATHER_OBJ":
+        return {
+          ...state,
+          midLandWeatherObj: action.midLandWeatherObj,
+        };
+      case "SET_MID_TA_WEATHER_OBJ":
+        return {
+          ...state,
+          midTaWeatherObj: action.midTaWeatherObj,
+        };
+      case "SET_CRNT_WEATHER":
+        return {
+          ...state,
+          crtTemp: action.midTaWeatherObj,
+          crtWindSpd: action.crtWindSpd,
+          feelTemp: action.feelTemp,
+          humidity: action.humidity,
+          imageVar: action.imageVar,
+        };
+      default:
+        throw new Error();
+    }
+  }
+
+  const [state, dispatch] = useReducer(reducer, initialState);
+
   /**
-   * 위치 조회용 변수
-   */
-  const [isLoading, setIsLoading] = useState(true);
-
-  const [latitude, setLatitude] = useState(null);
-  const [longitude, setLongitude] = useState(null);
-
-  const [gridX, seGridX] = useState(null);
-  const [gridY, seGridY] = useState(null);
-
-  /**
-   * 초단기실황조회용 변수
+   * 초단기실황조회용 변수 (사용안함)
    */
   // const [ultraSrtLiveBaseDate, setultraSrtLiveBaseDate] = useState(null);
   // const [ultraSrtLiveBaseTime, setUltraSrtLiveBaseTime] = useState("0000");
   // const [ultSrtLiveWeatherObj, setUltSrtLiveWeatherObj] = useState({});
 
-  /**
-   * 초단기예보조회용 변수
-   */
-  const [ultraSrtBaseDate, setultraSrtBaseDate] = useState(null);
-  const [ultraSrtBaseTime, setUltraSrtBaseTime] = useState("0000");
-  const [ultSrtWeatherObj, setUltSrtWeatherObj] = useState({});
-
-  /**
-   * 단기예보조회용 변수
-   */
-  const [srtBaseDate, setSrtBaseDate] = useState(null);
-  const [srtBaseTime, setSrtBaseTime] = useState("0200");
-  const [srtWeatherObj, setSrtWeatherObj] = useState({});
-  /**
-   * 단기예보 3일 예보 조회용 변수
-   */
-  const [strWeatherTmpObj, setStrWeatherTmpObj] = useState({});
-  const [strWeatherSkyObj, setStrWeatherSkyObj] = useState({});
-  const [strWeatherPtyObj, setStrWeatherPtyObj] = useState({});
-  const [strWeatherPopObj, setStrWeatherPopObj] = useState({});
-  /**
-   * 단기예보 10일 예보 조회용 변수
-   */
-  const [srtWeather10Obj, setSrtWeather10Obj] = useState({});
-
-  /**
-   * 중기예보조회용 변수
-   */
-  const [midTmFc, setMidTmFc] = useState(null);
-  const [midLandRegId, setMidLandRegId] = useState(); //중기육상예보조회용 지역코드
-  const [midLandWeatherObj, setmidLandWeatherObj] = useState({}); //중기육상예보조회용 객체
-  const [midTaRegId, setMidTaRegId] = useState(); //중기기온조회용 지역코드
-  const [midTaWeatherObj, setmidTaWeatherObj] = useState({}); //중기육상예보조회용 객체
-
-  let [addrObj, setAddrObj] = useState({});
-
   // 날씨 데이터
-  const [crtTemp, setCrtTemp] = useState(); // 현재 기온
-  const [crtWindSpd, setCrtWindSpd] = useState(); // 현재 풍속
-  const [feelTemp, setFeelTemp] = useState(); // 체감 온도
-  const [humidity, setHumidity] = useState(); // 습도
-  const [imageVar, setImageVar] = useState(0); // 현재 기온 아이콘 이름
+  // const [crtTemp, setCrtTemp] = useState(); // 현재 기온
+  // const [crtWindSpd, setCrtWindSpd] = useState(); // 현재 풍속
+  // const [feelTemp, setFeelTemp] = useState(); // 체감 온도
+  // const [humidity, setHumidity] = useState(); // 습도
+  // const [imageVar, setImageVar] = useState(0); // 현재 기온 아이콘 이름
 
   const IMG_WEATHER_SRC = [
     {
@@ -189,18 +248,17 @@ export default function App() {
   getTime = async () => {
     let todayDate = moment().format("YYYYMMDD");
     let currentTime = moment().format("HHmm"); //현재 시간분 (HH:24h / hh:12h)
-    let yesterdayDate = moment().subtract(1, "days"); // 어제날짜 구하기
-    yesterdayDate = moment(yesterdayDate).format("YYYYMMDD"); // 어제날짜 포맷 재 설정
+    let yesterdayDate = moment().subtract(1, "days").format("YYYYMMDD"); // 어제날짜 구하기
 
+    let strBaseDate = todayDate;
     let srtBaseTime;
-    // let ultraSrtLiveBaseTime; // 초단기실황 조회용
-    let ultraSrtBaseTime;
+    let ultSrtBaseDate = todayDate;
+    let ultSrtBaseTime;
     let midBaseDate = todayDate;
     let midBaseTime;
+    // let ultraSrtLiveBaseTime; // 초단기실황 조회용 (사용안함)
 
-    setSrtBaseDate(todayDate);
-    // setultraSrtLiveBaseDate(todayDate); //초단기실황 조회용
-    setultraSrtBaseDate(todayDate);
+    // setultraSrtLiveBaseDate(todayDate); //초단기실황 조회용 (사용안함)
 
     /**
      * [단기예보조회용 날짜/시간 세팅]
@@ -209,7 +267,8 @@ export default function App() {
      */
     if (moment(currentTime).isBetween("0000", "0211")) {
       // 0시~2시 10분 사이 : base_date가 어제 날짜로 바뀌어야 한다.
-      setSrtBaseDate(yesterdayDate);
+      strBaseDate = yesterdayDate;
+      //dispatch({ type: "SET_STR_YESTDATE", yesterDate: yesterdayDate });
       srtBaseTime = "2300";
     } else if (moment(currentTime).isBetween("0211", "0511")) {
       // 2시 11분~5시 10분 사이
@@ -236,10 +295,9 @@ export default function App() {
       // 23시 11분~23시 59분
       srtBaseTime = "2300";
     }
-    setSrtBaseTime(srtBaseTime);
 
     /**
-     * [초단기실황조회용 날짜/시간 세팅]
+     * [초단기실황조회용 날짜/시간 세팅] (사용안함)
      * 매시간 정각 40분 후에 조회 가능. 예) 12시 데이터는 12시 41분부터 / 1시 데이터는 1시 41분부터 조회 가능
      */
     // if (moment(currentTime).isBetween("0041", "0141")) {
@@ -301,58 +359,57 @@ export default function App() {
      * 매시간 정각 45분 후에 조회 가능. 예) 12시 데이터는 12시 46분부터 / 1시 데이터는 1시 46분부터 조회 가능
      */
     if (moment(currentTime).isBetween("0046", "0146")) {
-      ultraSrtBaseTime = "0030";
+      ultSrtBaseTime = "0030";
     } else if (moment(currentTime).isBetween("0146", "0246")) {
-      ultraSrtBaseTime = "0130";
+      ultSrtBaseTime = "0130";
     } else if (moment(currentTime).isBetween("0246", "0346")) {
-      ultraSrtBaseTime = "0230";
+      ultSrtBaseTime = "0230";
     } else if (moment(currentTime).isBetween("0346", "0446")) {
-      ultraSrtBaseTime = "0330";
+      ultSrtBaseTime = "0330";
     } else if (moment(currentTime).isBetween("0446", "0546")) {
-      ultraSrtBaseTime = "0430";
+      ultSrtBaseTime = "0430";
     } else if (moment(currentTime).isBetween("0546", "0646")) {
-      ultraSrtBaseTime = "0530";
+      ultSrtBaseTime = "0530";
     } else if (moment(currentTime).isBetween("0646", "0746")) {
-      ultraSrtBaseTime = "0630";
+      ultSrtBaseTime = "0630";
     } else if (moment(currentTime).isBetween("0746", "0846")) {
-      ultraSrtBaseTime = "0730";
+      ultSrtBaseTime = "0730";
     } else if (moment(currentTime).isBetween("0846", "0946")) {
-      ultraSrtBaseTime = "0830";
+      ultSrtBaseTime = "0830";
     } else if (moment(currentTime).isBetween("0946", "1046")) {
-      ultraSrtBaseTime = "0930";
+      ultSrtBaseTime = "0930";
     } else if (moment(currentTime).isBetween("1046", "1146")) {
-      ultraSrtBaseTime = "1030";
+      ultSrtBaseTime = "1030";
     } else if (moment(currentTime).isBetween("1146", "1246")) {
-      ultraSrtBaseTime = "1130";
+      ultSrtBaseTime = "1130";
     } else if (moment(currentTime).isBetween("1246", "1346")) {
-      ultraSrtBaseTime = "1230";
+      ultSrtBaseTime = "1230";
     } else if (moment(currentTime).isBetween("1346", "1446")) {
-      ultraSrtBaseTime = "1330";
+      ultSrtBaseTime = "1330";
     } else if (moment(currentTime).isBetween("1446", "1546")) {
-      ultraSrtBaseTime = "1430";
+      ultSrtBaseTime = "1430";
     } else if (moment(currentTime).isBetween("1546", "1646")) {
-      ultraSrtBaseTime = "1530";
+      ultSrtBaseTime = "1530";
     } else if (moment(currentTime).isBetween("1646", "1746")) {
-      ultraSrtBaseTime = "1630";
+      ultSrtBaseTime = "1630";
     } else if (moment(currentTime).isBetween("1746", "1846")) {
-      ultraSrtBaseTime = "1730";
+      ultSrtBaseTime = "1730";
     } else if (moment(currentTime).isBetween("1846", "1946")) {
-      ultraSrtBaseTime = "1830";
+      ultSrtBaseTime = "1830";
     } else if (moment(currentTime).isBetween("1946", "2046")) {
-      ultraSrtBaseTime = "1930";
+      ultSrtBaseTime = "1930";
     } else if (moment(currentTime).isBetween("2046", "2146")) {
-      ultraSrtBaseTime = "2030";
+      ultSrtBaseTime = "2030";
     } else if (moment(currentTime).isBetween("2146", "2246")) {
-      ultraSrtBaseTime = "2130";
+      ultSrtBaseTime = "2130";
     } else if (moment(currentTime).isBetween("2246", "2346")) {
-      ultraSrtBaseTime = "2230";
+      ultSrtBaseTime = "2230";
     } else if (moment(currentTime).isBetween("2346", "0000")) {
-      ultraSrtBaseTime = "2330";
+      ultSrtBaseTime = "2330";
     } else if (moment(currentTime).isBetween("0000", "0046")) {
-      ultraSrtBaseTime = "2330";
-      setultraSrtBaseDate(yesterdayDate);
+      ultSrtBaseTime = "2330";
+      ultSrtBaseDate = yesterdayDate;
     }
-    setUltraSrtBaseTime(ultraSrtBaseTime);
 
     /**
      * [중기예보조회용 날짜/시간 세팅]
@@ -366,7 +423,15 @@ export default function App() {
     } else if (moment(currentTime).isBetween("1801", "2359")) {
       midBaseTime = "1800";
     }
-    setMidTmFc(midBaseDate + midBaseTime);
+
+    dispatch({
+      type: "SET_WEATHER_BASETIME",
+      ultSrtBaseTime: ultSrtBaseTime,
+      ultSrtBaseDate: ultSrtBaseDate,
+      srtBaseTime: srtBaseTime,
+      srtBaseDate: strBaseDate,
+      midBaseDateTime: midBaseDate + midBaseTime,
+    });
   };
 
   /**
@@ -381,29 +446,27 @@ export default function App() {
       return;
     }
 
-    let location = await Location.getCurrentPositionAsync({});
+    const location = await Location.getCurrentPositionAsync({});
+    const latitude = location.coords.latitude;
+    const longitude = location.coords.longitude;
 
-    setLatitude(location.coords.latitude);
-    setLongitude(location.coords.longitude);
+    await getAddress(latitude, longitude);
+    const midRegId = await getRegId();
 
-    await getAddress(location.coords.latitude, location.coords.longitude);
-    await getRegId();
+    const rs = await getGridGPS(latitude, longitude); // 위도,경도를 기상청 api에 활용 가능한 x,y로 바꾸는 함수
+    dispatch({ type: "SET_GRID", gridX: rs.x, gridY: rs.y });
 
-    const rs = await getGridGPS(); // 위도,경도를 기상청 api에 활용 가능한 x,y로 바꾸는 함수
-    seGridX(rs.x);
-    seGridY(rs.y);
-
-    await getWeather(rs.x, rs.y); // 좌표 값 사용하여 날씨데이터 받아오는 함수
+    await getWeather(rs.x, rs.y, midRegId); // 좌표 값 사용하여 날씨데이터 받아오는 함수
 
     /**
      * 현재 기온 및 상세 예보용
      */
-    const temp = ultSrtWeatherObj[25].fcstValue; // 현재 기온
-    const wind = ultSrtWeatherObj[55].fcstValue; // 현재 풍속
-    const humidity = ultSrtWeatherObj[31].fcstValue; // 현재 습도
-    const sky = ultSrtWeatherObj[19].fcstValue; // 현재 하늘 상태
-    const pty = ultSrtWeatherObj[7].fcstValue; // 현재 강수 코드
-    const lgy = ultSrtWeatherObj[1].fcstValue; // 현재 낙뢰 코드
+    const temp = state.ultSrtWeatherObj[25].fcstValue; // 현재 기온
+    const wind = state.ultSrtWeatherObj[55].fcstValue; // 현재 풍속
+    const humidity = state.ultSrtWeatherObj[31].fcstValue; // 현재 습도
+    const sky = state.ultSrtWeatherObj[19].fcstValue; // 현재 하늘 상태
+    const pty = state.ultSrtWeatherObj[7].fcstValue; // 현재 강수 코드
+    const lgy = state.ultSrtWeatherObj[1].fcstValue; // 현재 낙뢰 코드
     let icon = 0; // 현재 기온 아이콘 이름
 
     const feelTemp = Math.round(
@@ -437,11 +500,20 @@ export default function App() {
       }
     }
 
-    setImageVar(icon);
-    setCrtTemp(temp);
-    setCrtWindSpd(wind);
-    setFeelTemp(feelTemp);
-    setHumidity(humidity);
+    dispatch({
+      type: "SET_CRNT_WEATHER",
+      crtTemp: temp,
+      crtWindSpd: wind,
+      feelTemp: feelTemp,
+      humidity: humidity,
+      imageVar: icon,
+    });
+
+    // setImageVar(icon);
+    // setCrtTemp(temp);
+    // setCrtWindSpd(wind);
+    // setFeelTemp(feelTemp);
+    // setHumidity(humidity);
   };
 
   /**
@@ -450,7 +522,7 @@ export default function App() {
   getWeather10Img = (wfCode, ptyCode = 0) => {
     let code;
     if (isNaN(wfCode)) {
-      const obj = midLandWeatherObj[0];
+      const obj = state.midLandWeatherObj[0];
       const sky = obj[wfCode];
 
       if (sky == "맑음") {
@@ -505,10 +577,13 @@ export default function App() {
         const addrText = response.data.response.result[0].text; // 주소 전체 (중기예보지역코드 얻기위함)
         const addrGu = response.data.response.result[0].structure.level2; // 구 이름
         const addrDong = response.data.response.result[0].structure.level4L; // 동 이름
-        setAddrObj({
-          addrText,
-          addrGu,
-          addrDong,
+        dispatch({
+          type: "SET_ADDR_OBJ",
+          addrObj: {
+            addrText,
+            addrGu,
+            addrDong,
+          },
         });
       })
       .catch(function (error) {
@@ -721,20 +796,25 @@ export default function App() {
       추자: "11G00800",
     };
 
+    var regIdObj = {};
+
     // 중기육상 예보코드조회
     Object.keys(midLandRegIdObj).map(function (el) {
-      if (addrObj.addrText.includes(el)) {
-        setMidLandRegId(midLandRegIdObj[el]);
+      if (state.addrObj.addrText.includes(el)) {
+        regIdObj["midLand"] = midLandRegIdObj[el];
+        //setMidLandRegId(midLandRegIdObj[el]);
       }
     });
 
     // 중기기온 예보코드조회
     Object.keys(midTaRegIdObj).map(function (el) {
-      if (addrObj.addrText.includes(el)) {
-        setMidTaRegId(midTaRegIdObj[el]);
+      if (state.addrObj.addrText.includes(el)) {
+        regIdObj["midTa"] = midTaRegIdObj[el];
+        //setMidTaRegId(midTaRegIdObj[el]);
       }
     });
 
+    return regIdObj;
     /**
      * 중기육상예보조회용 지역코드 구하기.
      * 시이름 뒤에 특별시 or 광역시 or 시 가 붙어 있을 경우 떼는 작업
@@ -750,7 +830,7 @@ export default function App() {
   /**
    * 위,경도 -> 좌표변환 함수
    */
-  getGridGPS = async () => {
+  getGridGPS = async (latitude, longitude) => {
     const RE = 6371.00877; // 지구 반경(km)
     const GRID = 5.0; // 격자 간격(km)
     const SLAT1 = 30.0; // 투영 위도1(degree)
@@ -793,7 +873,7 @@ export default function App() {
   };
 
   // nx,ny : 위,경도를 좌표로 바꾼 각각의 값
-  getWeather = async (nx, ny) => {
+  getWeather = async (nx, ny, midRegId) => {
     /**
      * [초단기실황조회용 HTTP 비동기 통신 ]
      */
@@ -816,14 +896,17 @@ export default function App() {
     /**
      * [초단기예보조회용 HTTP 비동기 통신 ]
      */
-    const ultSrtUrl = `http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtFcst?serviceKey=${API_KEY}&numOfRows=100&pageNo=1&base_date=${ultraSrtBaseDate}&base_time=${ultraSrtBaseTime}&nx=${nx}&ny=${ny}&dataType=JSON`;
+    const ultSrtUrl = `http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtFcst?serviceKey=${API_KEY}&numOfRows=100&pageNo=1&base_date=${state.ultSrtBaseDate}&base_time=${state.ultSrtBaseTime}&nx=${nx}&ny=${ny}&dataType=JSON`;
     console.log("초단기예보 url : " + ultSrtUrl);
     await axios
       .get(ultSrtUrl)
       .then(function (response) {
         const ultSrtWeatherResponseData =
           response.data.response.body.items.item;
-        setUltSrtWeatherObj(ultSrtWeatherResponseData);
+        dispatch({
+          type: "SET_ULTSTR_WEATHER_OBJ",
+          ultSrtWeatherObj: ultSrtWeatherResponseData,
+        });
 
         // WeatherResponseData.map(function (arr, i) {
         //   console.log("getUltSrtWeather :" + arr.category);
@@ -836,51 +919,58 @@ export default function App() {
     /**
      * [단기예보조회용 HTTP 비동기 통신 (3일 예보에 사용) ]
      */
-    const srtUrl = `http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?serviceKey=${API_KEY}&numOfRows=1000&pageNo=1&dataType=JSON&base_date=${srtBaseDate}&base_time=${srtBaseTime}&nx=${nx}&ny=${ny}`;
+    const srtUrl = `http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?serviceKey=${API_KEY}&numOfRows=1000&pageNo=1&dataType=JSON&base_date=${state.srtBaseDate}&base_time=${state.srtBaseTime}&nx=${nx}&ny=${ny}`;
     console.log("단기예보 url : " + srtUrl);
     await axios
       .get(srtUrl)
       .then(function (response) {
         const srtWeatherResponseData = response.data.response.body.items.item; //필요한 정보만 받아오기 전부 다 받아 오려면 response.data 까지만 적는다.
-        setSrtWeatherObj(srtWeatherResponseData);
 
         // 3일 예보 조회용 배열 쪼개기 (TMP:기온 / SKY:하늘상태[맑음(1), 구름많음(3), 흐림(4)] / PTY:강수형태(없음(0), 비(1), 비/눈(2), 눈(3), 소나기(4) / fcstTime:기준시간)
         const strWeatherTmpObj = srtWeatherResponseData.filter((ele) => {
           return ele.category == "TMP";
         });
-        setStrWeatherTmpObj(strWeatherTmpObj);
 
         const strWeatherSkyObj = srtWeatherResponseData.filter((ele) => {
           return ele.category == "SKY";
         });
-        setStrWeatherSkyObj(strWeatherSkyObj);
 
         const strWeatherPtyObj = srtWeatherResponseData.filter((ele) => {
           return ele.category == "PTY";
         });
-        setStrWeatherPtyObj(strWeatherPtyObj);
 
         const strWeatherPopObj = srtWeatherResponseData.filter((ele) => {
           return ele.category == "POP";
         });
-        setStrWeatherPopObj(strWeatherPopObj);
+
+        dispatch({
+          type: "SET_STR_WEATHER_OBJ",
+          srtWeatherObj: srtWeatherResponseData,
+          strWeatherTmpObj: strWeatherTmpObj,
+          strWeatherSkyObj: strWeatherSkyObj,
+          strWeatherPtyObj: strWeatherPtyObj,
+          strWeatherPopObj: strWeatherPopObj,
+        });
       })
       .catch(function (error) {
-        console.log("getSrtWeather 실패 : " + error);
+        console.log("단기예보 실패 : " + error);
       });
 
     /**
      * [중기육상예보조회용 HTTP 비동기 통신 ]
      */
-    const midLandUrl = `http://apis.data.go.kr/1360000/MidFcstInfoService/getMidLandFcst?serviceKey=${API_KEY}&dataType=JSON&tmFc=${midTmFc}&regId=${midLandRegId}`;
+    const midLandUrl = `http://apis.data.go.kr/1360000/MidFcstInfoService/getMidLandFcst?serviceKey=${API_KEY}&dataType=JSON&tmFc=${state.midBaseDateTime}&regId=${midRegId.midLand}`;
     console.log("중기육상예보 url : " + midLandUrl);
     await axios
       .get(midLandUrl)
       .then(function (response) {
         const midLandWeatherResponseData =
           response.data.response.body.items.item; //필요한 정보만 받아오기 전부 다 받아 오려면 response.data 까지만 적는다.
-        setmidLandWeatherObj(midLandWeatherResponseData);
-        console.log(midLandWeatherResponseData);
+        dispatch({
+          type: "SET_MID_LAND_WEATHER_OBJ",
+          midLandWeatherObj: midLandWeatherResponseData,
+        });
+        console.log("중기육상예보 데이터", midLandWeatherResponseData);
       })
       .catch(function (error) {
         console.log("getMidWeather 실패 : " + error);
@@ -889,17 +979,20 @@ export default function App() {
     /**
      * [중기기온예보조회용 HTTP 비동기 통신 ]
      */
-    const midUrl = `http://apis.data.go.kr/1360000/MidFcstInfoService/getMidTa?serviceKey=${API_KEY}&dataType=JSON&tmFc=${midTmFc}&regId=${midTaRegId}`;
+    const midUrl = `http://apis.data.go.kr/1360000/MidFcstInfoService/getMidTa?serviceKey=${API_KEY}&dataType=JSON&tmFc=${state.midBaseDateTime}&regId=${midRegId.midTa}`;
     console.log("중기기온예보 url : " + midUrl);
     await axios
       .get(midUrl)
       .then(function (response) {
         const midWeatherResponseData = response.data.response.body.items.item; //필요한 정보만 받아오기 전부 다 받아 오려면 response.data 까지만 적는다.
-        setmidTaWeatherObj(midWeatherResponseData);
-        console.log(midWeatherResponseData);
+        dispatch({
+          type: "SET_MID_TA_WEATHER_OBJ",
+          midTaWeatherObj: midWeatherResponseData,
+        });
+        console.log("중기기온예보 데이터 ", midWeatherResponseData);
       })
       .catch(function (error) {
-        console.log("getMidWeather 실패 : " + error);
+        console.log("중기기온예보조회 실패 : " + error);
       });
   };
 
@@ -909,7 +1002,7 @@ export default function App() {
   const strWeather = async () => {
     const base_time = "0200";
     const base_date = moment().format("YYYYMMDD");
-    const srtUrl = `http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?serviceKey=${API_KEY}&numOfRows=1000&pageNo=1&dataType=JSON&base_date=${base_date}&base_time=${base_time}&nx=${gridX}&ny=${gridY}`;
+    const srtUrl = `http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?serviceKey=${API_KEY}&numOfRows=1000&pageNo=1&dataType=JSON&base_date=${base_date}&base_time=${base_time}&nx=${state.gridX}&ny=${state.gridY}`;
     let srtWeatherResponseData;
     console.log("10일 예보용 단기예보 url : " + srtUrl);
     await axios
@@ -936,16 +1029,16 @@ export default function App() {
         console.log(
           "strWeather10Obj = " + JSON.stringify(srtWeatherResponseData)
         );
-        setSrtWeather10Obj(srtWeatherResponseData);
-        setIsLoading(false);
-        // WeatherResponseData.map(function (arr, i) {
-        //   setSrtWeatherObj ({
-        //     category = arr.category,
-        //   })
-        // });
+        dispatch({
+          type: "SET_STR_WEATHER10_OBJ",
+          srtWeather10Obj: srtWeatherResponseData,
+        });
+        dispatch({
+          type: "SET_ISLOADING",
+        });
       })
       .catch(function (error) {
-        console.log("getSrtWeather 실패 : " + error);
+        console.log("10일 예보용 단기예보 실패 : " + error);
       });
   };
 
@@ -997,25 +1090,25 @@ export default function App() {
    * 배열안에 [count] 같이 인자를 넣어주면 해당 인자가 업데이트 될 때 마다 실행된다.
    * {Math.round(ultSrtWeatherObj[3].obsrValue)}
    */
-  return isLoading ? (
+  return state.isLoading ? (
     <Loading />
   ) : (
     <HeaderComponent>
       <Text style={[styles.txt_h5_b]}>
-        {addrObj.addrGu} {addrObj.addrDong}
+        {state.addrObj.addrGu} {state.addrObj.addrDong}
       </Text>
 
       <View style={styles.content_padding}>
         <View style={styles.ractangle1}>
           <Image
             style={styles.img_weathericon}
-            source={IMG_WEATHER_SRC[imageVar].image}
+            source={IMG_WEATHER_SRC[state.imageVar].image}
           />
           <View style={styles.content_weather}>
-            <Text style={styles.txt_weather}>{crtTemp}°</Text>
+            <Text style={styles.txt_weather}>{state.crtTemp}°</Text>
             <Text style={[styles.txt_subtitle2_r_w, { marginTop: 5 }]}>
-              최고:{Math.round(srtWeather10Obj[2].fcstValue)}° 최저:
-              {Math.round(srtWeather10Obj[0].fcstValue)}°
+              최고:{Math.round(state.srtWeather10Obj[2].fcstValue)}° 최저:
+              {Math.round(state.srtWeather10Obj[0].fcstValue)}°
             </Text>
           </View>
         </View>
@@ -1046,7 +1139,7 @@ export default function App() {
                   { marginLeft: "15%", marginBottom: "15%" },
                 ]}
               >
-                더움 {feelTemp}°
+                더움 {state.feelTemp}°
               </Text>
             </View>
           </View>
@@ -1077,7 +1170,7 @@ export default function App() {
                 },
               ]}
             >
-              습함 {humidity}%
+              습함 {state.humidity}%
             </Text>
           </View>
           <View
@@ -1104,7 +1197,7 @@ export default function App() {
                 { marginLeft: "13%", marginBottom: "15%" },
               ]}
             >
-              약함 {crtWindSpd}m/s
+              약함 {state.crtWindSpd}m/s
             </Text>
           </View>
         </View>
@@ -1279,7 +1372,7 @@ export default function App() {
             style={{ height: 120 }}
             showsHorizontalScrollIndicator={false}
           >
-            {strWeatherTmpObj.map((arr, i) => (
+            {state.strWeatherTmpObj.map((arr, i) => (
               <View
                 style={
                   i == 0
@@ -1293,27 +1386,31 @@ export default function App() {
                   source={
                     IMG_WEATHER3_SRC[
                       getWeather10Img(
-                        strWeatherSkyObj[i].fcstValue,
-                        strWeatherPtyObj[i].fcstValue
+                        state.strWeatherSkyObj[i].fcstValue,
+                        state.strWeatherPtyObj[i].fcstValue
                       )
                     ].image
                   }
                   id={i}
                 />
                 <Text style={styles.txt_body2_b}>
-                  {strWeatherTmpObj[i].fcstValue}°
+                  {state.strWeatherTmpObj[i].fcstValue}°
                 </Text>
                 <Text style={styles.txt_overline_r}>
-                  {Number(strWeatherTmpObj[i].fcstTime.substr(0, 2)) == 12
+                  {Number(state.strWeatherTmpObj[i].fcstTime.substr(0, 2)) == 12
                     ? "오후 12시"
-                    : Number(strWeatherTmpObj[i].fcstTime.substr(0, 2)) == 0
+                    : Number(state.strWeatherTmpObj[i].fcstTime.substr(0, 2)) ==
+                      0
                     ? "오전 12시"
-                    : Number(strWeatherTmpObj[i].fcstTime.substr(0, 2)) < 12
+                    : Number(state.strWeatherTmpObj[i].fcstTime.substr(0, 2)) <
+                      12
                     ? "오전 " +
-                      (Number(strWeatherTmpObj[i].fcstTime.substr(0, 2)) % 12) +
+                      (Number(state.strWeatherTmpObj[i].fcstTime.substr(0, 2)) %
+                        12) +
                       "시"
                     : "오후 " +
-                      (Number(strWeatherTmpObj[i].fcstTime.substr(0, 2)) % 12) +
+                      (Number(state.strWeatherTmpObj[i].fcstTime.substr(0, 2)) %
+                        12) +
                       "시"}
                 </Text>
               </View>
@@ -1353,7 +1450,7 @@ export default function App() {
                 style={{ resizeMode: "contain" }}
                 source={
                   IMG_WEATHER10_SRC[
-                    getWeather10Img(srtWeather10Obj[1].fcstValue)
+                    getWeather10Img(state.srtWeather10Obj[1].fcstValue)
                   ].image
                 }
               />
@@ -1362,12 +1459,12 @@ export default function App() {
             <View style={{ flexDirection: "row" }}>
               <View style={styles.content_weather10_taMax}>
                 <Text style={styles.txt_subtitle1_b}>
-                  {Math.round(srtWeather10Obj[2].fcstValue)}°
+                  {Math.round(state.srtWeather10Obj[2].fcstValue)}°
                 </Text>
               </View>
               <View style={styles.content_weather10_taMin}>
                 <Text style={[styles.txt_subtitle1_r_g]}>
-                  {Math.round(srtWeather10Obj[0].fcstValue)}°
+                  {Math.round(state.srtWeather10Obj[0].fcstValue)}°
                 </Text>
               </View>
             </View>
@@ -1401,7 +1498,7 @@ export default function App() {
                 style={{ resizeMode: "contain" }}
                 source={
                   IMG_WEATHER10_SRC[
-                    getWeather10Img(srtWeather10Obj[4].fcstValue)
+                    getWeather10Img(state.srtWeather10Obj[4].fcstValue)
                   ].image
                 }
               />
@@ -1409,12 +1506,12 @@ export default function App() {
             <View style={{ flexDirection: "row" }}>
               <View style={styles.content_weather10_taMax}>
                 <Text style={styles.txt_subtitle1_b}>
-                  {Math.round(srtWeather10Obj[5].fcstValue)}°
+                  {Math.round(state.srtWeather10Obj[5].fcstValue)}°
                 </Text>
               </View>
               <View style={styles.content_weather10_taMin}>
                 <Text style={[styles.txt_subtitle1_r_g]}>
-                  {Math.round(srtWeather10Obj[3].fcstValue)}°
+                  {Math.round(state.srtWeather10Obj[3].fcstValue)}°
                 </Text>
               </View>
             </View>
@@ -1448,7 +1545,7 @@ export default function App() {
                 style={{ resizeMode: "contain" }}
                 source={
                   IMG_WEATHER10_SRC[
-                    getWeather10Img(srtWeather10Obj[7].fcstValue)
+                    getWeather10Img(state.srtWeather10Obj[7].fcstValue)
                   ].image
                 }
               />
@@ -1456,13 +1553,13 @@ export default function App() {
             <View style={{ flexDirection: "row" }}>
               <View style={styles.content_weather10_taMax}>
                 <Text style={styles.txt_subtitle1_b}>
-                  {Math.round(srtWeather10Obj[8].fcstValue)}°
+                  {Math.round(state.srtWeather10Obj[8].fcstValue)}°
                 </Text>
               </View>
 
               <View style={styles.content_weather10_taMin}>
                 <Text style={[styles.txt_subtitle1_r_g]}>
-                  {Math.round(srtWeather10Obj[6].fcstValue)}°
+                  {Math.round(state.srtWeather10Obj[6].fcstValue)}°
                 </Text>
               </View>
             </View>
@@ -1500,12 +1597,12 @@ export default function App() {
             <View style={{ flexDirection: "row" }}>
               <View style={styles.content_weather10_taMax}>
                 <Text style={styles.txt_subtitle1_b}>
-                  {midTaWeatherObj[0].taMax3}°
+                  {state.midTaWeatherObj[0].taMax3}°
                 </Text>
               </View>
               <View style={styles.content_weather10_taMin}>
                 <Text style={[styles.txt_subtitle1_r_g]}>
-                  {midTaWeatherObj[0].taMin3}°
+                  {state.midTaWeatherObj[0].taMin3}°
                 </Text>
               </View>
             </View>
@@ -1543,12 +1640,12 @@ export default function App() {
             <View style={{ flexDirection: "row" }}>
               <View style={styles.content_weather10_taMax}>
                 <Text style={styles.txt_subtitle1_b}>
-                  {midTaWeatherObj[0].taMax4}°
+                  {state.midTaWeatherObj[0].taMax4}°
                 </Text>
               </View>
               <View style={styles.content_weather10_taMin}>
                 <Text style={[styles.txt_subtitle1_r_g]}>
-                  {midTaWeatherObj[0].taMin4}°
+                  {state.midTaWeatherObj[0].taMin4}°
                 </Text>
               </View>
             </View>
@@ -1586,12 +1683,12 @@ export default function App() {
             <View style={{ flexDirection: "row" }}>
               <View style={styles.content_weather10_taMax}>
                 <Text style={styles.txt_subtitle1_b}>
-                  {midTaWeatherObj[0].taMax5}°
+                  {state.midTaWeatherObj[0].taMax5}°
                 </Text>
               </View>
               <View style={styles.content_weather10_taMin}>
                 <Text style={[styles.txt_subtitle1_r_g]}>
-                  {midTaWeatherObj[0].taMin5}°
+                  {state.midTaWeatherObj[0].taMin5}°
                 </Text>
               </View>
             </View>
@@ -1629,12 +1726,12 @@ export default function App() {
             <View style={{ flexDirection: "row" }}>
               <View style={styles.content_weather10_taMax}>
                 <Text style={styles.txt_subtitle1_b}>
-                  {midTaWeatherObj[0].taMax6}°
+                  {state.midTaWeatherObj[0].taMax6}°
                 </Text>
               </View>
               <View style={styles.content_weather10_taMin}>
                 <Text style={[styles.txt_subtitle1_r_g]}>
-                  {midTaWeatherObj[0].taMin6}°
+                  {state.midTaWeatherObj[0].taMin6}°
                 </Text>
               </View>
             </View>
@@ -1672,12 +1769,12 @@ export default function App() {
             <View style={{ flexDirection: "row" }}>
               <View style={styles.content_weather10_taMax}>
                 <Text style={styles.txt_subtitle1_b}>
-                  {midTaWeatherObj[0].taMax7}°
+                  {state.midTaWeatherObj[0].taMax7}°
                 </Text>
               </View>
               <View style={styles.content_weather10_taMin}>
                 <Text style={[styles.txt_subtitle1_r_g]}>
-                  {midTaWeatherObj[0].taMin7}°
+                  {state.midTaWeatherObj[0].taMin7}°
                 </Text>
               </View>
             </View>
@@ -1715,12 +1812,12 @@ export default function App() {
             <View style={{ flexDirection: "row" }}>
               <View style={styles.content_weather10_taMax}>
                 <Text style={styles.txt_subtitle1_b}>
-                  {midTaWeatherObj[0].taMax8}°
+                  {state.midTaWeatherObj[0].taMax8}°
                 </Text>
               </View>
               <View style={styles.content_weather10_taMin}>
                 <Text style={[styles.txt_subtitle1_r_g]}>
-                  {midTaWeatherObj[0].taMin8}°
+                  {state.midTaWeatherObj[0].taMin8}°
                 </Text>
               </View>
             </View>
@@ -1758,12 +1855,12 @@ export default function App() {
             <View style={{ flexDirection: "row" }}>
               <View style={styles.content_weather10_taMax}>
                 <Text style={styles.txt_subtitle1_b}>
-                  {midTaWeatherObj[0].taMax9}°
+                  {state.midTaWeatherObj[0].taMax9}°
                 </Text>
               </View>
               <View style={styles.content_weather10_taMin}>
                 <Text style={[styles.txt_subtitle1_r_g]}>
-                  {midTaWeatherObj[0].taMin9}°
+                  {state.midTaWeatherObj[0].taMin9}°
                 </Text>
               </View>
             </View>
