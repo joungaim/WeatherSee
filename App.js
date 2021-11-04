@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useReducer } from "react";
+import React, { useEffect, useReducer, useMemo } from "react";
 import {
   Alert,
   StyleSheet,
@@ -104,6 +104,8 @@ export default function App() {
     midLandWeatherObj: {},
     midTaWeatherObj: {},
 
+    weater10Arr: {},
+
     // [현재 날씨 노출용 변수] (crtTemp:현재 기온 / crtWindSpd:현재 풍속 / feelTemp:체감 온도 / humidity:습도 / imageVar:현재 기온 아이콘)
     crtTemp: "",
     crtWindSpd: "",
@@ -116,24 +118,8 @@ export default function App() {
     switch (action.type) {
       case "SET_ISLOADING":
         return { ...state, isLoading: false };
-      // case "SET_GRID":
-      //   return { ...state, gridX: action.gridX, gridY: action.gridY };
       case "SET_ADDR_OBJ":
         return { ...state, addrObj: action.addrObj };
-      // case "SET_WEATHER_BASETIME":
-      //   return {
-      //     ...state,
-      //     //srtBaseTime: action.srtBaseTime,
-      //     //srtBaseDate: action.srtBaseDate,
-      //     //ultSrtBaseTime: action.ultSrtBaseTime,
-      //     //ultSrtBaseDate: action.ultSrtBaseDate,
-      //     //midBaseDateTime: action.midBaseDateTime,
-      //   };
-      // case "SET_ULTSTR_WEATHER_OBJ":
-      //   return {
-      //     ...state,
-      //     ultSrtWeatherObj: action.ultSrtWeatherObj,
-      //   };
       case "SET_STR_WEATHER_OBJ":
         return {
           ...state,
@@ -157,6 +143,11 @@ export default function App() {
         return {
           ...state,
           midTaWeatherObj: action.midTaWeatherObj,
+        };
+      case "SET_WEATHER10_OBJ":
+        return {
+          ...state,
+          weater10Arr: action.weater10Arr,
         };
       case "SET_CRNT_WEATHER":
         return {
@@ -317,14 +308,18 @@ export default function App() {
       strWeatherPopObj: strWeatherPopObj,
     });
 
-    const str10Weather = await Str10Weather(API_KEY, gridX, gridY);
+    const { weather10Data, weather10Arr } = await Str10Weather(
+      API_KEY,
+      gridX,
+      gridY
+    );
 
     dispatch({
       type: "SET_STR_WEATHER10_OBJ",
-      srtWeather10Obj: str10Weather,
+      srtWeather10Obj: weather10Data,
     });
 
-    const midLandWeather = await MidLandWeather(
+    const { midLandData, midLandArr } = await MidLandWeather(
       API_KEY,
       midBaseDateTime,
       midRegId.midLand
@@ -332,10 +327,10 @@ export default function App() {
 
     dispatch({
       type: "SET_MID_LAND_WEATHER_OBJ",
-      midLandWeatherObj: midLandWeather,
+      midLandWeatherObj: midLandData,
     });
 
-    const midTaWeather = await MidTaWeather(
+    const { midTaData, midTaArr } = await MidTaWeather(
       API_KEY,
       midBaseDateTime,
       midRegId.midTa
@@ -343,9 +338,21 @@ export default function App() {
 
     dispatch({
       type: "SET_MID_TA_WEATHER_OBJ",
-      midTaWeatherObj: midTaWeather,
+      midTaWeatherObj: midTaData,
     });
 
+    for (let i = 0; i < 7; i++) {
+      midLandArr[i].tmn = midTaArr[i].tmn;
+      midLandArr[i].tmx = midTaArr[i].tmx;
+    }
+
+    const weaterArr = [...weather10Arr, ...midLandArr];
+
+    dispatch({
+      type: "SET_WEATHER10_OBJ",
+      weater10Arr: weaterArr,
+    });
+    console.log(weaterArr);
     // await getWeather(gridX, gridY, midRegId); // 좌표 값 사용하여 날씨데이터 받아오는 함수
 
     /**
@@ -410,7 +417,7 @@ export default function App() {
   getWeather10Img = (wfCode, ptyCode = 0) => {
     let code;
     if (isNaN(wfCode)) {
-      const obj = state.midLandWeatherObj[0];
+      const obj = state.midLandWeatherObj;
       const sky = obj[wfCode];
 
       if (sky == "맑음") {
@@ -504,10 +511,45 @@ export default function App() {
           />
           <View style={styles.content_weather}>
             <Text style={styles.txt_weather}>{state.crtTemp}°</Text>
-            <Text style={[styles.txt_subtitle2_r_w, { marginTop: 5 }]}>
+            <Text
+              style={[
+                styles.txt_subtitle2_r_w,
+                { marginTop: 5, marginLeft: 6 },
+              ]}
+            >
               최고:{Math.round(state.srtWeather10Obj[2].fcstValue)}° 최저:
               {Math.round(state.srtWeather10Obj[0].fcstValue)}°
             </Text>
+          </View>
+        </View>
+      </View>
+
+      <View style={styles.content_padding_row}>
+        <View style={[styles.ractangle_w_r, { height: 90 }]}>
+          <Image
+            style={styles.img_contain}
+            source={require("./assets/img/dust/reallybad.png")}
+          />
+          <View style={{ marginLeft: "6%" }}>
+            <Text style={[styles.txt_body2_r, { marginBottom: "1%" }]}>
+              미세먼지
+            </Text>
+            <Text style={styles.txt_subtitle1_b}>많이 나쁨</Text>
+          </View>
+        </View>
+
+        <View
+          style={[styles.ractangle_w_r, { height: 90, marginLeft: "2.5%" }]}
+        >
+          <Image
+            style={styles.img_contain}
+            source={require("./assets/img/dust/verybad.png")}
+          />
+          <View style={{ marginLeft: "6%" }}>
+            <Text style={[styles.txt_body2_r, { marginBottom: "1%" }]}>
+              초미세먼지
+            </Text>
+            <Text style={styles.txt_subtitle1_b}>아주 나쁨</Text>
           </View>
         </View>
       </View>
@@ -580,7 +622,7 @@ export default function App() {
               <Text
                 style={[styles.txt_subtitle1_b, styles.color_weather10_1st]}
               >
-                {moment().format("dddd")}
+                {moment().add(0, "days").format("dddd")}
               </Text>
 
               <Text
@@ -745,12 +787,12 @@ export default function App() {
             <View style={{ flexDirection: "row" }}>
               <View style={styles.content_weather10_taMax}>
                 <Text style={styles.txt_subtitle1_b}>
-                  {state.midTaWeatherObj[0].taMax3}°
+                  {state.midTaWeatherObj.taMax3}°
                 </Text>
               </View>
               <View style={styles.content_weather10_taMin}>
                 <Text style={[styles.txt_subtitle1_r_g]}>
-                  {state.midTaWeatherObj[0].taMin3}°
+                  {state.midTaWeatherObj.taMin3}°
                 </Text>
               </View>
             </View>
@@ -788,12 +830,12 @@ export default function App() {
             <View style={{ flexDirection: "row" }}>
               <View style={styles.content_weather10_taMax}>
                 <Text style={styles.txt_subtitle1_b}>
-                  {state.midTaWeatherObj[0].taMax4}°
+                  {state.midTaWeatherObj.taMax4}°
                 </Text>
               </View>
               <View style={styles.content_weather10_taMin}>
                 <Text style={[styles.txt_subtitle1_r_g]}>
-                  {state.midTaWeatherObj[0].taMin4}°
+                  {state.midTaWeatherObj.taMin4}°
                 </Text>
               </View>
             </View>
@@ -831,12 +873,12 @@ export default function App() {
             <View style={{ flexDirection: "row" }}>
               <View style={styles.content_weather10_taMax}>
                 <Text style={styles.txt_subtitle1_b}>
-                  {state.midTaWeatherObj[0].taMax5}°
+                  {state.midTaWeatherObj.taMax5}°
                 </Text>
               </View>
               <View style={styles.content_weather10_taMin}>
                 <Text style={[styles.txt_subtitle1_r_g]}>
-                  {state.midTaWeatherObj[0].taMin5}°
+                  {state.midTaWeatherObj.taMin5}°
                 </Text>
               </View>
             </View>
@@ -874,12 +916,12 @@ export default function App() {
             <View style={{ flexDirection: "row" }}>
               <View style={styles.content_weather10_taMax}>
                 <Text style={styles.txt_subtitle1_b}>
-                  {state.midTaWeatherObj[0].taMax6}°
+                  {state.midTaWeatherObj.taMax6}°
                 </Text>
               </View>
               <View style={styles.content_weather10_taMin}>
                 <Text style={[styles.txt_subtitle1_r_g]}>
-                  {state.midTaWeatherObj[0].taMin6}°
+                  {state.midTaWeatherObj.taMin6}°
                 </Text>
               </View>
             </View>
@@ -917,12 +959,12 @@ export default function App() {
             <View style={{ flexDirection: "row" }}>
               <View style={styles.content_weather10_taMax}>
                 <Text style={styles.txt_subtitle1_b}>
-                  {state.midTaWeatherObj[0].taMax7}°
+                  {state.midTaWeatherObj.taMax7}°
                 </Text>
               </View>
               <View style={styles.content_weather10_taMin}>
                 <Text style={[styles.txt_subtitle1_r_g]}>
-                  {state.midTaWeatherObj[0].taMin7}°
+                  {state.midTaWeatherObj.taMin7}°
                 </Text>
               </View>
             </View>
@@ -960,12 +1002,12 @@ export default function App() {
             <View style={{ flexDirection: "row" }}>
               <View style={styles.content_weather10_taMax}>
                 <Text style={styles.txt_subtitle1_b}>
-                  {state.midTaWeatherObj[0].taMax8}°
+                  {state.midTaWeatherObj.taMax8}°
                 </Text>
               </View>
               <View style={styles.content_weather10_taMin}>
                 <Text style={[styles.txt_subtitle1_r_g]}>
-                  {state.midTaWeatherObj[0].taMin8}°
+                  {state.midTaWeatherObj.taMin8}°
                 </Text>
               </View>
             </View>
@@ -1003,12 +1045,12 @@ export default function App() {
             <View style={{ flexDirection: "row" }}>
               <View style={styles.content_weather10_taMax}>
                 <Text style={styles.txt_subtitle1_b}>
-                  {state.midTaWeatherObj[0].taMax9}°
+                  {state.midTaWeatherObj.taMax9}°
                 </Text>
               </View>
               <View style={styles.content_weather10_taMin}>
                 <Text style={[styles.txt_subtitle1_r_g]}>
-                  {state.midTaWeatherObj[0].taMin9}°
+                  {state.midTaWeatherObj.taMin9}°
                 </Text>
               </View>
             </View>
@@ -1016,96 +1058,51 @@ export default function App() {
         </View>
       </View>
 
-      <View style={[styles.ractangle_bg, { height: 200 }]}>
+      <View style={[styles.ractangle_bg, { height: 170 }]}>
         <View style={styles.content_padding}>
           <Text style={styles.txt_h6_b}>상세 예보</Text>
         </View>
         <View style={styles.content_padding_row}>
-          <View style={[styles.ractangle_detail, { height: 120 }]}>
+          <View style={styles.ractangle_detail}>
             <Image
               style={styles.img_detail}
               source={require("./assets/img/temperatures.png")}
             />
-            <View>
-              <Text
-                style={[
-                  styles.txt_caption_r,
-                  { marginLeft: "15%", marginBottom: "3%" },
-                ]}
-              >
+            <View style={styles.contain_detail}>
+              <Text style={[styles.txt_caption_r, { marginBottom: "3%" }]}>
                 체감온도
               </Text>
-              <Text
-                style={[
-                  styles.txt_subtitle1_b,
-                  { marginLeft: "15%", marginBottom: "15%" },
-                ]}
-              >
-                더움 {state.feelTemp}°
-              </Text>
+              <Text style={[styles.txt_subtitle1_b]}>{state.feelTemp}°</Text>
             </View>
           </View>
-          <View
-            style={[
-              styles.ractangle_detail,
-              { height: 120, marginLeft: "2.5%" },
-            ]}
-          >
+          <View style={[styles.ractangle_detail, { marginLeft: "2.5%" }]}>
             <Image
               style={styles.img_detail}
               source={require("./assets/img/humidity.png")}
             />
-            <Text
-              style={[
-                styles.txt_caption_r,
-                { marginLeft: "15%", marginBottom: "3%" },
-              ]}
-            >
-              습도
-            </Text>
-            <Text
-              style={[
-                styles.txt_subtitle1_b,
-                {
-                  marginLeft: "15%",
-                  marginBottom: "15%",
-                },
-              ]}
-            >
-              습함 {state.humidity}%
-            </Text>
+            <View style={styles.contain_detail}>
+              <Text style={[styles.txt_caption_r, { marginBottom: "3%" }]}>
+                습도
+              </Text>
+              <Text style={styles.txt_subtitle1_b}>{state.humidity}%</Text>
+            </View>
           </View>
-          <View
-            style={[
-              styles.ractangle_detail,
-              { height: 120, marginLeft: "2.5%" },
-            ]}
-          >
+          <View style={[styles.ractangle_detail, { marginLeft: "2.5%" }]}>
             <Image
-              style={styles.img_detail}
+              style={styles.img_detail_wind}
               source={require("./assets/img/windspeed.png")}
             />
-            <Text
-              style={[
-                styles.txt_caption_r,
-                { marginLeft: "13%", marginBottom: "3%" },
-              ]}
-            >
-              서풍
-            </Text>
-            <Text
-              style={[
-                styles.txt_subtitle1_b,
-                { marginLeft: "13%", marginBottom: "15%" },
-              ]}
-            >
-              약함 {state.crtWindSpd}m/s
-            </Text>
+            <View style={[styles.contain_detail, { marginLeft: "3%" }]}>
+              <Text style={[styles.txt_caption_r, { marginBottom: "3%" }]}>
+                서풍
+              </Text>
+              <Text style={styles.txt_subtitle1_b}>{state.crtWindSpd}㎧</Text>
+            </View>
           </View>
         </View>
       </View>
 
-      <View style={[styles.ractangle_bg_row, { height: 50 }]}>
+      {/* <View style={[styles.ractangle_bg_row, { height: 50 }]}>
         <View style={styles.content_padding_row}>
           <View style={styles.content_umbrella}>
             <Image
@@ -1120,15 +1117,12 @@ export default function App() {
             </Text>
           </View>
         </View>
-      </View>
+      </View> */}
 
-      <View style={[styles.ractangle_bg, { height: 300 }]}>
+      <View style={[styles.ractangle_bg, { height: 250 }]}>
         <View style={styles.content_padding}>
-          <Text style={([styles.txt_caption_r], { paddingTop: "5%" })}>
-            옷차림 알림
-          </Text>
+          <Text style={styles.txt_h6_b}> 옷차림 예보 </Text>
         </View>
-        <View style={styles.devider}></View>
         <View style={styles.content_padding}>
           <Image
             style={styles.img_clothes}
@@ -1136,16 +1130,17 @@ export default function App() {
           />
           <View
             style={{
-              marginTop: "-38%",
+              marginTop: "-25.5%",
               marginLeft: "5.5%",
               marginRight: "5.5%",
             }}
           >
-            <Text style={[styles.txt_h6_b]}>아주더움</Text>
-            <Text style={styles.txt_subtitle2_r}>어제보다 6° 낮아요</Text>
+            {/* <Text style={[styles.txt_h6_b]}>아주더움</Text> */}
+            <Text style={[styles.txt_subtitle2_r, { paddingTop: "5%" }]}>
+              아주더운 한여름 날씨에요!
+            </Text>
             <Text style={[styles.txt_caption_r, { marginTop: 7 }]}>
-              아주더운 한여름 날씨에요! 민소매, 반팔, 반바지등의 얇은 옷이
-              좋아요
+              민소매, 반팔, 반바지등의 얇은 옷이좋아요
             </Text>
           </View>
 
@@ -1200,38 +1195,9 @@ export default function App() {
           </View>
         </View>
       </View>
-      <View style={styles.content_padding}>
+      {/* <View style={styles.content_padding}>
         <Text style={styles.txt_h6_b}>미세먼지 단계</Text>
-      </View>
-      <View style={styles.content_padding_row}>
-        <View style={[styles.ractangle_w_r, { height: 90 }]}>
-          <Image
-            style={styles.img_contain}
-            source={require("./assets/img/dust/reallybad.png")}
-          />
-          <View style={{ marginLeft: "6%" }}>
-            <Text style={[styles.txt_subtitle1_b, { marginBottom: "1%" }]}>
-              많이 나쁨
-            </Text>
-            <Text style={styles.txt_body2_r}>미세먼지</Text>
-          </View>
-        </View>
-
-        <View
-          style={[styles.ractangle_w_r, { height: 90, marginLeft: "2.5%" }]}
-        >
-          <Image
-            style={styles.img_contain}
-            source={require("./assets/img/dust/verybad.png")}
-          />
-          <View style={{ marginLeft: "6%" }}>
-            <Text style={[styles.txt_subtitle1_b, { marginBottom: "1%" }]}>
-              아주 나쁨
-            </Text>
-            <Text style={styles.txt_body2_r}>초미세먼지</Text>
-          </View>
-        </View>
-      </View>
+      </View> */}
 
       <View style={styles.content_padding}>
         <Text style={[styles.txt_h6_b, { marginTop: "3%" }]}>
@@ -1287,7 +1253,8 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: "10%",
     paddingBottom: "20%",
-    alignItems: "center",
+    marginLeft: "5%",
+    alignItems: "flex-start",
   },
 
   content_padding: {
@@ -1347,8 +1314,8 @@ const styles = StyleSheet.create({
     fontSize: 85,
     color: "white",
     height: 105,
-    marginTop: 0,
-    paddingTop: 0,
+    margin: 0,
+    padding: 0,
   },
 
   txt_h5_b: {
@@ -1557,7 +1524,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     marginTop: 25,
-    marginBottom: 15,
+    marginBottom: 10,
     paddingLeft: "5%",
     paddingRight: "5%",
   },
@@ -1591,17 +1558,22 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     width: "100%",
     borderRadius: 14,
-    marginTop: 20,
+    marginTop: 10,
+    marginBottom: 10,
     alignItems: "center",
     justifyContent: "center",
   },
 
   ractangle_detail: {
     flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    flexDirection: "row",
     backgroundColor: "#F3F3F9",
     width: "100%",
     borderRadius: 14,
     marginTop: 20,
+    height: 68,
   },
 
   ractangle_weather3: {
@@ -1627,6 +1599,11 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
 
+  contain_detail: {
+    flex: 1.3,
+    alignItems: "flex-start",
+  },
+
   img_weathericon: {
     flex: 1,
     resizeMode: "contain",
@@ -1634,10 +1611,17 @@ const styles = StyleSheet.create({
 
   img_detail: {
     flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
     resizeMode: "contain",
-    marginLeft: "15%",
-    marginTop: "15%",
-    marginBottom: "10%",
+  },
+
+  img_detail_wind: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    resizeMode: "contain",
+    marginLeft: "3%",
   },
 
   img_weather3: {
