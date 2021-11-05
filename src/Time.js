@@ -139,14 +139,14 @@ async function Time() {
    * [중기예보조회용 날짜/시간 세팅]
    * 0600 / 1800 하루에 두 번 조회 가능
    */
-  if (moment(currentTime).isBetween("0000", "0601")) {
+  if (moment(currentTime).isBetween("0000", "0601", undefined, "[)")) {
     // 12시 01분~6시 00분 사이
     midBaseDate = yesterdayDate;
     midBaseTime = "1800";
   } else if (moment(currentTime).isBetween("0600", "1801")) {
     // 6시 01분~18시 00분 사이
     midBaseTime = "0600";
-  } else if (moment(currentTime).isBetween("1800", "0001")) {
+  } else {
     // 18시 01분~12시 00분 사이
     midBaseTime = "1800";
   }

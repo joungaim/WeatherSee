@@ -106,7 +106,7 @@ async function Str10Weather(apikey, nx, ny) {
       for (let i = 0; i < weather10DataLth; i += 3) {
         weather10Arr[j] = {
           tmn: Math.round(weather10Data[i].fcstValue),
-          sky: weather10Data[i + 1].fcstValue,
+          sky: Number(weather10Data[i + 1].fcstValue),
           tmx: Math.round(weather10Data[i + 2].fcstValue),
         };
         j++;
