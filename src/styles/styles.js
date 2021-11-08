@@ -12,7 +12,9 @@ const styles = StyleSheet.create({
   header: {
     height: 10,
   },
-
+  wrapper: { height: 90 },
+  slide1: { height: 90 },
+  slide2: { height: 90 },
   content: {
     flex: 1,
   },
@@ -197,13 +199,13 @@ const styles = StyleSheet.create({
     lineHeight: 14,
   },
 
-  txt_weather10_1st: {
-    fontSize: 12,
-    color:
-      moment().format("dddd") == ("토요일" || "일요일") ? "#FF3B30" : "black",
-    fontFamily: "NotoSansKR_400Regular",
-    lineHeight: 15,
-  },
+  //   txt_weather10_1st: {
+  //     fontSize: 12,
+  //     color:
+  //       moment().format("dddd") == ("토요일" || "일요일") ? "#FF3B30" : "black",
+  //     fontFamily: "NotoSansKR_400Regular",
+  //     lineHeight: 15,
+  //   },
 
   color_weather10_1st: {
     color:
@@ -282,6 +284,13 @@ const styles = StyleSheet.create({
       moment().add(9, "days").format("dddd") == "일요일"
         ? "#FF3B30"
         : "black",
+  },
+
+  ractangle_wrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    height: 90,
   },
 
   ractangle1: {

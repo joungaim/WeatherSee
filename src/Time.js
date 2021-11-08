@@ -48,7 +48,7 @@ async function Time() {
   } else if (moment(currentTime).isBetween("2010", "2311")) {
     // 20시 11분~23시 10분 사이
     srtBaseTime = "2000";
-  } else if (moment(currentTime).isBetween("2310", "0000")) {
+  } else if (moment(currentTime).isBetween("2310", "2359", undefined, "(]")) {
     // 23시 11분~23시 59분
     srtBaseTime = "2300";
   }
@@ -126,7 +126,7 @@ async function Time() {
   } else if (moment(currentTime).isBetween("2245", "2346")) {
     // 22시 46분~23시 45분 사이
     ultSrtBaseTime = "2230";
-  } else if (moment(currentTime).isBetween("2345", "0000")) {
+  } else if (moment(currentTime).isBetween("2345", "2359", undefined, "(]")) {
     // 23시 46분~11시 59분 사이
     ultSrtBaseTime = "2330";
   } else if (moment(currentTime).isBetween("0000", "0046", undefined, "[)")) {

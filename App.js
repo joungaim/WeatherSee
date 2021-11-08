@@ -1,5 +1,6 @@
 import React, { useEffect, useReducer, useMemo } from "react";
 import { Alert, Text, View, Image, ScrollView, Animated } from "react-native";
+import Swiper from "react-native-swiper";
 import * as Location from "expo-location";
 import moment from "moment";
 import Loading from "./Loading";
@@ -99,6 +100,8 @@ export default function App() {
     feelTemp: "",
     humidity: "",
     imageVar: 0,
+    windIconDegree: "360",
+    windTitle: "",
   };
 
   function reducer(state, action) {
@@ -144,6 +147,8 @@ export default function App() {
           feelTemp: action.feelTemp,
           humidity: action.humidity,
           imageVar: action.imageVar,
+          windIconDegree: action.windIconDegree,
+          windTitle: action.windTitle,
         };
       default:
         throw new Error();
@@ -345,12 +350,13 @@ export default function App() {
     /**
      * 현재 기온 및 상세 예보용
      */
-    const temp = ultStrWeather[25].fcstValue; // 현재 기온
-    const wind = ultStrWeather[55].fcstValue; // 현재 풍속
-    const humidity = ultStrWeather[31].fcstValue; // 현재 습도
-    const sky = ultStrWeather[19].fcstValue; // 현재 하늘 상태
-    const pty = ultStrWeather[7].fcstValue; // 현재 강수 코드
-    const lgy = ultStrWeather[1].fcstValue; // 현재 낙뢰 코드
+    const temp = ultStrWeather[24].fcstValue; // 현재 기온
+    const wind = ultStrWeather[54].fcstValue; // 현재 풍속
+    const windDirct = Number(ultStrWeather[48].fcstValue); // 현재 풍향
+    const humidity = ultStrWeather[30].fcstValue; // 현재 습도
+    const sky = ultStrWeather[18].fcstValue; // 현재 하늘 상태
+    const pty = ultStrWeather[6].fcstValue; // 현재 강수 코드
+    const lgy = ultStrWeather[0].fcstValue; // 현재 낙뢰 코드
     let icon = 0; // 현재 기온 아이콘 이름
 
     const feelTemp = Math.round(
@@ -360,6 +366,7 @@ export default function App() {
         0.3965 * wind ** 0.16 * temp
     );
 
+    // 현재 날씨 아이콘 구하는 기능. 추후 함수로 바꾸기
     if (pty > 0) {
       if (lgy > 0) {
         icon = 6;
@@ -384,6 +391,30 @@ export default function App() {
       }
     }
 
+    const windIconDirctArr = [
+      { title: "북풍", degree: "180" },
+      { title: "북북동풍", degree: "202.5" },
+      { title: "북동풍", degree: "225" },
+      { title: "동북동풍", degree: "247.5" },
+      { title: "동풍", degree: "270" },
+      { title: "동남동풍", degree: "292.5" },
+      { title: "남동풍", degree: "315" },
+      { title: "남남동풍", degree: "337.5" },
+      { title: "남풍", degree: "360" },
+      { title: "남남서풍", degree: "22.5" },
+      { title: "남서풍", degree: "45" },
+      { title: "서남서풍", degree: "67.5" },
+      { title: "서풍", degree: "90" },
+      { title: "서북서풍", degree: "112.5" },
+      { title: "북서풍", degree: "135" },
+      { title: "북북서풍", degree: "157.5" },
+      { title: "북풍", degree: "180" },
+    ];
+    // 상세예보의 풍향 아이콘 회전 각도 구하는 기능. 추후 함수로 바꾸기
+    const windIconDirct = Math.floor((windDirct + 22.5 * 0.5) / 22.5);
+    const windIconDegree = windIconDirctArr[windIconDirct].degree;
+    const windTitle = windIconDirctArr[windIconDirct].title;
+
     dispatch({
       type: "SET_CRNT_WEATHER",
       crtTemp: temp,
@@ -391,6 +422,8 @@ export default function App() {
       feelTemp: feelTemp,
       humidity: humidity,
       imageVar: icon,
+      windIconDegree: windIconDegree,
+      windTitle: windTitle,
     });
 
     dispatch({
@@ -504,7 +537,7 @@ export default function App() {
             <Text
               style={[
                 styles.txt_subtitle2_r_w,
-                { marginTop: 5, marginLeft: 6 },
+                { marginTop: 5, marginLeft: 5 },
               ]}
             >
               최고:{Math.round(state.srtWeather10Obj[2].fcstValue)}° 최저:
@@ -515,33 +548,75 @@ export default function App() {
       </View>
 
       <View style={styles.content_padding_row}>
-        <View style={[styles.ractangle_w_r, { height: 90 }]}>
-          <Image
-            style={styles.img_contain}
-            source={require("./assets/img/dust/reallybad.png")}
-          />
-          <View style={{ marginLeft: "6%" }}>
-            <Text style={[styles.txt_body2_r, { marginBottom: "1%" }]}>
-              미세먼지
-            </Text>
-            <Text style={styles.txt_subtitle1_b}>많이 나쁨</Text>
-          </View>
-        </View>
+        <Swiper style={styles.wrapper} showsPagination={false}>
+          <View style={styles.slide1}>
+            <View style={[styles.ractangle_wrapper]}>
+              <View style={[styles.ractangle_w_r, { height: 90 }]}>
+                <Image
+                  style={styles.img_contain}
+                  source={require("./assets/img/dust/reallybad.png")}
+                />
+                <View style={{ marginLeft: "6%" }}>
+                  <Text style={[styles.txt_body2_r, { marginBottom: "1%" }]}>
+                    미세먼지
+                  </Text>
+                  <Text style={styles.txt_subtitle1_b}>많이 나쁨</Text>
+                </View>
+              </View>
 
-        <View
-          style={[styles.ractangle_w_r, { height: 90, marginLeft: "2.5%" }]}
-        >
-          <Image
-            style={styles.img_contain}
-            source={require("./assets/img/dust/verybad.png")}
-          />
-          <View style={{ marginLeft: "6%" }}>
-            <Text style={[styles.txt_body2_r, { marginBottom: "1%" }]}>
-              초미세먼지
-            </Text>
-            <Text style={styles.txt_subtitle1_b}>아주 나쁨</Text>
+              <View
+                style={[
+                  styles.ractangle_w_r,
+                  { height: 90, marginLeft: "2.5%" },
+                ]}
+              >
+                <Image
+                  style={styles.img_contain}
+                  source={require("./assets/img/dust/verybad.png")}
+                />
+                <View style={{ marginLeft: "6%" }}>
+                  <Text style={[styles.txt_body2_r, { marginBottom: "1%" }]}>
+                    초미세먼지
+                  </Text>
+                  <Text style={styles.txt_subtitle1_b}>아주 나쁨</Text>
+                </View>
+              </View>
+            </View>
           </View>
-        </View>
+
+          <View style={styles.slide2}>
+            <View style={[styles.ractangle_wrapper]}>
+              <View style={[styles.ractangle_w_r, { height: 90 }]}>
+                <Text style={[styles.txt_body2_r]}>전국</Text>
+                <Text style={[styles.txt_subtitle1_b, { marginLeft: "3%" }]}>
+                  1,597명
+                </Text>
+                <Image
+                  style={styles.img_arrow}
+                  source={require("./assets/img/up_r.png")}
+                  marginLeft="3%"
+                />
+              </View>
+
+              <View
+                style={[
+                  styles.ractangle_w_r,
+                  { height: 90, marginLeft: "2.5%" },
+                ]}
+              >
+                <Text style={[styles.txt_body2_r]}>서울</Text>
+                <Text style={[styles.txt_subtitle1_b, { marginLeft: "3%" }]}>
+                  697명
+                </Text>
+                <Image
+                  style={styles.img_arrow}
+                  source={require("./assets/img/down_g.png")}
+                  marginLeft="3%"
+                />
+              </View>
+            </View>
+          </View>
+        </Swiper>
       </View>
 
       <View style={[styles.ractangle_bg, { height: 195 }]}>
@@ -655,11 +730,26 @@ export default function App() {
                       : moment().add(i, "days").format("MM.DD")}
                   </Text>
                 </View>
-                <View>
+
+                <View style={{ flexDirection: "row" }}>
                   <Image
                     style={{ resizeMode: "contain" }}
                     source={IMG_WEATHER10_SRC[getWeather10Img(arr.sky)].image}
                   />
+                  {(arr.popAm >= 40 || arr.popPm >= 40) && (
+                    <View style={{ marginLeft: "2%" }}>
+                      {arr.popAm >= 40 && (
+                        <Text style={styles.txt_caption_r}>
+                          낮 {arr.popAm}%
+                        </Text>
+                      )}
+                      {arr.popPm >= 40 && (
+                        <Text style={styles.txt_caption_r}>
+                          밤 {arr.popPm}%
+                        </Text>
+                      )}
+                    </View>
+                  )}
                 </View>
 
                 <View style={{ flexDirection: "row" }}>
@@ -706,14 +796,22 @@ export default function App() {
               <Text style={styles.txt_subtitle1_b}>{state.humidity}%</Text>
             </View>
           </View>
-          <View style={[styles.ractangle_detail, { marginLeft: "2.5%" }]}>
+          <View
+            style={[
+              styles.ractangle_detail,
+              { marginLeft: "2.5%", paddingLeft: "1%" },
+            ]}
+          >
             <Image
-              style={styles.img_detail_wind}
+              style={[
+                styles.img_detail,
+                { transform: [{ rotate: `${state.windIconDegree}deg` }] },
+              ]}
               source={require("./assets/img/windspeed.png")}
             />
             <View style={[styles.contain_detail, { marginLeft: "3%" }]}>
               <Text style={[styles.txt_caption_r, { marginBottom: "3%" }]}>
-                서풍
+                {state.windTitle}
               </Text>
               <Text style={styles.txt_subtitle1_b}>{state.crtWindSpd}㎧</Text>
             </View>
@@ -814,11 +912,8 @@ export default function App() {
           </View>
         </View>
       </View>
-      {/* <View style={styles.content_padding}>
-        <Text style={styles.txt_h6_b}>미세먼지 단계</Text>
-      </View> */}
 
-      <View style={styles.content_padding}>
+      {/* <View style={styles.content_padding}>
         <Text style={[styles.txt_h6_b, { marginTop: "3%" }]}>
           코로나 19 확진자 수
         </Text>
@@ -849,7 +944,7 @@ export default function App() {
             marginLeft="3%"
           />
         </View>
-      </View>
+      </View> */}
     </HeaderComponent>
   );
 }
