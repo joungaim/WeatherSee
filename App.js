@@ -1,5 +1,13 @@
 import React, { useEffect, useReducer, useMemo } from "react";
-import { Alert, Text, View, Image, ScrollView, Animated } from "react-native";
+import {
+  Alert,
+  Text,
+  View,
+  Image,
+  ScrollView,
+  Animated,
+  StyleSheet,
+} from "react-native";
 import Swiper from "react-native-swiper";
 import * as Location from "expo-location";
 import moment from "moment";
@@ -102,6 +110,13 @@ export default function App() {
     imageVar: 0,
     windIconDegree: "360",
     windTitle: "",
+
+    // 옷차림 예보
+    clothesArr: {},
+    onRctngle: {},
+    clothesTitle: "",
+    clothesSub: "",
+    onText: "",
   };
 
   function reducer(state, action) {
@@ -149,6 +164,15 @@ export default function App() {
           imageVar: action.imageVar,
           windIconDegree: action.windIconDegree,
           windTitle: action.windTitle,
+        };
+      case "SET_CLOTHES":
+        return {
+          ...state,
+          clothesArr: action.clothesArr,
+          onRctngle: action.onRctngle,
+          clothesTitle: action.clothesTitle,
+          clothesSub: action.clothesSub,
+          onText: action.onText,
         };
       default:
         throw new Error();
@@ -348,6 +372,154 @@ export default function App() {
     console.log(weatherArr);
 
     /**
+     * 1. 28도 이상 (여름) 아주더운 한여름 날씨에요! 민소매, 반팔 반바지, 스커트 등의 얇은 옷이 좋아요.
+     * 2. 23~ 27도 (초여름)  버틸만한 더위에요! 반팔, 얇은 셔츠, 반바지, 면바지 등이 좋겠어요.
+     * 3. 18~ 22도 (초가을)  활동하기 너무 좋은 날씨에요! 긴팔티, 청바지, 면바지에 쌀쌀하면 가디건도 괜찮아요.
+     * 4. 12~ 17도 (봄, 가을)  밤에는 추워요! 맨투맨, 니트, 가디건, 재킷, 야상, 스타킹 등이 좋아요.
+     * 5. 6~ 11도 (겨울)  쌀쌀해졌어요! 트렌치코트, 경량 패딩, 가죽자켓, 내복, 레깅스 등이 좋겠어요.
+     * 6. 5도 ~ -1도 (겨울)  춥다 추워! 두꺼운 코트, 패딩, 목도리, 모자, 기모 제품이 필요해요
+     * 7. -1 ~ (한겨울)  무장이 필요해요! 롱패딩, 내복, 털모자, 목도리, 장갑으로 무장해요.
+     */
+    /**
+     * 옷차림 예보용
+     */
+    const crntMnth = moment().format("MM"); //현재 달
+    const tmx = weatherArr[0].tmx; //오늘 최고기온
+    const tmn = weatherArr[0].tmn; //오늘 최저기온
+    const basedTemp = tmx - (tmx - tmn) / 2; //오늘 평균 기온 ex. 31 28일때, 중간온도를 구하기 위해 31-28=3 / 3/2=1.5 / 31-1.5=29.5가 오늘의 평균 기온이다.
+    let onIcon = 0; //활성화 시킬 아이콘
+    let onText; // 활성화 시킬 아이콘 밑 텍스트
+    let onRctngle; //활성화 시킬 말풍선
+    let clothesTitle = ""; //말풍선 안에 들어갈 제목
+    let clothesSub = ""; // 말풍선 안에 들어갈 설명
+
+    let clothesArr = [
+      {
+        text: "민소매",
+        image: require("./assets/img/clothes/clothes0_g.png"),
+      },
+      {
+        text: "반팔",
+        image: require("./assets/img/clothes/clothes1_g.png"),
+      },
+      {
+        text: "긴팔",
+        image: require("./assets/img/clothes/clothes2_g.png"),
+      },
+      {
+        text: "맨투맨",
+        image: require("./assets/img/clothes/clothes3_g.png"),
+      },
+      {
+        text: "자켓",
+        image: require("./assets/img/clothes/clothes4_g.png"),
+      },
+      {
+        text: "코트",
+        image: require("./assets/img/clothes/clothes5_g.png"),
+      },
+      {
+        text: "패딩",
+        image: require("./assets/img/clothes/clothes6_g.png"),
+      },
+    ];
+
+    // 활성화 옷 아이콘 경로
+    const onClothesArr = [
+      {
+        image: require("./assets/img/clothes/clothes0.png"),
+      },
+      {
+        image: require("./assets/img/clothes/clothes1.png"),
+      },
+      {
+        image: require("./assets/img/clothes/clothes2.png"),
+      },
+      {
+        image: require("./assets/img/clothes/clothes3.png"),
+      },
+      {
+        image: require("./assets/img/clothes/clothes4.png"),
+      },
+      {
+        image: require("./assets/img/clothes/clothes5.png"),
+      },
+      {
+        image: require("./assets/img/clothes/clothes6.png"),
+      },
+    ];
+
+    // 말풍선 이미지 경로
+    const onRctngleArr = [
+      {
+        image: require("./assets/img/rectangle/rectangle_clothes0.png"),
+      },
+      {
+        image: require("./assets/img/rectangle/rectangle_clothes1.png"),
+      },
+      {
+        image: require("./assets/img/rectangle/rectangle_clothes2.png"),
+      },
+      {
+        image: require("./assets/img/rectangle/rectangle_clothes3.png"),
+      },
+      {
+        image: require("./assets/img/rectangle/rectangle_clothes4.png"),
+      },
+    ];
+
+    if (basedTemp >= 28) {
+      onIcon = 0;
+      clothesTitle = "아주더운 한여름 날씨에요!";
+      clothesSub = "민소매, 반팔 반바지, 스커트 등의 얇은 옷이 좋아요.";
+    } else if (23 <= basedTemp && basedTemp <= 27) {
+      onIcon = 1;
+      clothesTitle = "버틸만한 더위에요!";
+      clothesSub = "반팔, 얇은 셔츠, 반바지, 면바지 등이 좋겠어요.";
+    } else if (18 <= basedTemp && basedTemp <= 22) {
+      onIcon = 2;
+      clothesTitle = "활동하기 너무 좋은 날씨에요!";
+      clothesSub = "긴팔티, 청바지, 면바지에 쌀쌀하면 가디건도 괜찮아요.";
+    } else if (12 <= basedTemp && basedTemp <= 17) {
+      onIcon = 3;
+      clothesTitle = "밤에는 추워요!";
+      clothesSub = "맨투맨, 니트, 가디건, 재킷, 야상, 스타킹 등이 좋아요.";
+    } else if (6 <= basedTemp && basedTemp <= 11) {
+      onIcon = 4;
+      clothesTitle = "쌀쌀해졌어요!";
+      clothesSub = "트렌치코트, 경량 패딩, 가죽자켓,레깅스 등이 좋겠어요.";
+    } else if (-1 <= basedTemp && basedTemp <= 5) {
+      onIcon = 5;
+      clothesTitle = "춥다 추워!";
+      clothesSub = "두꺼운 코트, 패딩, 목도리, 모자, 기모 제품이 필요해요.";
+    } else if (basedTemp < -1) {
+      onIcon = 6;
+      clothesTitle = "무장이 필요해요!";
+      clothesSub = "롱패딩, 내복, 털모자, 목도리, 장갑으로 무장해요.";
+    }
+
+    clothesArr[onIcon].image = onClothesArr[onIcon].image;
+
+    if (4 <= crntMnth && crntMnth <= 10) {
+      onRctngle = onRctngleArr[onIcon].image;
+      clothesArr = clothesArr.slice(0, 5);
+      onText = onIcon;
+    } else {
+      onRctngle = onRctngleArr[onIcon - 2].image;
+      clothesArr = clothesArr.slice(2);
+      onText = onIcon - 2;
+    }
+
+    dispatch({
+      type: "SET_CLOTHES",
+      clothesArr: clothesArr,
+      onRctngle: onRctngle,
+      clothesTitle: clothesTitle,
+      clothesSub: clothesSub,
+      onText: onText,
+    });
+
+    /**
      * 현재 기온 및 상세 예보용
      */
     const temp = ultStrWeather[24].fcstValue; // 현재 기온
@@ -540,8 +712,8 @@ export default function App() {
                 { marginTop: 5, marginLeft: 5 },
               ]}
             >
-              최고:{Math.round(state.srtWeather10Obj[2].fcstValue)}° 최저:
-              {Math.round(state.srtWeather10Obj[0].fcstValue)}°
+              최고:{Math.round(state.weather10Arr[0].tmx)}° 최저:
+              {Math.round(state.weather10Arr[0].tmn)}°
             </Text>
           </View>
         </View>
@@ -628,47 +800,85 @@ export default function App() {
             showsHorizontalScrollIndicator={false}
           >
             {state.strWeatherTmpObj.map((arr, i) => (
-              <View
-                style={
-                  i == 0
-                    ? styles.ractangle_weather3
-                    : styles.ractangle_weather3_margin
-                }
-                id={i}
-              >
-                <Text style={styles.txt_caption_sb}>
-                  {Number(state.strWeatherTmpObj[i].fcstTime.substr(0, 2)) == 12
-                    ? "오후 12시"
-                    : Number(state.strWeatherTmpObj[i].fcstTime.substr(0, 2)) ==
-                      0
-                    ? "오전 12시"
-                    : Number(state.strWeatherTmpObj[i].fcstTime.substr(0, 2)) <
-                      12
-                    ? "오전 " +
-                      (Number(state.strWeatherTmpObj[i].fcstTime.substr(0, 2)) %
-                        12) +
-                      "시"
-                    : "오후 " +
-                      (Number(state.strWeatherTmpObj[i].fcstTime.substr(0, 2)) %
-                        12) +
-                      "시"}
-                </Text>
-                <Image
-                  style={{ resizeMode: "contain", margin: 5 }}
-                  source={
-                    IMG_WEATHER3_SRC[
-                      getWeather10Img(
-                        state.strWeatherSkyObj[i].fcstValue,
-                        state.strWeatherPtyObj[i].fcstValue
-                      )
-                    ].image
-                  }
-                  id={i}
-                />
-                <Text style={styles.txt_body2_b}>
-                  {state.strWeatherTmpObj[i].fcstValue}°
-                </Text>
-              </View>
+              <>
+                {Number(state.strWeatherTmpObj[i].fcstTime.substr(0, 2)) == 0 &&
+                  Number(state.strWeatherTmpObj[i].fcstDate) -
+                    Number(state.strWeatherTmpObj[0].fcstDate) >
+                    0 &&
+                  Number(state.strWeatherTmpObj[i].fcstDate) -
+                    Number(state.strWeatherTmpObj[0].fcstDate) <
+                    3 && (
+                    <View style={Appstyles.ractangle_example}>
+                      <View style={Appstyles.devider_weather3} />
+                      <Text
+                        style={[
+                          styles.txt_body2_b,
+                          { marginTop: 10, marginBottom: 10 },
+                        ]}
+                      >
+                        {Number(state.strWeatherTmpObj[i].fcstDate) -
+                          Number(state.strWeatherTmpObj[0].fcstDate) ==
+                        1
+                          ? "내일"
+                          : "모레"}
+                      </Text>
+                      <View style={Appstyles.devider_weather3} />
+                    </View>
+                  )}
+                {Number(state.strWeatherTmpObj[i].fcstDate) -
+                  Number(state.strWeatherTmpObj[0].fcstDate) <
+                  3 && (
+                  <View
+                    style={
+                      i == 0
+                        ? styles.ractangle_weather3
+                        : styles.ractangle_weather3_margin
+                    }
+                    id={i}
+                  >
+                    <Text style={styles.txt_caption_sb}>
+                      {Number(
+                        state.strWeatherTmpObj[i].fcstTime.substr(0, 2)
+                      ) == 12
+                        ? "오후 12시"
+                        : Number(
+                            state.strWeatherTmpObj[i].fcstTime.substr(0, 2)
+                          ) == 0
+                        ? "오전 12시"
+                        : Number(
+                            state.strWeatherTmpObj[i].fcstTime.substr(0, 2)
+                          ) < 12
+                        ? "오전 " +
+                          (Number(
+                            state.strWeatherTmpObj[i].fcstTime.substr(0, 2)
+                          ) %
+                            12) +
+                          "시"
+                        : "오후 " +
+                          (Number(
+                            state.strWeatherTmpObj[i].fcstTime.substr(0, 2)
+                          ) %
+                            12) +
+                          "시"}
+                    </Text>
+                    <Image
+                      style={{ resizeMode: "contain", margin: 5 }}
+                      source={
+                        IMG_WEATHER3_SRC[
+                          getWeather10Img(
+                            state.strWeatherSkyObj[i].fcstValue,
+                            state.strWeatherPtyObj[i].fcstValue
+                          )
+                        ].image
+                      }
+                      id={i}
+                    />
+                    <Text style={styles.txt_body2_b}>
+                      {state.strWeatherTmpObj[i].fcstValue}°
+                    </Text>
+                  </View>
+                )}
+              </>
             ))}
           </ScrollView>
         </View>
@@ -731,13 +941,21 @@ export default function App() {
                   </Text>
                 </View>
 
-                <View style={{ flexDirection: "row" }}>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "flex-start",
+                    width: "15%",
+                    marginLeft: "7%",
+                  }}
+                >
                   <Image
                     style={{ resizeMode: "contain" }}
                     source={IMG_WEATHER10_SRC[getWeather10Img(arr.sky)].image}
                   />
                   {(arr.popAm >= 40 || arr.popPm >= 40) && (
-                    <View style={{ marginLeft: "2%" }}>
+                    <View style={{ marginLeft: 8 }}>
                       {arr.popAm >= 40 && (
                         <Text style={styles.txt_caption_r}>
                           낮 {arr.popAm}%
@@ -819,32 +1037,12 @@ export default function App() {
         </View>
       </View>
 
-      {/* <View style={[styles.ractangle_bg_row, { height: 50 }]}>
-        <View style={styles.content_padding_row}>
-          <View style={styles.content_umbrella}>
-            <Image
-              style={styles.img_contain}
-              source={require("./assets/img/umbrella.png")}
-            />
-            <Text style={[styles.txt_subtitle1_b, { marginLeft: "3%" }]}>
-              3시부터 비
-            </Text>
-            <Text style={[styles.txt_subtitle1_r, { marginLeft: 3 }]}>
-              예보
-            </Text>
-          </View>
-        </View>
-      </View> */}
-
       <View style={[styles.ractangle_bg, { height: 250 }]}>
         <View style={styles.content_padding}>
           <Text style={styles.txt_h6_b}> 옷차림 예보 </Text>
         </View>
         <View style={styles.content_padding}>
-          <Image
-            style={styles.img_clothes}
-            source={require("./assets/img/rectangle/rectangle_clothes1.png")}
-          />
+          <Image style={styles.img_clothes} source={state.onRctngle} />
           <View
             style={{
               marginTop: "-25.5%",
@@ -852,12 +1050,11 @@ export default function App() {
               marginRight: "5.5%",
             }}
           >
-            {/* <Text style={[styles.txt_h6_b]}>아주더움</Text> */}
             <Text style={[styles.txt_subtitle2_r, { paddingTop: "5%" }]}>
-              아주더운 한여름 날씨에요!
+              {state.clothesTitle}
             </Text>
             <Text style={[styles.txt_caption_r, { marginTop: 7 }]}>
-              민소매, 반팔, 반바지등의 얇은 옷이좋아요
+              {state.clothesSub}
             </Text>
           </View>
 
@@ -870,81 +1067,41 @@ export default function App() {
               justifyContent: "space-between",
             }}
           >
-            <View style={{ flex: 1, alignItems: "center" }}>
-              <Image
-                style={styles.img_contain_clothes}
-                source={require("./assets/img/clothes/clothes1.png")}
-              />
-              <Text style={styles.txt_caption_b}>28°~</Text>
-            </View>
-
-            <View style={{ flex: 1, alignItems: "center" }}>
-              <Image
-                style={styles.img_contain_clothes}
-                source={require("./assets/img/clothes/clothes2.png")}
-              />
-              <Text style={styles.txt_caption_r}>23°</Text>
-            </View>
-
-            <View style={{ flex: 1, alignItems: "center" }}>
-              <Image
-                style={styles.img_contain_clothes}
-                source={require("./assets/img/clothes/clothes3.png")}
-              />
-              <Text style={styles.txt_caption_r}>20°</Text>
-            </View>
-
-            <View style={{ flex: 1, alignItems: "center" }}>
-              <Image
-                style={styles.img_contain_clothes}
-                source={require("./assets/img/clothes/clothes4.png")}
-              />
-              <Text style={styles.txt_caption_r}>17°</Text>
-            </View>
-
-            <View style={{ flex: 1, alignItems: "center" }}>
-              <Image
-                style={styles.img_contain_clothes}
-                source={require("./assets/img/clothes/clothes5.png")}
-              />
-              <Text style={styles.txt_caption_r}>12°</Text>
-            </View>
+            {state.clothesArr.map((arr, i) => (
+              <View style={{ flex: 1, alignItems: "center" }}>
+                <Image style={styles.img_contain_clothes} source={arr.image} />
+                <Text
+                  style={
+                    state.onText == i
+                      ? styles.txt_caption_b
+                      : styles.txt_caption_r
+                  }
+                >
+                  {arr.text}
+                </Text>
+              </View>
+            ))}
           </View>
         </View>
       </View>
-
-      {/* <View style={styles.content_padding}>
-        <Text style={[styles.txt_h6_b, { marginTop: "3%" }]}>
-          코로나 19 확진자 수
-        </Text>
-      </View>
-      <View style={styles.content_padding_row}>
-        <View style={[styles.ractangle_w_r, { height: 70 }]}>
-          <Text style={[styles.txt_body2_r]}>전국</Text>
-          <Text style={[styles.txt_subtitle1_b, { marginLeft: "3%" }]}>
-            1,597명
-          </Text>
-          <Image
-            style={styles.img_arrow}
-            source={require("./assets/img/up_r.png")}
-            marginLeft="3%"
-          />
-        </View>
-
-        <View
-          style={[styles.ractangle_w_r, { height: 70, marginLeft: "2.5%" }]}
-        >
-          <Text style={[styles.txt_body2_r]}>서울</Text>
-          <Text style={[styles.txt_subtitle1_b, { marginLeft: "3%" }]}>
-            697명
-          </Text>
-          <Image
-            style={styles.img_arrow}
-            source={require("./assets/img/down_g.png")}
-            marginLeft="3%"
-          />
-        </View>
-      </View> */}
     </HeaderComponent>
   );
 }
+
+const Appstyles = StyleSheet.create({
+  devider_weather3: {
+    borderBottomColor: "#CCCCCC",
+    borderBottomWidth: 1,
+    width: 45,
+  },
+
+  ractangle_example: {
+    flex: 1,
+    marginTop: 20,
+    width: 80,
+    height: 100,
+    justifyContent: "center",
+    alignItems: "center",
+    marginLeft: 8,
+  },
+});
