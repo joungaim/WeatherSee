@@ -1,10 +1,11 @@
 import React from "react";
 import axios from "axios";
 import moment from "moment";
+
 /**
  * [초단기예보조회용 HTTP 비동기 통신 ]
  */
-async function UltStrWeather(apikey, basedate, basetime, nx, ny) {
+async function UltSrtWeather(apikey, basedate, basetime, nx, ny) {
   const ultSrtUrl = `http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtFcst?serviceKey=${apikey}&numOfRows=100&pageNo=1&base_date=${basedate}&base_time=${basetime}&nx=${nx}&ny=${ny}&dataType=JSON`;
   let ultSrtWeatherResponseData;
   console.log("초단기예보 url : " + ultSrtUrl);
@@ -22,7 +23,7 @@ async function UltStrWeather(apikey, basedate, basetime, nx, ny) {
 /**
  * [단기예보조회용 HTTP 비동기 통신 (3일 예보에 사용) ]
  */
-async function StrWeather(apikey, basedate, basetime, nx, ny) {
+async function SrtWeather(apikey, basedate, basetime, nx, ny) {
   const srtUrl = `http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?serviceKey=${apikey}&numOfRows=1000&pageNo=1&dataType=JSON&base_date=${basedate}&base_time=${basetime}&nx=${nx}&ny=${ny}`;
   console.log("단기예보 url : " + srtUrl);
   let srtWeatherResponseData;
@@ -56,18 +57,13 @@ async function StrWeather(apikey, basedate, basetime, nx, ny) {
     .catch(function (error) {
       console.log("단기예보 실패 : " + error);
     });
-  return [
-    srtWeatherResponseData,
-    strWeatherTmpObj,
-    strWeatherSkyObj,
-    strWeatherPtyObj,
-    strWeatherPopObj,
-  ];
+  return [srtWeatherResponseData, strWeatherTmpObj, strWeatherSkyObj, strWeatherPtyObj, strWeatherPopObj];
 }
+
 /**
  * [10일 예보용 단기예보조회 HTTP 비동기 통신 ]
  */
-async function Str10Weather(apikey, nx, ny) {
+async function Srt10Weather(apikey, nx, ny) {
   let currentTime = moment().format("HHmm"); //현재 시간분 (HH:24h / hh:12h)
   const baseTime = "0200";
   let baseDate = moment().format("YYYYMMDD");
@@ -78,7 +74,6 @@ async function Str10Weather(apikey, nx, ny) {
 
   const srt10Url = `http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?serviceKey=${apikey}&numOfRows=1000&pageNo=1&dataType=JSON&base_date=${baseDate}&base_time=${baseTime}&nx=${nx}&ny=${ny}`;
   let weather10Data;
-  let weatherTmpArr = [];
   let weather10Arr = [];
 
   console.log("10일 예보용 단기예보 url : " + srt10Url);
@@ -88,18 +83,11 @@ async function Str10Weather(apikey, nx, ny) {
       weather10Data = response.data.response.body.items.item; //필요한 정보만 받아오기 전부 다 받아 오려면 response.data 까지만 적는다.
 
       weather10Data = weather10Data.filter((ele) => {
-        return (
-          ele.category == "TMN" ||
-          ele.category == "TMX" ||
-          (ele.category == "SKY" && ele.fcstTime == "0900") ||
-          (ele.category == "POP" && Number(ele.fcstValue) >= 40)
-        );
+        return ele.category == "TMN" || ele.category == "TMX" || (ele.category == "SKY" && ele.fcstTime == "0900") || (ele.category == "POP" && Number(ele.fcstValue) >= 40);
       });
 
       // POP가 중간중간 끼여 있으면 TMN TMX SKY 를 순서대로 쓰기에 불편하기 때문에 배열 뒤로 보내는 코드
-      weather10Data = weather10Data
-        .filter((ele) => ele.category != "POP")
-        .concat(weather10Data.filter((ele) => ele.category == "POP"));
+      weather10Data = weather10Data.filter((ele) => ele.category != "POP").concat(weather10Data.filter((ele) => ele.category == "POP"));
 
       const weather10DataLth = 9; // 단기예보는 3일간의 날씨를 불러오는 데 1일에 TMX, TMN, SKY 는 각각 하나씩 있으므로 3일x3개는 9개. 뒤에 POP가 있을 수 있으므로 배열 길이로 체크하면 안됨.
       let j = 0;
@@ -117,7 +105,7 @@ async function Str10Weather(apikey, nx, ny) {
     .catch(function (error) {
       console.log("10일 예보용 단기예보 실패 : " + error);
     });
-  return { weather10Data, weather10Arr };
+  return weather10Arr;
 }
 
 /**
@@ -204,10 +192,4 @@ async function MidTaWeather(apikey, basetime, midRegId) {
   return { midTaData, midTaArr };
 }
 
-export {
-  UltStrWeather,
-  StrWeather,
-  Str10Weather,
-  MidLandWeather,
-  MidTaWeather,
-};
+export { UltSrtWeather, SrtWeather, Srt10Weather, MidLandWeather, MidTaWeather };

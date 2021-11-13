@@ -73,6 +73,12 @@ const styles = StyleSheet.create({
     paddingTop: "5%",
   },
 
+  devider_weather3: {
+    borderBottomColor: "#CCCCCC",
+    borderBottomWidth: 1,
+    width: 45,
+  },
+
   devider_weather10: {
     borderBottomColor: "#CCCCCC",
     borderBottomWidth: 0.6,
@@ -132,6 +138,12 @@ const styles = StyleSheet.create({
 
   txt_subtitle2_r: {
     fontFamily: "NotoSansKR_500Medium",
+    fontSize: 14,
+    color: "black",
+  },
+
+  txt_subtitle2_b: {
+    fontFamily: "NotoSansKR_700Bold",
     fontSize: 14,
     color: "black",
   },
@@ -208,82 +220,43 @@ const styles = StyleSheet.create({
   //   },
 
   color_weather10_1st: {
-    color:
-      moment().format("dddd") == "토요일" || moment().format("dddd") == "일요일"
-        ? "#FF3B30"
-        : "black",
+    color: moment().format("dddd") == "토요일" || moment().format("dddd") == "일요일" ? "#FF3B30" : "black",
   },
 
   color_weather10_2nd: {
-    color:
-      moment().add(1, "days").format("dddd") == "토요일" ||
-      moment().add(1, "days").format("dddd") == "일요일"
-        ? "#FF3B30"
-        : "black",
+    color: moment().add(1, "days").format("dddd") == "토요일" || moment().add(1, "days").format("dddd") == "일요일" ? "#FF3B30" : "black",
   },
 
   color_weather10_3rd: {
-    color:
-      moment().add(2, "days").format("dddd") == "토요일" ||
-      moment().add(2, "days").format("dddd") == "일요일"
-        ? "#FF3B30"
-        : "black",
+    color: moment().add(2, "days").format("dddd") == "토요일" || moment().add(2, "days").format("dddd") == "일요일" ? "#FF3B30" : "black",
   },
 
   color_weather10_4th: {
-    color:
-      moment().add(3, "days").format("dddd") == "토요일" ||
-      moment().add(3, "days").format("dddd") == "일요일"
-        ? "#FF3B30"
-        : "black",
+    color: moment().add(3, "days").format("dddd") == "토요일" || moment().add(3, "days").format("dddd") == "일요일" ? "#FF3B30" : "black",
   },
 
   color_weather10_5th: {
-    color:
-      moment().add(4, "days").format("dddd") == "토요일" ||
-      moment().add(4, "days").format("dddd") == "일요일"
-        ? "#FF3B30"
-        : "black",
+    color: moment().add(4, "days").format("dddd") == "토요일" || moment().add(4, "days").format("dddd") == "일요일" ? "#FF3B30" : "black",
   },
 
   color_weather10_6th: {
-    color:
-      moment().add(5, "days").format("dddd") == "토요일" ||
-      moment().add(5, "days").format("dddd") == "일요일"
-        ? "#FF3B30"
-        : "black",
+    color: moment().add(5, "days").format("dddd") == "토요일" || moment().add(5, "days").format("dddd") == "일요일" ? "#FF3B30" : "black",
   },
 
   color_weather10_7th: {
-    color:
-      moment().add(6, "days").format("dddd") == "토요일" ||
-      moment().add(6, "days").format("dddd") == "일요일"
-        ? "#FF3B30"
-        : "black",
+    color: moment().add(6, "days").format("dddd") == "토요일" || moment().add(6, "days").format("dddd") == "일요일" ? "#FF3B30" : "black",
   },
 
   color_weather10_8th: {
-    color:
-      moment().add(7, "days").format("dddd") == "토요일" ||
-      moment().add(7, "days").format("dddd") == "일요일"
-        ? "#FF3B30"
-        : "black",
+    color: moment().add(7, "days").format("dddd") == "토요일" || moment().add(7, "days").format("dddd") == "일요일" ? "#FF3B30" : "black",
   },
 
   color_weather10_9th: {
-    color:
-      moment().add(8, "days").format("dddd") == "토요일" ||
-      moment().add(8, "days").format("dddd") == "일요일"
-        ? "#FF3B30"
-        : "black",
+    color: moment().add(8, "days").format("dddd") == "토요일" || moment().add(8, "days").format("dddd") == "일요일" ? "#FF3B30" : "black",
   },
 
   color_weather10_10th: {
-    color:
-      moment().add(9, "days").format("dddd") == "토요일" ||
-      moment().add(9, "days").format("dddd") == "일요일"
-        ? "#FF3B30"
-        : "black",
+    color: moment().add(9, "days").format("dddd") == "토요일" || moment().add(9, "days").format("dddd") == "일요일" ? "#FF3B30" : "black",
   },
 
   ractangle_wrapper: {
@@ -300,7 +273,6 @@ const styles = StyleSheet.create({
     height: 203,
     alignItems: "center",
     justifyContent: "space-between",
-    marginTop: 25,
     marginBottom: 10,
     paddingLeft: "5%",
     paddingRight: "5%",
@@ -368,6 +340,16 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#F3F3F9",
     borderRadius: 14,
+    marginTop: 20,
+    width: 80,
+    height: 100,
+    justifyContent: "center",
+    alignItems: "center",
+    marginLeft: 8,
+  },
+
+  ractangle_weather3_text: {
+    flex: 1,
     marginTop: 20,
     width: 80,
     height: 100,
