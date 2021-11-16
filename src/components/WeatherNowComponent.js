@@ -10,9 +10,11 @@ function WeatherNowComponent(props) {
         <Image style={styles.img_weathericon} source={IMG_WEATHER_SRC[props.imageVar].image} />
         <View style={styles.content_weather}>
           <Text style={styles.txt_weather}>{props.crtTemp}°</Text>
-          <Text style={[styles.txt_subtitle2_r_w, { marginTop: 5, marginLeft: 5 }]}>
-            최고:{Math.round(props.weather10Arr.tmx)}° 최저:{Math.round(props.weather10Arr.tmn)}°
-          </Text>
+          {props.srtWeather0200Arr != "empty" && (
+            <Text style={[styles.txt_subtitle2_r_w, { marginTop: 5, marginLeft: 5 }]}>
+              최고:{Math.round(props.srtWeather0200Arr.tmx)}° 최저:{Math.round(props.srtWeather0200Arr.tmn)}°
+            </Text>
+          )}
         </View>
       </View>
     </View>

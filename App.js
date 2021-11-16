@@ -468,6 +468,7 @@ export default function App() {
     <HeaderComponent>
       <AddressComponent addrObj={state.addrObj} />
       <WeatherComponent
+        addrObj={state.addrObj}
         latitude={state.latitude}
         longitude={state.longitude}
         imageVar={state.imageVar}
