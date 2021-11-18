@@ -16,7 +16,6 @@ import { IMG_CLOTHES_ON_SRC, IMG_CLOTHES_RCTNGL_SRC } from "../ImageSrc";
  */
 function WeatherClothesComponent(props) {
   const srtWeather0200Arr = props.srtWeather0200Arr;
-
   const crntMnth = moment().format("MM"); //현재 달
   let tmx = 0;
   let tmn = 0;

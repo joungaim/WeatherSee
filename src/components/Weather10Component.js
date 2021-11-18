@@ -15,7 +15,7 @@ function Weather10Component(props) {
 
   const initialState = {
     weather10Arr: {},
-    midLandArr: {},
+    midLandArr: [],
     loaded: false,
   };
 
@@ -40,6 +40,7 @@ function Weather10Component(props) {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   getMidWeather = async () => {
+    console.log("getMidWeather");
     const midRegId = await RegId(addrText);
     const { midLandData, midLandArr } = await MidLandWeather(API_KEY, midBaseDateTime, midRegId.midLand);
     const { midTaData, midTaArr } = await MidTaWeather(API_KEY, midBaseDateTime, midRegId.midTa);
@@ -48,34 +49,49 @@ function Weather10Component(props) {
       midLandArr[i].tmn = midTaArr[i].tmn;
       midLandArr[i].tmx = midTaArr[i].tmx;
     }
-
-    dispatch({
-      type: "SET_MID_WEATHER_OBJ",
-      midLandArr: midLandArr,
-    });
+    console.log("getMidWeather midLandArr = ", midLandArr);
+    return midLandArr;
   };
 
   getWeather10 = async () => {
-    if (srtWeather0200Arr != "empty") {
-      if (state.midLandArr.length > 1) {
-        const weather10Arr = [...srtWeather0200Arr, ...state.midLandArr];
+    if (state.midLandArr.length < 1 && srtWeather0200Arr != "empty") {
+      const midLandArr = await getMidWeather();
+      console.log("midLandArr 1 = ", midLandArr);
+      const weather10Arr = [...srtWeather0200Arr, ...midLandArr];
 
-        dispatch({
-          type: "SET_WEATHER10_OBJ",
-          weather10Arr: weather10Arr,
-          loaded: true,
-        });
-      }
+      dispatch({
+        type: "SET_WEATHER10_OBJ",
+        weather10Arr: weather10Arr,
+        loaded: true,
+      });
+    } else if (state.midLandArr.length < 1 && srtWeather0200Arr == "empty") {
+      const midLandArr = await getMidWeather();
+
+      dispatch({
+        type: "SET_MID_WEATHER_OBJ",
+        midLandArr: midLandArr,
+      });
+    } else if (state.midLandArr.length > 1 && srtWeather0200Arr != "empty") {
+      console.log("=== midLandArr [else]===", state.midLandArr);
+      const weather10Arr = [...srtWeather0200Arr, ...state.midLandArr];
+
+      dispatch({
+        type: "SET_WEATHER10_OBJ",
+        weather10Arr: weather10Arr,
+        loaded: true,
+      });
+    } else {
+      console.log("state.midLandArr.length : " + state.midLandArr.length + ", srtWeather0200Arr : " + srtWeather0200Arr);
     }
   };
 
-  useEffect(() => {
-    getMidWeather();
-  }, []);
+  // useEffect(() => {
+  //   getMidWeather();
+  // }, []);
 
   useEffect(() => {
     getWeather10();
-  }, [srtWeather0200Arr]);
+  }, [srtWeather0200Arr, state.midLandArr]);
 
   return (
     state.loaded && (

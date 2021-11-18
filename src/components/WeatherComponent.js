@@ -1,4 +1,5 @@
 import React, { useReducer, useEffect } from "react";
+import { AsyncStorage } from "react-native";
 import WeatherNowComponent from "../../src/components/WeatherNowComponent";
 import DustCovidComponent from "../../src/components/DustCovidComponent";
 import Weather3Component from "../../src/components/Weather3Component";
@@ -63,7 +64,19 @@ function WeatherComponent(props) {
    *  <WeatherClothesComponent> : TMX (최고기온), TMN (최저기온) : 오늘의 평균 기온 구해서 기온에 알맞은 옷차림 알림
    */
   getSrtWeather0200 = async (gridX, gridY) => {
-    const srtWeather0200Arr = await Srt10Weather(API_KEY, gridX, gridY);
+    let srtWeather0200Arr;
+    try {
+      const value = await AsyncStorage.getItem("@storage_Key");
+      if (value !== null) {
+        srtWeather0200Arr = JSON.parse(value);
+      } else {
+        srtWeather0200Arr = await Srt10Weather(API_KEY, gridX, gridY);
+        const srtWeather0200Str = JSON.stringify(srtWeather0200Arr);
+        await AsyncStorage.setItem("@storage_Key", srtWeather0200Str);
+      }
+    } catch (e) {
+      // error reading value
+    }
     dispatch({
       type: "SET_WEATHER10",
       srtWeather0200Arr: srtWeather0200Arr,

@@ -38,7 +38,6 @@ function Weather3Component(props) {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   getSrtWeather = async () => {
-    console.log("3일예보 getSrtWeather");
     const { gridX, gridY } = await GridXY(props.latitude, props.longitude);
     const [srtWeather, srtWeatherTmpObj, srtWeatherSkyObj, srtWeatherPtyObj, srtWeatherPopObj] = await SrtWeather(API_KEY, srtBaseDate, srtBaseTime, gridX, gridY);
 

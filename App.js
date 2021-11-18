@@ -1,5 +1,5 @@
 import React, { useEffect, useReducer, useMemo } from "react";
-import { Alert } from "react-native";
+import { Alert, AsyncStorage } from "react-native";
 
 import * as Location from "expo-location";
 import "moment/locale/ko";
@@ -9,12 +9,7 @@ import HeaderComponent from "./src/components/HeaderComponent";
 import AddressComponent from "./src/components/AddressComponent";
 import WeatherComponent from "./src/components/WeatherComponent";
 import { useFonts, NotoSans_300Regular } from "@expo-google-fonts/noto-sans";
-import { UltSrtWeather, SrtWeather, Srt10Weather, MidLandWeather, MidTaWeather } from "./src/UltStrWeather";
-import { API_KEY } from "./src/ApiKey";
-import { ultSrtBaseDate, ultSrtBaseTime, srtBaseDate, srtBaseTime, midBaseDateTime } from "./src/Time";
 import { Address } from "./src/Address";
-import { RegId } from "./src/RegId";
-import { GridXY } from "./src/GridXY";
 
 import { NotoSansKR_300Light, NotoSansKR_400Regular, NotoSansKR_500Medium, NotoSansKR_700Bold, NotoSansKR_900Black } from "@expo-google-fonts/noto-sans-kr";
 // TODO: Add SDKs for Firebase products that you want to use
@@ -58,44 +53,6 @@ export default function App() {
 
     // [위,경도에 해당하는 한글 주소값 객체 (시,군,구)]
     addrObj: {},
-
-    // [초단기예보 조회용 변수]
-    ultSrtWeatherObj: {},
-
-    // [단기예보 조회용 변수]
-    srtWeatherObj: {},
-
-    // [단기 3일예보 노출용 변수]
-    // *3일 예보는 단기예보 데이터 그대로 사용. 10일 예보는 baseTime을 0200으로 세팅하여 단기예보 API 따로 한번 더 호출하여 사용
-    srtWeatherTmpObj: {},
-    srtWeatherSkyObj: {},
-    srtWeatherPtyObj: {},
-    srtWeatherPopObj: {},
-
-    // [단기 10일예보 조회용 변수]
-    srtWeather10Obj: {},
-
-    // [중기예보 조회용 변수] ( midLandWeatherObj : 중기육상예보조회용 객체 / midTaWeatherObj : 중기기온예보조회용 객체 )
-    midLandWeatherObj: {},
-    midTaWeatherObj: {},
-
-    weather10Arr: {},
-
-    // [현재 날씨 노출용 변수] (crtTemp:현재 기온 / crtWindSpd:현재 풍속 / feelTemp:체감 온도 / humidity:습도 / imageVar:현재 기온 아이콘)
-    crtTemp: "",
-    crtWindSpd: "",
-    feelTemp: "",
-    humidity: "",
-    imageVar: 0,
-    windIconDegree: "360",
-    windTitle: "",
-
-    // 옷차림 예보
-    clothesArr: {},
-    onRctngle: {},
-    clothesTitle: "",
-    clothesSub: "",
-    onText: "",
   };
 
   function reducer(state, action) {
@@ -110,55 +67,6 @@ export default function App() {
         };
       case "SET_ADDR_OBJ":
         return { ...state, addrObj: action.addrObj };
-      case "SET_SRT_WEATHER_OBJ":
-        return {
-          ...state,
-          srtWeatherObj: action.srtWeatherObj,
-          srtWeatherTmpObj: action.srtWeatherTmpObj,
-          srtWeatherSkyObj: action.srtWeatherSkyObj,
-          srtWeatherPtyObj: action.srtWeatherPtyObj,
-          srtWeatherPopObj: action.srtWeatherPopObj,
-        };
-      case "SET_SRT_WEATHER10_OBJ":
-        return {
-          ...state,
-          srtWeather10Obj: action.srtWeather10Obj,
-        };
-      case "SET_MID_LAND_WEATHER_OBJ":
-        return {
-          ...state,
-          midLandWeatherObj: action.midLandWeatherObj,
-        };
-      case "SET_MID_TA_WEATHER_OBJ":
-        return {
-          ...state,
-          midTaWeatherObj: action.midTaWeatherObj,
-        };
-      case "SET_WEATHER10_OBJ":
-        return {
-          ...state,
-          weather10Arr: action.weather10Arr,
-        };
-      case "SET_CRNT_WEATHER":
-        return {
-          ...state,
-          crtTemp: action.crtTemp,
-          crtWindSpd: action.crtWindSpd,
-          feelTemp: action.feelTemp,
-          humidity: action.humidity,
-          imageVar: action.imageVar,
-          windIconDegree: action.windIconDegree,
-          windTitle: action.windTitle,
-        };
-      case "SET_CLOTHES":
-        return {
-          ...state,
-          clothesArr: action.clothesArr,
-          onRctngle: action.onRctngle,
-          clothesTitle: action.clothesTitle,
-          clothesSub: action.clothesSub,
-          onText: action.onText,
-        };
       default:
         throw new Error();
     }
@@ -194,38 +102,6 @@ export default function App() {
       type: "SET_ADDR_OBJ",
       addrObj: { addrText, addrGu, addrDong },
     });
-
-    // const midRegId = await RegId(addrText);
-
-    // const { gridX, gridY } = await GridXY(latitude, longitude); // 위도,경도를 기상청 api에 활용 가능한 x,y로 바꾸는 함수
-
-    // const weather10Arr = await Srt10Weather(API_KEY, gridX, gridY);
-
-    // const { midLandData, midLandArr } = await MidLandWeather(API_KEY, midBaseDateTime, midRegId.midLand);
-
-    // dispatch({
-    //   type: "SET_MID_LAND_WEATHER_OBJ",
-    //   midLandWeatherObj: midLandData,
-    // });
-
-    // const { midTaData, midTaArr } = await MidTaWeather(API_KEY, midBaseDateTime, midRegId.midTa);
-
-    // dispatch({
-    //   type: "SET_MID_TA_WEATHER_OBJ",
-    //   midTaWeatherObj: midTaData,
-    // });
-
-    // for (let i = 0; i < 7; i++) {
-    //   midLandArr[i].tmn = midTaArr[i].tmn;
-    //   midLandArr[i].tmx = midTaArr[i].tmx;
-    // }
-
-    // const weatherArr = [...weather10Arr, ...midLandArr];
-
-    // dispatch({
-    //   type: "SET_WEATHER10_OBJ",
-    //   weather10Arr: weatherArr,
-    // });
 
     dispatch({
       type: "SET_ISLOADING",
