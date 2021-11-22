@@ -10,6 +10,7 @@ import AddressComponent from "./src/components/AddressComponent";
 import WeatherComponent from "./src/components/WeatherComponent";
 import { useFonts, NotoSans_300Regular } from "@expo-google-fonts/noto-sans";
 import { Address } from "./src/Address";
+import { GridXY } from "./src/GridXY";
 
 import { NotoSansKR_300Light, NotoSansKR_400Regular, NotoSansKR_500Medium, NotoSansKR_700Bold, NotoSansKR_900Black } from "@expo-google-fonts/noto-sans-kr";
 // TODO: Add SDKs for Firebase products that you want to use
@@ -48,8 +49,8 @@ export default function App() {
     // [로딩화면 boolean 값 : 데이터 다 받아오면 false 할당]
     isLoading: true,
 
-    latitude: 0,
-    longitude: 0,
+    gridX: 0,
+    gridY: 0,
 
     // [위,경도에 해당하는 한글 주소값 객체 (시,군,구)]
     addrObj: {},
@@ -62,8 +63,8 @@ export default function App() {
       case "SET_LOCATION":
         return {
           ...state,
-          latitude: action.latitude,
-          longitude: action.longitude,
+          gridX: action.gridX,
+          gridY: action.gridY,
         };
       case "SET_ADDR_OBJ":
         return { ...state, addrObj: action.addrObj };
@@ -90,10 +91,27 @@ export default function App() {
       coords: { latitude, longitude },
     } = await Location.getCurrentPositionAsync({});
 
+    const { gridX, gridY } = await GridXY(latitude, longitude);
+
+    const gridXStr = String(gridX);
+    const gridYStr = String(gridY);
+
+    try {
+      const gridXItem = await AsyncStorage.getItem("@gridX");
+      const gridYItem = await AsyncStorage.getItem("@gridY");
+      if (gridXItem === null || gridYItem === null || gridXStr !== gridXItem || gridYStr !== gridYItem) {
+        const gridX_ = ["@gridX", gridXStr];
+        const gridY_ = ["@gridY", gridYStr];
+        await AsyncStorage.multiSet([gridX_, gridY_]);
+      }
+    } catch (e) {
+      // error reading value
+    }
+
     dispatch({
       type: "SET_LOCATION",
-      latitude: latitude,
-      longitude: longitude,
+      gridX: gridX,
+      gridY: gridY,
     });
 
     const { addrText, addrGu, addrDong } = await Address(latitude, longitude);
@@ -147,7 +165,7 @@ export default function App() {
   ) : (
     <HeaderComponent>
       <AddressComponent addrObj={state.addrObj} />
-      <WeatherComponent addrObj={state.addrObj} latitude={state.latitude} longitude={state.longitude} />
+      <WeatherComponent addrObj={state.addrObj} gridX={state.gridX} gridY={state.gridY} />
     </HeaderComponent>
   );
 }

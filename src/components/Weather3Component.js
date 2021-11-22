@@ -1,15 +1,19 @@
 import React, { useReducer, useEffect } from "react";
-import { View, Image, Text, ScrollView } from "react-native";
+import { View, Image, Text, ScrollView, AsyncStorage } from "react-native";
 import moment from "moment";
 import styles from "../styles/styles";
 import GetWeatherImage from "../GetWeatherImage";
 import { IMG_WEATHER3_SRC } from "../ImageSrc";
 import { SrtWeather } from "../../src/UltStrWeather";
 import { API_KEY } from "../../src/ApiKey";
-import { GridXY } from "../../src/GridXY";
 import { srtBaseDate, srtBaseTime } from "../../src/Time";
 
 function Weather3Component(props) {
+  const gridX = props.gridX;
+  const gridY = props.gridY;
+  const gridXStr = String(gridX);
+  const gridYStr = String(gridY);
+
   const initialState = {
     srtWeatherTmpObj: {},
     srtWeatherSkyObj: {},
@@ -38,8 +42,51 @@ function Weather3Component(props) {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   getSrtWeather = async () => {
-    const { gridX, gridY } = await GridXY(props.latitude, props.longitude);
-    const [srtWeather, srtWeatherTmpObj, srtWeatherSkyObj, srtWeatherPtyObj, srtWeatherPopObj] = await SrtWeather(API_KEY, srtBaseDate, srtBaseTime, gridX, gridY);
+    let srtWeatherTmpObj, srtWeatherSkyObj, srtWeatherPtyObj, srtWeatherPopObj;
+
+    try {
+      const weatherTmpItem = await AsyncStorage.getItem("@srtWeatherTmp");
+      const weatherSkyItem = await AsyncStorage.getItem("@srtWeatherSky");
+      const weatherPtyItem = await AsyncStorage.getItem("@srtWeatherPty");
+      const weatherPopItem = await AsyncStorage.getItem("@srtWeatherPop");
+
+      const dateItem = await AsyncStorage.getItem("@srtBaseDate");
+      const timeItem = await AsyncStorage.getItem("@srtBaseTime");
+      const gridXItem = await AsyncStorage.getItem("@gridX");
+      const gridYItem = await AsyncStorage.getItem("@gridY");
+
+      console.log("단기(3일) 예보 쿠키 baseDate, Time", dateItem, ", ", timeItem);
+      console.log("단기(3일) 예보 현재 srtBaseDate, srtBaseTime", srtBaseDate, ", ", srtBaseTime);
+
+      if (
+        srtBaseDate == dateItem &&
+        srtBaseTime == timeItem &&
+        gridXStr == gridXItem &&
+        gridYStr == gridYItem &&
+        weatherTmpItem !== null &&
+        weatherSkyItem !== null &&
+        weatherPtyItem !== null &&
+        weatherPopItem !== null
+      ) {
+        srtWeatherTmpObj = JSON.parse(weatherTmpItem);
+        srtWeatherSkyObj = JSON.parse(weatherSkyItem);
+        srtWeatherPtyObj = JSON.parse(weatherPtyItem);
+        srtWeatherPopObj = JSON.parse(weatherPopItem);
+      } else {
+        ({ srtWeatherTmpObj, srtWeatherSkyObj, srtWeatherPtyObj, srtWeatherPopObj } = await SrtWeather(API_KEY, srtBaseDate, srtBaseTime, gridX, gridY));
+        const srtWeatherTmp = ["@srtWeatherTmp", JSON.stringify(srtWeatherTmpObj)];
+        const srtWeatherSky = ["@srtWeatherSky", JSON.stringify(srtWeatherSkyObj)];
+        const srtWeatherPty = ["@srtWeatherPty", JSON.stringify(srtWeatherPtyObj)];
+        const srtWeatherPop = ["@srtWeatherPop", JSON.stringify(srtWeatherPopObj)];
+
+        const srtDate = ["@srtBaseDate", srtBaseDate];
+        const srtTime = ["@srtBaseTime", srtBaseTime];
+
+        await AsyncStorage.multiSet([srtWeatherTmp, srtWeatherSky, srtWeatherPty, srtWeatherPop, srtDate, srtTime]);
+      }
+    } catch (e) {
+      // error reading value
+    }
 
     dispatch({
       type: "SET_SRT_WEATHER_OBJ",
@@ -53,7 +100,7 @@ function Weather3Component(props) {
 
   useEffect(() => {
     getSrtWeather();
-  }, [props.latitude, props.longitude]);
+  }, []);
 
   return (
     state.loaded && (

@@ -27,10 +27,10 @@ async function SrtWeather(apikey, basedate, basetime, nx, ny) {
   const srtUrl = `http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?serviceKey=${apikey}&numOfRows=1000&pageNo=1&dataType=JSON&base_date=${basedate}&base_time=${basetime}&nx=${nx}&ny=${ny}`;
   console.log("단기예보 url : " + srtUrl);
   let srtWeatherResponseData;
-  let strWeatherTmpObj;
-  let strWeatherSkyObj;
-  let strWeatherPtyObj;
-  let strWeatherPopObj;
+  let srtWeatherTmpObj;
+  let srtWeatherSkyObj;
+  let srtWeatherPtyObj;
+  let srtWeatherPopObj;
 
   await axios
     .get(srtUrl)
@@ -38,26 +38,26 @@ async function SrtWeather(apikey, basedate, basetime, nx, ny) {
       srtWeatherResponseData = response.data.response.body.items.item; //필요한 정보만 받아오기 전부 다 받아 오려면 response.data 까지만 적는다.
 
       // 3일 예보 조회용 배열 쪼개기 (TMP:기온 / SKY:하늘상태[맑음(1), 구름많음(3), 흐림(4)] / PTY:강수형태(없음(0), 비(1), 비/눈(2), 눈(3), 소나기(4) / fcstTime:기준시간)
-      strWeatherTmpObj = srtWeatherResponseData.filter((ele) => {
+      srtWeatherTmpObj = srtWeatherResponseData.filter((ele) => {
         return ele.category == "TMP";
       });
 
-      strWeatherSkyObj = srtWeatherResponseData.filter((ele) => {
+      srtWeatherSkyObj = srtWeatherResponseData.filter((ele) => {
         return ele.category == "SKY";
       });
 
-      strWeatherPtyObj = srtWeatherResponseData.filter((ele) => {
+      srtWeatherPtyObj = srtWeatherResponseData.filter((ele) => {
         return ele.category == "PTY";
       });
 
-      strWeatherPopObj = srtWeatherResponseData.filter((ele) => {
+      srtWeatherPopObj = srtWeatherResponseData.filter((ele) => {
         return ele.category == "POP";
       });
     })
     .catch(function (error) {
       console.log("단기예보 실패 : " + error);
     });
-  return [srtWeatherResponseData, strWeatherTmpObj, strWeatherSkyObj, strWeatherPtyObj, strWeatherPopObj];
+  return { srtWeatherTmpObj, srtWeatherSkyObj, srtWeatherPtyObj, srtWeatherPopObj };
 }
 
 /**
@@ -74,7 +74,7 @@ async function Srt10Weather(apikey, nx, ny) {
 
   const srt10Url = `http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?serviceKey=${apikey}&numOfRows=1000&pageNo=1&dataType=JSON&base_date=${baseDate}&base_time=${baseTime}&nx=${nx}&ny=${ny}`;
   let weather10Data;
-  let weather10Arr = [];
+  let srtWeather0200Arr = [];
 
   console.log("10일 예보용 단기예보 url : " + srt10Url);
   await axios
@@ -92,7 +92,7 @@ async function Srt10Weather(apikey, nx, ny) {
       const weather10DataLth = 9; // 단기예보는 3일간의 날씨를 불러오는 데 1일에 TMX, TMN, SKY 는 각각 하나씩 있으므로 3일x3개는 9개. 뒤에 POP가 있을 수 있으므로 배열 길이로 체크하면 안됨.
       let j = 0;
       for (let i = 0; i < weather10DataLth; i += 3) {
-        weather10Arr[j] = {
+        srtWeather0200Arr[j] = {
           tmn: Math.round(weather10Data[i].fcstValue),
           sky: Number(weather10Data[i + 1].fcstValue),
           tmx: Math.round(weather10Data[i + 2].fcstValue),
@@ -100,12 +100,12 @@ async function Srt10Weather(apikey, nx, ny) {
         j++;
       }
 
-      console.log("strWeather10Obj = " + JSON.stringify(weather10Data));
+      // console.log("strWeather10Obj = " + JSON.stringify(weather10Data));
     })
     .catch(function (error) {
       console.log("10일 예보용 단기예보 실패 : " + error);
     });
-  return weather10Arr;
+  return { srtWeather0200Arr, baseDate };
 }
 
 /**
@@ -113,7 +113,7 @@ async function Srt10Weather(apikey, nx, ny) {
  */
 async function MidLandWeather(apikey, basetime, midRegId) {
   const midLandUrl = `http://apis.data.go.kr/1360000/MidFcstInfoService/getMidLandFcst?serviceKey=${apikey}&dataType=JSON&tmFc=${basetime}&regId=${midRegId}`;
-  console.log("중기육상예보 url : " + midLandUrl);
+  // console.log("중기육상예보 url : " + midLandUrl);
 
   let midLandData;
   let midLandArr = [];
@@ -153,12 +153,12 @@ async function MidLandWeather(apikey, basetime, midRegId) {
         }
       }
 
-      console.log("중기육상예보 데이터 ", midLandData);
+      // console.log("중기육상예보 데이터 ", midLandData);
     })
     .catch(function (error) {
       console.log("중기육상예보 실패 : " + error);
     });
-  return { midLandData, midLandArr };
+  return midLandArr;
 }
 
 /**
@@ -184,12 +184,12 @@ async function MidTaWeather(apikey, basetime, midRegId) {
         };
       }
 
-      console.log("중기기온예보 데이터 수정", midTaData);
+      // console.log("중기기온예보 데이터 수정", midTaData);
     })
     .catch(function (error) {
       console.log("중기기온예보조회 실패 : " + error);
     });
-  return { midTaData, midTaArr };
+  return midTaArr;
 }
 
 export { UltSrtWeather, SrtWeather, Srt10Weather, MidLandWeather, MidTaWeather };

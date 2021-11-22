@@ -1,6 +1,6 @@
 import React, { useEffect, useReducer } from "react";
 import styles from "../styles/styles";
-import { View, Image, Text, ScrollView } from "react-native";
+import { View, Image, Text, AsyncStorage } from "react-native";
 import { IMG_WEATHER10_SRC } from "../ImageSrc";
 import { RegId } from "../../src/RegId";
 import GetWeatherImage from "../GetWeatherImage";
@@ -40,23 +40,41 @@ function Weather10Component(props) {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   getMidWeather = async () => {
-    console.log("getMidWeather");
-    const midRegId = await RegId(addrText);
-    const { midLandData, midLandArr } = await MidLandWeather(API_KEY, midBaseDateTime, midRegId.midLand);
-    const { midTaData, midTaArr } = await MidTaWeather(API_KEY, midBaseDateTime, midRegId.midTa);
+    let midLandArr;
 
-    for (let i = 0; i < 7; i++) {
-      midLandArr[i].tmn = midTaArr[i].tmn;
-      midLandArr[i].tmx = midTaArr[i].tmx;
+    try {
+      const weatherItem = await AsyncStorage.getItem("@midWeather");
+      const dateItem = await AsyncStorage.getItem("@midBaseDateTime");
+      const addrItem = await AsyncStorage.getItem("@addrText");
+      console.log("중기 예보 쿠키 midBaseDateTime", dateItem);
+      console.log("중기 예보 현재 midBaseDateTime", midBaseDateTime);
+      if (midBaseDateTime == dateItem && addrItem == addrText && weatherItem !== null) {
+        midLandArr = JSON.parse(weatherItem);
+      } else {
+        const midRegId = await RegId(addrText);
+        midLandArr = await MidLandWeather(API_KEY, midBaseDateTime, midRegId.midLand);
+        const midTaArr = await MidTaWeather(API_KEY, midBaseDateTime, midRegId.midTa);
+
+        for (let i = 0; i < 7; i++) {
+          midLandArr[i].tmn = midTaArr[i].tmn;
+          midLandArr[i].tmx = midTaArr[i].tmx;
+        }
+
+        const midWeather = ["@midWeather", JSON.stringify(midLandArr)];
+        const midDateTime = ["@midBaseDateTime", midBaseDateTime];
+        const addr = ["@addrText", addrText];
+
+        await AsyncStorage.multiSet([midWeather, midDateTime, addr]);
+      }
+    } catch (e) {
+      // error reading value
     }
-    console.log("getMidWeather midLandArr = ", midLandArr);
     return midLandArr;
   };
 
   getWeather10 = async () => {
     if (state.midLandArr.length < 1 && srtWeather0200Arr != "empty") {
       const midLandArr = await getMidWeather();
-      console.log("midLandArr 1 = ", midLandArr);
       const weather10Arr = [...srtWeather0200Arr, ...midLandArr];
 
       dispatch({
@@ -72,7 +90,6 @@ function Weather10Component(props) {
         midLandArr: midLandArr,
       });
     } else if (state.midLandArr.length > 1 && srtWeather0200Arr != "empty") {
-      console.log("=== midLandArr [else]===", state.midLandArr);
       const weather10Arr = [...srtWeather0200Arr, ...state.midLandArr];
 
       dispatch({
@@ -81,13 +98,9 @@ function Weather10Component(props) {
         loaded: true,
       });
     } else {
-      console.log("state.midLandArr.length : " + state.midLandArr.length + ", srtWeather0200Arr : " + srtWeather0200Arr);
+      // console.log("state.midLandArr.length : " + state.midLandArr.length + ", srtWeather0200Arr : " + srtWeather0200Arr);
     }
   };
-
-  // useEffect(() => {
-  //   getMidWeather();
-  // }, []);
 
   useEffect(() => {
     getWeather10();
