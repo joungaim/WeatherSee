@@ -110,17 +110,19 @@ function Weather10Component(props) {
     state.loaded && (
       <View style={[styles.ractangle_bg, { height: 550 }]}>
         <View style={styles.content_padding}>
-          <Text style={styles.txt_h6_b}>10일 예보</Text>
+          <Text style={[styles.txt_h6_b, { marginBottom: 10 }]}>10일 예보</Text>
 
           {state.weather10Arr.map((arr, i) => (
             <>
-              <View style={i == 0 ? styles.content_weather10_first : styles.content_weather10}>
+              <View style={styles.content_weather10}>
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
                   <Text
                     style={[
                       styles.txt_subtitle1_b,
                       {
                         color: moment().add(i, "days").format("dddd") == "토요일" || moment().add(i, "days").format("dddd") == "일요일" ? "#FF3B30" : "black",
+                        marginTop: 13.2,
+                        marginBottom: 13.2,
                       },
                     ]}
                   >
@@ -158,7 +160,7 @@ function Weather10Component(props) {
                   )}
                 </View>
 
-                <View style={{ flexDirection: "row" }}>
+                <View style={{ flexDirection: "row", alignItems: "center" }}>
                   <View style={styles.content_weather10_taMax}>
                     <Text style={styles.txt_subtitle1_b}>{arr.tmx}°</Text>
                   </View>

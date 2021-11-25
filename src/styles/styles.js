@@ -39,14 +39,13 @@ const styles = StyleSheet.create({
     paddingRight: "4.5%",
   },
 
-  content_weather10_first: {
-    paddingTop: "5%",
-    justifyContent: "space-between",
-    flexDirection: "row",
-  },
+  // content_weather10_first: {
+  //   paddingTop: "5%",
+  //   justifyContent: "space-between",
+  //   flexDirection: "row",
+  // },
 
   content_weather10: {
-    paddingTop: "4%",
     justifyContent: "space-between",
     flexDirection: "row",
   },
@@ -82,7 +81,6 @@ const styles = StyleSheet.create({
   devider_weather10: {
     borderBottomColor: "#CCCCCC",
     borderBottomWidth: 0.6,
-    paddingTop: "4%",
   },
 
   txt_weather: {

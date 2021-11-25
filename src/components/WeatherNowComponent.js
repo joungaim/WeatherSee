@@ -1,6 +1,7 @@
 import React from "react";
 import styles from "../styles/styles";
 import { View, Image, Text } from "react-native";
+import moment from "moment";
 import { IMG_WEATHER_SRC } from "../ImageSrc";
 
 function WeatherNowComponent(props) {
@@ -12,6 +13,7 @@ function WeatherNowComponent(props) {
   let pty = "";
   let lgy = "";
   let ultSrtLoaded = false;
+  const crtTime = moment().format("HH");
 
   //사용 위치 : 날씨 아이콘, 현재 기온
   if (ultSrtWeatherArr != "empty") {
@@ -42,6 +44,14 @@ function WeatherNowComponent(props) {
         } else if (sky == 4) {
           icon = 1;
         }
+      }
+    }
+
+    if ((0 <= crtTime && crtTime <= 7) || 18 <= crtTime) {
+      if (icon === 0) {
+        icon = 7;
+      } else if (icon === 2) {
+        icon = 8;
       }
     }
   }

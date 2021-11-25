@@ -7,7 +7,7 @@ import React from "react";
  * 		                 (단기) 없음(0), 비(1), 비/눈(2), 눈(3), 소나기(4)
  * 중기예보 : 맑음 / 구름많음, 구름많고 비, 구름많고 눈, 구름많고 비/눈, 구름많고 소나기 / 흐림, 흐리고 비, 흐리고 눈, 흐리고 비/눈, 흐리고 소나기 / 소나기
  */
-function GetWeatherImage(sky, ptyCode = 0) {
+function GetWeatherImage(sky, ptyCode = 0, fcstTime = "00", is3Weather = false) {
   let code;
   if (isNaN(sky)) {
     if (sky == "맑음") {
@@ -38,6 +38,19 @@ function GetWeatherImage(sky, ptyCode = 0) {
       }
     }
   }
+
+  if (is3Weather) {
+    const time = Number(fcstTime.substr(0, 2));
+
+    if ((0 <= time && time <= 7) || 18 <= time) {
+      if (code === 0) {
+        code = 7;
+      } else if (code === 2) {
+        code = 8;
+      }
+    }
+  }
+
   return code;
 }
 

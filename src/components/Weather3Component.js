@@ -132,7 +132,7 @@ function Weather3Component(props) {
                     </Text>
                     <Image
                       style={{ resizeMode: "contain", margin: 5 }}
-                      source={IMG_WEATHER3_SRC[GetWeatherImage(state.srtWeatherSkyObj[i].fcstValue, state.srtWeatherPtyObj[i].fcstValue)].image}
+                      source={IMG_WEATHER3_SRC[GetWeatherImage(state.srtWeatherSkyObj[i].fcstValue, state.srtWeatherPtyObj[i].fcstValue, String(arr.fcstTime), true)].image}
                       id={i}
                     />
                     <Text style={styles.txt_body2_b}>{arr.fcstValue}°</Text>

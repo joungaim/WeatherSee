@@ -1,5 +1,5 @@
 // 오늘 날씨 아이콘
-const IMG_WEATHER_SRC = [
+let IMG_WEATHER_SRC = [
   {
     image: require("../assets/img/weather/sun.png"),
   },
@@ -20,6 +20,12 @@ const IMG_WEATHER_SRC = [
   },
   {
     image: require("../assets/img/weather/rainy-thunder.png"),
+  },
+  {
+    image: require("../assets/img/weather/moon.png"),
+  },
+  {
+    image: require("../assets/img/weather/cloudy-moon.png"),
   },
 ];
 
@@ -49,7 +55,7 @@ const IMG_WEATHER10_SRC = [
 ];
 
 // 3일 예보 날씨 아이콘
-const IMG_WEATHER3_SRC = [
+let IMG_WEATHER3_SRC = [
   {
     image: require("../assets/img/weather3/sun.png"),
   },
@@ -70,6 +76,12 @@ const IMG_WEATHER3_SRC = [
   },
   {
     image: require("../assets/img/weather3/rainy-thunder.png"),
+  },
+  {
+    image: require("../assets/img/weather3/moon.png"),
+  },
+  {
+    image: require("../assets/img/weather3/cloudy-moon.png"),
   },
 ];
 

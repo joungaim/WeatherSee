@@ -113,7 +113,7 @@ async function Srt10Weather(apikey, nx, ny) {
  */
 async function MidLandWeather(apikey, basetime, midRegId) {
   const midLandUrl = `http://apis.data.go.kr/1360000/MidFcstInfoService/getMidLandFcst?serviceKey=${apikey}&dataType=JSON&tmFc=${basetime}&regId=${midRegId}`;
-  // console.log("중기육상예보 url : " + midLandUrl);
+  console.log("중기육상예보 url : " + midLandUrl);
 
   let midLandData;
   let midLandArr = [];
