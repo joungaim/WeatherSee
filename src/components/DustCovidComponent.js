@@ -1,9 +1,19 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styles from "../styles/styles";
 import { View, Image, Text } from "react-native";
 import Swiper from "react-native-swiper";
+import { Dust } from "../../src/Dust";
 
 function DustCovidComponent(props) {
+  getDust = async () => {
+    const dust = await Dust("종로구");
+    console.log("미세먼지 : ", dust.pm10Value, ", 초미세먼지 : ", dust.pm25Value);
+  };
+
+  useEffect(() => {
+    getDust();
+  }, []);
+
   return (
     <View style={styles.content_padding_row}>
       <Swiper style={styles.wrapper} showsPagination={false}>
