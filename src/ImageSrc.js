@@ -129,4 +129,32 @@ const IMG_CLOTHES_RCTNGL_SRC = [
   },
 ];
 
-export { IMG_WEATHER_SRC, IMG_WEATHER10_SRC, IMG_WEATHER3_SRC, IMG_CLOTHES_ON_SRC, IMG_CLOTHES_RCTNGL_SRC };
+// 미세먼지 8단계 아이콘 경로
+const IMG_DUST_SRC = [
+  {
+    image: require("../assets/img/dust/best.png"),
+  },
+  {
+    image: require("../assets/img/dust/nice.png"),
+  },
+  {
+    image: require("../assets/img/dust/notbad.png"),
+  },
+  {
+    image: require("../assets/img/dust/normal.png"),
+  },
+  {
+    image: require("../assets/img/dust/bad.png"),
+  },
+  {
+    image: require("../assets/img/dust/reallybad.png"),
+  },
+  {
+    image: require("../assets/img/dust/verybad.png"),
+  },
+  {
+    image: require("../assets/img/dust/worst.png"),
+  },
+];
+
+export { IMG_WEATHER_SRC, IMG_WEATHER10_SRC, IMG_WEATHER3_SRC, IMG_CLOTHES_ON_SRC, IMG_CLOTHES_RCTNGL_SRC, IMG_DUST_SRC };

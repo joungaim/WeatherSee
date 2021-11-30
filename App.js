@@ -49,6 +49,8 @@ export default function App() {
     // [로딩화면 boolean 값 : 데이터 다 받아오면 false 할당]
     isLoading: true,
 
+    latitude: 0,
+    longitude: 0,
     gridX: 0,
     gridY: 0,
 
@@ -63,6 +65,8 @@ export default function App() {
       case "SET_LOCATION":
         return {
           ...state,
+          latitude: action.latitude,
+          longitude: action.longitude,
           gridX: action.gridX,
           gridY: action.gridY,
         };
@@ -110,15 +114,17 @@ export default function App() {
 
     dispatch({
       type: "SET_LOCATION",
+      latitude: latitude,
+      longitude: longitude,
       gridX: gridX,
       gridY: gridY,
     });
 
-    const { addrText, addrGu, addrDong } = await Address(latitude, longitude);
+    const { addrText, addrSi, addrGu, addrDong } = await Address(latitude, longitude);
 
     dispatch({
       type: "SET_ADDR_OBJ",
-      addrObj: { addrText, addrGu, addrDong },
+      addrObj: { addrText, addrSi, addrGu, addrDong },
     });
 
     dispatch({
@@ -165,7 +171,7 @@ export default function App() {
   ) : (
     <HeaderComponent>
       <AddressComponent addrObj={state.addrObj} />
-      <WeatherComponent addrObj={state.addrObj} gridX={state.gridX} gridY={state.gridY} />
+      <WeatherComponent addrObj={state.addrObj} gridX={state.gridX} gridY={state.gridY} latitude={state.latitude} longitude={state.longitude} />
     </HeaderComponent>
   );
 }

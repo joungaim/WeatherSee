@@ -145,7 +145,7 @@ function WeatherComponent(props) {
         ultSrtWeatherArr={state.ultSrtWeatherArr.length > 1 ? state.ultSrtWeatherArr : "empty"}
         srtWeather0200Arr={state.srtWeather0200Arr.length > 1 ? state.srtWeather0200Arr[0] : "empty"}
       />
-      <DustCovidComponent />
+      <DustCovidComponent addrObj={props.addrObj} latitude={props.latitude} longitude={props.longitude} />
       <Weather3Component gridX={props.gridX} gridY={props.gridY} />
       <Weather10Component addrObj={props.addrObj} srtWeather0200Arr={state.srtWeather0200Arr.length > 1 ? state.srtWeather0200Arr : "empty"} />
       <WeatherDetailComponent ultSrtWeatherArr={state.ultSrtWeatherArr.length > 1 ? state.ultSrtWeatherArr : "empty"} />
