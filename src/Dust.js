@@ -1,6 +1,6 @@
 import React from "react";
 import axios from "axios";
-import { API_KEY } from "../src/ApiKey";
+import { API_KEY } from "./ApiKey";
 /**
  * [미세먼지조회용 HTTP 비동기 통신 ]
  */

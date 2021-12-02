@@ -10,6 +10,14 @@ const { srtBaseDate, srtBaseTime } = getSrtBaseDateTime();
 const midBaseDateTime = getMidBaseDateTime();
 
 /**
+ * 인자 날짜에서 하루 뺀 날짜 반환
+ */
+function getSubtract1day(fromDate) {
+  const subtractDate = moment(fromDate).subtract(1, "days").format("YYYYMMDD");
+  return subtractDate;
+}
+
+/**
  * [초단기예보조회용 날짜/시간 세팅]
  * 매시간 정각 45분 후에 조회 가능. 예) 12시 데이터는 12시 46분부터 / 1시 데이터는 1시 46분부터 조회 가능
  */
@@ -164,4 +172,4 @@ function getMidBaseDateTime() {
   return midBaseDateTime;
 }
 
-export { ultSrtBaseDate, ultSrtBaseTime, srtBaseDate, srtBaseTime, midBaseDateTime };
+export { getSubtract1day, ultSrtBaseDate, ultSrtBaseTime, srtBaseDate, srtBaseTime, midBaseDateTime, currentTime, todayDate, yesterdayDate };

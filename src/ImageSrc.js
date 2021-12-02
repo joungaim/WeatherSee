@@ -157,4 +157,14 @@ const IMG_DUST_SRC = [
   },
 ];
 
-export { IMG_WEATHER_SRC, IMG_WEATHER10_SRC, IMG_WEATHER3_SRC, IMG_CLOTHES_ON_SRC, IMG_CLOTHES_RCTNGL_SRC, IMG_DUST_SRC };
+// 코로나 예보 화살표 이미지 경로
+const IMG_COVID_SRC = [
+  {
+    image: require("../assets/img/up_r.png"),
+  },
+  {
+    image: require("../assets/img/down_g.png"),
+  },
+];
+
+export { IMG_WEATHER_SRC, IMG_WEATHER10_SRC, IMG_WEATHER3_SRC, IMG_CLOTHES_ON_SRC, IMG_CLOTHES_RCTNGL_SRC, IMG_DUST_SRC, IMG_COVID_SRC };

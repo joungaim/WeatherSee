@@ -1,10 +1,13 @@
 import React, { useReducer, useEffect } from "react";
 import styles from "../styles/styles";
-import { View, Image, Text } from "react-native";
+import { View, Image, Text, AsyncStorage } from "react-native";
 import Swiper from "react-native-swiper";
 import { Dust } from "../../src/Dust";
+import { Covid } from "../../src/Covid";
 import { DUST_STATION } from "../../src/DustStationList";
-import { IMG_DUST_SRC } from "../ImageSrc";
+import { IMG_DUST_SRC, IMG_COVID_SRC } from "../ImageSrc";
+import { currentTime, todayDate, yesterdayDate } from "../../src/Time";
+import moment from "moment";
 
 function DustCovidComponent(props) {
   const addrSi = props.addrObj.addrSi; //level1
@@ -25,6 +28,11 @@ function DustCovidComponent(props) {
     pm10GradeStr: "",
     pm25GradeStr: "",
     dustLoaded: false,
+
+    gubun: "",
+    incDec: 0,
+    totIncDec: 0,
+    covidLoaded: false,
   };
 
   function reducer(state, action) {
@@ -39,6 +47,14 @@ function DustCovidComponent(props) {
           pm10GradeStr: action.pm10GradeStr,
           pm25GradeStr: action.pm25GradeStr,
           dustLoaded: action.dustLoaded,
+        };
+      case "SET_COVID_OBJ":
+        return {
+          ...state,
+          gubun: action.gubun,
+          incDec: action.incDec,
+          totIncDec: action.totIncDec,
+          covidLoaded: action.covidLoaded,
         };
       default:
         throw new Error();
@@ -158,8 +174,6 @@ function DustCovidComponent(props) {
     const stationName = stationObj[0].name;
     const dust = await Dust(stationName);
     const { pm10Grade, pm25Grade, pm10GradeStr, pm25GradeStr } = getDustGrade(dust);
-    console.log("미세먼지 : ", dust.pm10Value, ", 초미세먼지 : ", dust.pm25Value);
-    console.log("미세먼지 단계 : ", pm10Grade, ", 초미세먼지 단계 : ", pm25Grade);
 
     dispatch({
       type: "SET_DUST_OBJ",
@@ -173,12 +187,110 @@ function DustCovidComponent(props) {
     });
   };
 
+  getaddrSiToGubun = () => {
+    let gubun = "서울";
+    if (addrSi == "서울특별시") {
+      gubun = "서울";
+    } else if (addrSi == "경기도") {
+      gubun = "경기";
+    } else if (addrSi == "인천광역시") {
+      gubun = "인천";
+    } else if (addrSi == "강원도") {
+      gubun = "강원";
+    } else if (addrSi == "충청남도") {
+      gubun = "충남";
+    } else if (addrSi == "충청북도") {
+      gubun = "충북";
+    } else if (addrSi == "경상남도") {
+      gubun = "경남";
+    } else if (addrSi == "경상북도") {
+      gubun = "경북";
+    } else if (addrSi == "전라남도") {
+      gubun = "전남";
+    } else if (addrSi == "전라북도") {
+      gubun = "전북";
+    } else if (addrSi == "광주광역시") {
+      gubun = "광주";
+    } else if (addrSi == "대구광역시") {
+      gubun = "대구";
+    } else if (addrSi == "울산광역시") {
+      gubun = "울산";
+    } else if (addrSi == "부산광역시") {
+      gubun = "부산";
+    } else if (addrSi == "세종특별자치시") {
+      gubun = "세종";
+    } else if (addrSi == "제주특별자치도") {
+      gubun = "제주";
+    }
+
+    return gubun;
+  };
+
+  /**
+   * 오늘 날짜를 20211202로 가정한다.
+   * 1. crntDate : 20211202 09시부터 20211203 09시까지는 20211202가 들어감 / 20211203 09시 01분부터 20211203이 들어감.
+   * 2. incDec : 현재 지역 확진자 수
+   * 3. totIncDec : 전국 확진자 수
+   * 4. gubun : 현재 단말기가 위치한 지역명
+   */
+  getCovid = async () => {
+    let covidObj;
+    let incDec;
+    let totIncDec;
+    const gubun = getaddrSiToGubun();
+
+    let crntDate = todayDate;
+    if (moment(currentTime).isBetween("0000", "0901", undefined, "[)")) {
+      crntDate = yesterdayDate;
+    }
+
+    try {
+      const dateItem = await AsyncStorage.getItem("@covidDate");
+      const gubunItem = await AsyncStorage.getItem("@covidGubun");
+      const incDecItem = await AsyncStorage.getItem("@covidIncDec");
+      const totIncDecItem = await AsyncStorage.getItem("@covidTotIncDec");
+
+      console.log("코로나 확진자 예보 쿠키 dateItem", dateItem);
+      console.log("코로나 확진자 예보 현재 crntDate", crntDate);
+
+      if (gubunItem == gubun && dateItem == crntDate && incDecItem !== null && totIncDecItem !== null) {
+        incDec = Number(incDecItem);
+        totIncDec = Number(totIncDecItem);
+      } else {
+        covidObj = await Covid(gubun, crntDate);
+        incDec = covidObj[0].incDec;
+        totIncDec = covidObj[1].incDec;
+
+        const covidDate = ["@covidDate", crntDate];
+        const covidGubun = ["@covidGubun", gubun];
+        const covidIncDec = ["@covidIncDec", String(incDec)];
+        const covidTotIncDec = ["@covidTotIncDec", String(totIncDec)];
+
+        await AsyncStorage.multiSet([covidDate, covidGubun, covidIncDec, covidTotIncDec]);
+      }
+    } catch (e) {
+      // error reading value
+    }
+
+    dispatch({
+      type: "SET_COVID_OBJ",
+      gubun: gubun,
+      incDec: incDec,
+      totIncDec: totIncDec,
+      covidLoaded: true,
+    });
+  };
+
   useEffect(() => {
     getDust();
   }, []);
 
+  useEffect(() => {
+    getCovid();
+  }, []);
   return (
-    state.dustLoaded && (
+    state.dustLoaded &&
+    state.covidLoaded && (
       <View style={styles.content_padding_row}>
         <Swiper style={styles.wrapper} showsPagination={false}>
           <View style={styles.slide1}>
@@ -186,16 +298,18 @@ function DustCovidComponent(props) {
               <View style={[styles.ractangle_w_r, { height: 90 }]}>
                 <Image style={styles.img_contain} source={IMG_DUST_SRC[state.pm10Grade].image} />
                 <View style={{ marginLeft: "6%" }}>
-                  <Text style={[styles.txt_body2_r, { marginBottom: "1%" }]}>미세먼지</Text>
+                  <Text style={[styles.txt_caption_b, { marginBottom: 3 }]}>미세먼지</Text>
                   <Text style={styles.txt_subtitle1_b}>{state.pm10GradeStr}</Text>
+                  <Text style={styles.txt_caption_r}>{state.pm10Value} ㎍/m³</Text>
                 </View>
               </View>
 
               <View style={[styles.ractangle_w_r, { height: 90, marginLeft: "2.5%" }]}>
                 <Image style={styles.img_contain} source={IMG_DUST_SRC[state.pm25Grade].image} />
                 <View style={{ marginLeft: "6%" }}>
-                  <Text style={[styles.txt_body2_r, { marginBottom: "1%" }]}>초미세먼지</Text>
+                  <Text style={[styles.txt_caption_b, { marginBottom: 3 }]}>초미세먼지</Text>
                   <Text style={styles.txt_subtitle1_b}>{state.pm25GradeStr}</Text>
+                  <Text style={styles.txt_caption_r}>{state.pm25Value} ㎍/m³</Text>
                 </View>
               </View>
             </View>
@@ -205,14 +319,14 @@ function DustCovidComponent(props) {
             <View style={[styles.ractangle_wrapper]}>
               <View style={[styles.ractangle_w_r, { height: 90 }]}>
                 <Text style={[styles.txt_body2_r]}>전국</Text>
-                <Text style={[styles.txt_subtitle1_b, { marginLeft: "3%" }]}>1,597명</Text>
-                <Image style={styles.img_arrow} source={require("../../assets/img/up_r.png")} marginLeft="3%" />
+                <Text style={[styles.txt_subtitle1_b, { marginLeft: "3%" }]}>{state.totIncDec.toLocaleString("ko-KR")}명</Text>
+                <Image style={styles.img_arrow} source={IMG_COVID_SRC[0].image} marginLeft="3%" />
               </View>
 
               <View style={[styles.ractangle_w_r, { height: 90, marginLeft: "2.5%" }]}>
-                <Text style={[styles.txt_body2_r]}>서울</Text>
-                <Text style={[styles.txt_subtitle1_b, { marginLeft: "3%" }]}>697명</Text>
-                <Image style={styles.img_arrow} source={require("../../assets/img/down_g.png")} marginLeft="3%" />
+                <Text style={[styles.txt_body2_r]}>{state.gubun}</Text>
+                <Text style={[styles.txt_subtitle1_b, { marginLeft: "3%" }]}>{state.incDec.toLocaleString("ko-KR")}명</Text>
+                <Image style={styles.img_arrow} source={IMG_COVID_SRC[0].image} marginLeft="3%" />
               </View>
             </View>
           </View>

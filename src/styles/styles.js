@@ -209,6 +209,13 @@ const styles = StyleSheet.create({
     lineHeight: 14,
   },
 
+  txt_overline_b: {
+    fontSize: 10,
+    color: "black",
+    fontFamily: "NotoSansKR_700Bold",
+    lineHeight: 14,
+  },
+
   //   txt_weather10_1st: {
   //     fontSize: 12,
   //     color:
