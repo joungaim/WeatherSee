@@ -6,7 +6,7 @@ import { Dust } from "../../src/Dust";
 import { Covid } from "../../src/Covid";
 import { DUST_STATION } from "../../src/DustStationList";
 import { IMG_DUST_SRC, IMG_COVID_SRC } from "../ImageSrc";
-import { currentTime, todayDate, yesterdayDate } from "../../src/Time";
+import { todayDateAClock, currentTime, todayDate, todayDateTime, yesterdayDate, getAfter1Hour, getAfter15Min } from "../../src/Time";
 import moment from "moment";
 
 function DustCovidComponent(props) {
@@ -172,8 +172,44 @@ function DustCovidComponent(props) {
   getDust = async () => {
     const stationObj = await getStationObj();
     const stationName = stationObj[0].name;
-    const dust = await Dust(stationName);
-    const { pm10Grade, pm25Grade, pm10GradeStr, pm25GradeStr } = getDustGrade(dust);
+    let dust;
+    let pm10Grade, pm25Grade, pm10GradeStr, pm25GradeStr;
+
+    try {
+      const dateItem = await AsyncStorage.getItem("@dustDate");
+      const dustItem = await AsyncStorage.getItem("@dustObj");
+      const pm10GradeItem = await AsyncStorage.getItem("@pm10Grade");
+      const pm25GradeItem = await AsyncStorage.getItem("@pm25Grade");
+      const pm10GradeStrItem = await AsyncStorage.getItem("@pm10GradeStr");
+      const pm25GradeStrItem = await AsyncStorage.getItem("@pm25GradeStr");
+
+      console.log("미세먼지 예보 쿠키 dateItem", dateItem);
+      console.log("미세먼지 예보 현재 todayDateTime", todayDateTime);
+
+      if (Number(todayDateTime) < Number(dateItem) && dustItem !== null && pm10GradeItem !== null && pm25GradeItem !== null && pm10GradeStrItem !== null && pm25GradeStrItem !== null) {
+        dust = JSON.parse(dustItem);
+        pm10Grade = Number(pm10GradeItem);
+        pm25Grade = Number(pm25GradeItem);
+        pm10GradeStr = pm10GradeStrItem;
+        pm25GradeStr = pm25GradeStrItem;
+      } else {
+        dust = await Dust(stationName);
+        ({ pm10Grade, pm25Grade, pm10GradeStr, pm25GradeStr } = getDustGrade(dust));
+
+        let crntDate = getAfter1Hour(todayDateAClock);
+        crntDate = getAfter15Min(crntDate);
+        const dustDate = ["@dustDate", crntDate];
+        const dustObj = ["@dustObj", JSON.stringify(dust)];
+        const dustPm10Grade = ["@pm10Grade", String(pm10Grade)];
+        const dustPm25Grade = ["@pm25Grade", String(pm25Grade)];
+        const dustPm10GradeStr = ["@pm10GradeStr", pm10GradeStr];
+        const dustPm25GradeStr = ["@pm25GradeStr", pm25GradeStr];
+
+        await AsyncStorage.multiSet([dustDate, dustObj, dustPm10Grade, dustPm25Grade, dustPm10GradeStr, dustPm25GradeStr]);
+      }
+    } catch (e) {
+      // error reading value
+    }
 
     dispatch({
       type: "SET_DUST_OBJ",
