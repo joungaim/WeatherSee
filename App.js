@@ -1,6 +1,5 @@
 import React, { useEffect, useReducer, useMemo } from "react";
-import { Alert, AsyncStorage } from "react-native";
-
+import { Alert, AsyncStorage, Text } from "react-native";
 import * as Location from "expo-location";
 import "moment/locale/ko";
 import firebase from "firebase/app";
@@ -130,6 +129,9 @@ export default function App() {
     dispatch({
       type: "SET_ISLOADING",
     });
+
+    if (Text.defaultProps == null) Text.defaultProps = {};
+    Text.defaultProps.allowFontScaling = false;
   };
 
   /**

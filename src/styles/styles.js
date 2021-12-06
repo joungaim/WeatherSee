@@ -99,11 +99,16 @@ const styles = StyleSheet.create({
     paddingLeft: "4.5%",
   },
 
+  /**
+   * 사용 처 : [3일예보, 10일 예보, 옷차림 예보, 상세예보  타이틀]
+   */
   txt_h6_b: {
     fontSize: 20,
     color: "black",
     fontFamily: "NotoSansKR_700Bold",
-    paddingTop: "5%",
+    lineHeight: 24.5,
+    marginTop: 25,
+    marginBottom: 25,
   },
 
   txt_subtitle1_b: {
@@ -285,6 +290,7 @@ const styles = StyleSheet.create({
 
   /**
    * 흰색 배경
+   * 사용 컴포넌트 :[3일 예보, 10일 예보, 상세 예보, 옷차림 예보]
    */
   ractangle_bg: {
     backgroundColor: "white",
@@ -326,26 +332,29 @@ const styles = StyleSheet.create({
     backgroundColor: "#F3F3F9",
     width: "100%",
     borderRadius: 14,
-    marginTop: 20,
     height: 68,
   },
 
+  /**
+   * 사용 처 : [3일 예보 회색 라운드 박스]
+   */
   ractangle_weather3: {
     flex: 1,
     backgroundColor: "#F3F3F9",
     borderRadius: 14,
-    marginTop: 20,
     width: 80,
     height: 100,
     justifyContent: "center",
     alignItems: "center",
   },
 
+  /**
+   * 사용 처 : [3일 예보 회색 라운드 박스]
+   */
   ractangle_weather3_margin: {
     flex: 1,
     backgroundColor: "#F3F3F9",
     borderRadius: 14,
-    marginTop: 20,
     width: 80,
     height: 100,
     justifyContent: "center",
@@ -409,7 +418,6 @@ const styles = StyleSheet.create({
   img_clothes: {
     width: "100%",
     resizeMode: "stretch",
-    marginTop: "7%",
     paddingBottom: 5,
     paddingTop: 5,
   },

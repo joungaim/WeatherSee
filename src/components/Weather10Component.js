@@ -110,7 +110,7 @@ function Weather10Component(props) {
     state.loaded && (
       <View style={[styles.ractangle_bg, { height: 550 }]}>
         <View style={styles.content_padding}>
-          <Text style={[styles.txt_h6_b, { marginBottom: 10 }]}>10일 예보</Text>
+          <Text style={styles.txt_h6_b}>10일 예보</Text>
 
           {state.weather10Arr.map((arr, i) => (
             <>
@@ -121,7 +121,7 @@ function Weather10Component(props) {
                       styles.txt_subtitle1_b,
                       {
                         color: moment().add(i, "days").format("dddd") == "토요일" || moment().add(i, "days").format("dddd") == "일요일" ? "#FF3B30" : "black",
-                        marginTop: 13.2,
+                        marginTop: i == 0 ? 0 : 13.2,
                         marginBottom: 13.2,
                       },
                     ]}
@@ -135,7 +135,7 @@ function Weather10Component(props) {
                       {
                         color: moment().add(i, "days").format("dddd") == "토요일" || moment().add(i, "days").format("dddd") == "일요일" ? "#FF3B30" : "black",
                       },
-                      { marginLeft: 5, width: 30 },
+                      { marginLeft: 5, width: 35 },
                     ]}
                   >
                     {i == 0 ? "오늘" : i == 1 ? "내일" : i == 2 ? "모레" : moment().add(i, "days").format("MM.DD")}
@@ -148,7 +148,7 @@ function Weather10Component(props) {
                     alignItems: "center",
                     justifyContent: "flex-start",
                     width: "15%",
-                    marginLeft: "7%",
+                    marginLeft: "5%",
                   }}
                 >
                   <Image style={{ resizeMode: "contain" }} source={IMG_WEATHER10_SRC[GetWeatherImage(arr.sky)].image} />
