@@ -5,6 +5,7 @@ const todayDate = moment().format("YYYYMMDD");
 const todayDateTime = moment().format("YYYYMMDDHHmm");
 const todayDateAClock = moment().format("YYYY-MM-DD HH"); //현재 날짜 및 시각 (add 하려면 YYYY-MM-DD HH:mm 이런 형식이어야 함.)
 const currentTime = moment().format("HHmm"); //현재 시간분 (HH:24h / hh:12h)
+const currentAclock = moment().format("HH"); //현재 시간분 (HH:24h / hh:12h)
 const yesterdayDate = moment().subtract(1, "days").format("YYYYMMDD"); // 어제날짜
 
 const { ultSrtBaseDate, ultSrtBaseTime } = getUltSrtBaseDateTime();
@@ -206,6 +207,7 @@ export {
   midBaseDateTime,
   todayDateAClock,
   currentTime,
+  currentAclock,
   todayDate,
   todayDateTime,
   yesterdayDate,

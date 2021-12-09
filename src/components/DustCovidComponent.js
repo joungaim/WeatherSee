@@ -90,6 +90,8 @@ function DustCovidComponent(props) {
       return ele.level2 == addrGu;
     });
 
+    console.log("stationObj 1 : ", stationObj);
+
     if (stationObj.length > 1) {
       let minDistance = getDistanceInKm(stationObj[0].latitude, stationObj[0].longitude, latitude, longitude);
       let nearestStation;
@@ -97,9 +99,10 @@ function DustCovidComponent(props) {
         if (minDistance > getDistanceInKm(stationObj[i].latitude, stationObj[i].longitude, latitude, longitude)) {
           minDistance = getDistanceInKm(stationObj[i].latitude, stationObj[i].longitude, latitude, longitude);
           nearestStation = stationObj[i];
+          console.log("nearestStation : ", nearestStation);
         }
       }
-      stationObj = nearestStation;
+      stationObj[0] = nearestStation;
     }
 
     return stationObj;

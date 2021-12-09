@@ -1,5 +1,6 @@
 import React from "react";
 import { StyleSheet } from "react-native";
+import { currentAclock } from "../../src/Time";
 import moment from "moment";
 import "moment/locale/ko";
 
@@ -10,7 +11,7 @@ const styles = StyleSheet.create({
   },
 
   header: {
-    height: 10,
+    height: 25,
   },
   wrapper: { height: 90 },
   slide1: { height: 90 },
@@ -21,7 +22,7 @@ const styles = StyleSheet.create({
 
   content_weather: {
     flex: 1,
-    paddingTop: "10%",
+    paddingTop: "20%",
     paddingBottom: "20%",
     marginLeft: "5%",
     alignItems: "flex-start",
@@ -50,14 +51,20 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
 
+  /**
+   * 사용 처 : 10일 예보 최고 기온
+   */
   content_weather10_taMax: {
-    width: 30,
     alignItems: "flex-end",
+    width: 37,
   },
 
+  /**
+   * 사용 처 : 10일 예보 최저 기온
+   */
   content_weather10_taMin: {
-    width: 32,
     alignItems: "flex-end",
+    width: 39,
   },
 
   content_umbrella: {
@@ -86,15 +93,14 @@ const styles = StyleSheet.create({
   txt_weather: {
     fontFamily: "NotoSansKR_300Light",
     fontSize: 85,
+    lineHeight: 90,
     color: "white",
-    height: 105,
-    margin: 0,
-    padding: 0,
   },
 
   txt_h5_b: {
     fontFamily: "NotoSansKR_700Bold",
     fontSize: 24,
+    lineHeight: 26.5,
     color: "black",
     paddingLeft: "4.5%",
   },
@@ -107,8 +113,8 @@ const styles = StyleSheet.create({
     color: "black",
     fontFamily: "NotoSansKR_700Bold",
     lineHeight: 24.5,
-    marginTop: 25,
-    marginBottom: 25,
+    marginTop: 23,
+    marginBottom: 23,
   },
 
   txt_subtitle1_b: {
@@ -142,12 +148,14 @@ const styles = StyleSheet.create({
   txt_subtitle2_r: {
     fontFamily: "NotoSansKR_500Medium",
     fontSize: 14,
+    lineHeight: 16,
     color: "black",
   },
 
   txt_subtitle2_b: {
     fontFamily: "NotoSansKR_700Bold",
     fontSize: 14,
+    lineHeight: 16,
     color: "black",
   },
 
@@ -155,7 +163,7 @@ const styles = StyleSheet.create({
     fontFamily: "NotoSansKR_500Medium",
     fontSize: 14,
     color: "white",
-    height: 16,
+    lineHeight: 16,
   },
 
   txt_body2_r: {
@@ -221,14 +229,6 @@ const styles = StyleSheet.create({
     lineHeight: 14,
   },
 
-  //   txt_weather10_1st: {
-  //     fontSize: 12,
-  //     color:
-  //       moment().format("dddd") == ("토요일" || "일요일") ? "#FF3B30" : "black",
-  //     fontFamily: "NotoSansKR_400Regular",
-  //     lineHeight: 15,
-  //   },
-
   color_weather10_1st: {
     color: moment().format("dddd") == "토요일" || moment().format("dddd") == "일요일" ? "#FF3B30" : "black",
   },
@@ -277,7 +277,7 @@ const styles = StyleSheet.create({
   },
 
   ractangle1: {
-    backgroundColor: "#007AFF",
+    backgroundColor: (0 <= currentAclock && currentAclock <= 17) || 18 <= currentAclock ? "#5E5CE6" : "#007AFF",
     flexDirection: "row",
     borderRadius: 14,
     height: 203,
@@ -362,9 +362,11 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
 
+  /**
+   * 사용 처 : [3일 예보 내일, 모레 표시 영역]
+   */
   ractangle_weather3_text: {
     flex: 1,
-    marginTop: 20,
     width: 80,
     height: 100,
     justifyContent: "center",

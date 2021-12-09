@@ -75,7 +75,7 @@ function WeatherNowComponent(props) {
         <View style={styles.content_weather}>
           {ultSrtLoaded && <Text style={styles.txt_weather}>{temp}°</Text>}
           {srtWeather0200Loaded && (
-            <Text style={[styles.txt_subtitle2_r_w, { marginTop: 5, marginLeft: 5 }]}>
+            <Text style={[styles.txt_subtitle2_r_w, { marginTop: 1, marginLeft: 5 }]}>
               최고:{tmx}° 최저:{tmn}°
             </Text>
           )}

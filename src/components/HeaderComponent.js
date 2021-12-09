@@ -1,5 +1,6 @@
 import React from "react";
-import { StyleSheet, View, ScrollView } from "react-native";
+import { View, ScrollView } from "react-native";
+import styles from "../styles/styles";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 
@@ -16,18 +17,4 @@ function HeaderComponent({ children }) {
     </SafeAreaProvider>
   );
 }
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#F2F2F7",
-  },
-
-  header: {
-    height: 10,
-  },
-
-  content: {
-    flex: 1,
-  },
-});
 export default HeaderComponent;

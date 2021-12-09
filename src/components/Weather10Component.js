@@ -114,15 +114,13 @@ function Weather10Component(props) {
 
           {state.weather10Arr.map((arr, i) => (
             <>
-              <View style={styles.content_weather10}>
+              <View style={[styles.content_weather10, { marginTop: i == 0 ? 0 : 13.2, marginBottom: 13.2 }]}>
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
                   <Text
                     style={[
                       styles.txt_subtitle1_b,
                       {
                         color: moment().add(i, "days").format("dddd") == "토요일" || moment().add(i, "days").format("dddd") == "일요일" ? "#FF3B30" : "black",
-                        marginTop: i == 0 ? 0 : 13.2,
-                        marginBottom: 13.2,
                       },
                     ]}
                   >

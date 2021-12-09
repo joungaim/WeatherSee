@@ -84,7 +84,7 @@ function WeatherClothesComponent(props) {
     } else if (6 <= basedTemp && basedTemp < 12) {
       onIcon = 4;
       clothesTitle = "쌀쌀해요!";
-      clothesSub = "트렌치코트, 경량 패딩, 가죽자켓, 레깅스로 따뜻하게 입어요.";
+      clothesSub = "트렌치코트, 경량 패딩, 가죽자켓, 레깅스로 따뜻히 입어요.";
     } else if (-1 <= basedTemp && basedTemp < 6) {
       onIcon = 5;
       clothesTitle = "춥다 추워!";
@@ -120,19 +120,19 @@ function WeatherClothesComponent(props) {
           <Image style={styles.img_clothes} source={onRctngle} />
           <View
             style={{
-              marginTop: "-25.5%",
+              marginTop: -66,
               marginLeft: "5.5%",
               marginRight: "5.5%",
             }}
           >
-            <Text style={[styles.txt_subtitle2_b, { paddingTop: "5%" }]}>{clothesTitle}</Text>
+            <Text style={styles.txt_subtitle2_b}>{clothesTitle}</Text>
             <Text style={[styles.txt_caption_r, { marginTop: 7 }]}>{clothesSub}</Text>
           </View>
 
           <View
             style={{
               flexDirection: "row",
-              marginTop: "15%",
+              marginTop: 50,
               marginLeft: "2.5%",
               marginRight: "2.5%",
               justifyContent: "space-between",
