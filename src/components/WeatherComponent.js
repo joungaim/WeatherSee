@@ -107,7 +107,7 @@ function WeatherComponent(props) {
 
     try {
       const dateItem = await AsyncStorage.getItem("@srt0200BaseDate");
-      const weatherItem = await AsyncStorage.getItem("@srtWeather0200");
+      const weatherItem = await AsyncStorage.getItem("@srtWeather02004");
       const gridXItem = await AsyncStorage.getItem("@gridX");
       const gridYItem = await AsyncStorage.getItem("@gridY");
       console.log("10일 예보 쿠키 baseDate", dateItem);
@@ -116,7 +116,7 @@ function WeatherComponent(props) {
         srtWeather0200Arr = JSON.parse(weatherItem);
       } else {
         ({ srtWeather0200Arr, baseDate } = await Srt10Weather(API_KEY, gridX, gridY));
-        const srtWeather0200 = ["@srtWeather0200", JSON.stringify(srtWeather0200Arr)];
+        const srtWeather0200 = ["@srtWeather02004", JSON.stringify(srtWeather0200Arr)];
         const srt0200BaseDate = ["@srt0200BaseDate", baseDate];
 
         await AsyncStorage.multiSet([srtWeather0200, srt0200BaseDate]);

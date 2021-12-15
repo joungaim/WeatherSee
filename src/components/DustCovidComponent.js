@@ -90,8 +90,6 @@ function DustCovidComponent(props) {
       return ele.level2 == addrGu;
     });
 
-    console.log("stationObj 1 : ", stationObj);
-
     if (stationObj.length > 1) {
       let minDistance = getDistanceInKm(stationObj[0].latitude, stationObj[0].longitude, latitude, longitude);
       let nearestStation;
@@ -99,7 +97,6 @@ function DustCovidComponent(props) {
         if (minDistance > getDistanceInKm(stationObj[i].latitude, stationObj[i].longitude, latitude, longitude)) {
           minDistance = getDistanceInKm(stationObj[i].latitude, stationObj[i].longitude, latitude, longitude);
           nearestStation = stationObj[i];
-          console.log("nearestStation : ", nearestStation);
         }
       }
       stationObj[0] = nearestStation;
@@ -299,6 +296,7 @@ function DustCovidComponent(props) {
         covidObj = await Covid(gubun, crntDate);
         incDec = covidObj[0].incDec;
         totIncDec = covidObj[1].incDec;
+        console.log("DustCovidComponent.js totIncDec : ", totIncDec);
 
         const covidDate = ["@covidDate", crntDate];
         const covidGubun = ["@covidGubun", gubun];
@@ -330,7 +328,7 @@ function DustCovidComponent(props) {
   return (
     state.dustLoaded &&
     state.covidLoaded && (
-      <View style={styles.content_padding_row}>
+      <View style={styles.content_row}>
         <Swiper style={styles.wrapper} showsPagination={false}>
           <View style={styles.slide1}>
             <View style={[styles.ractangle_wrapper]}>

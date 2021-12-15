@@ -114,7 +114,7 @@ function Weather10Component(props) {
 
           {state.weather10Arr.map((arr, i) => (
             <>
-              <View style={[styles.content_weather10, { marginTop: i == 0 ? 0 : 13.2, marginBottom: 13.2 }]}>
+              <View style={[styles.content_row, { marginTop: i == 0 ? 0 : 13.2, marginBottom: 13.2 }]}>
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
                   <Text
                     style={[
@@ -145,15 +145,15 @@ function Weather10Component(props) {
                     flexDirection: "row",
                     alignItems: "center",
                     justifyContent: "flex-start",
-                    width: "15%",
+                    width: "22%",
                     marginLeft: "5%",
                   }}
                 >
                   <Image style={{ resizeMode: "contain" }} source={IMG_WEATHER10_SRC[GetWeatherImage(arr.sky)].image} />
                   {(arr.popAm >= 40 || arr.popPm >= 40) && (
                     <View style={{ marginLeft: 8 }}>
-                      {arr.popAm >= 40 && <Text style={styles.txt_caption_r}>낮 {arr.popAm}%</Text>}
-                      {arr.popPm >= 40 && <Text style={styles.txt_caption_r}>밤 {arr.popPm}%</Text>}
+                      {arr.popAm >= 40 && <Text style={styles.txt_caption_r}>오전 {arr.popAm}%</Text>}
+                      {arr.popPm >= 40 && <Text style={styles.txt_caption_r}>오후 {arr.popPm}%</Text>}
                     </View>
                   )}
                 </View>

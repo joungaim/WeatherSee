@@ -1,17 +1,17 @@
-import React, { useEffect, useReducer, useMemo } from "react";
-import { Alert, AsyncStorage, Text } from "react-native";
+import React, { useEffect, useReducer } from "react";
+import { Alert, AsyncStorage, Text, Modal, View, TouchableHighlight, Image } from "react-native";
 import * as Location from "expo-location";
 import "moment/locale/ko";
 import firebase from "firebase/app";
-import Loading from "./Loading";
+import LoadingComponent from "./src/components/LoadingComponent";
 import HeaderComponent from "./src/components/HeaderComponent";
 import AddressComponent from "./src/components/AddressComponent";
 import WeatherComponent from "./src/components/WeatherComponent";
-import { useFonts, NotoSans_300Regular } from "@expo-google-fonts/noto-sans";
+import ModalComponent from "./src/components/ModalComponent";
 import { Address } from "./src/Address";
 import { GridXY } from "./src/GridXY";
-
-import { NotoSansKR_300Light, NotoSansKR_400Regular, NotoSansKR_500Medium, NotoSansKR_700Bold, NotoSansKR_900Black } from "@expo-google-fonts/noto-sans-kr";
+import checkFirstLaunch from "./src/CheckFirstLaunch";
+import { useFonts } from "expo-font";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -35,18 +35,20 @@ export default function App() {
   /**
    * 폰트 로딩
    */
-  let [fontsLoaded] = useFonts({
-    NotoSans_300Regular,
-    NotoSansKR_300Light,
-    NotoSansKR_400Regular,
-    NotoSansKR_500Medium,
-    NotoSansKR_700Bold,
-    NotoSansKR_900Black,
+  const [fontsLoaded] = useFonts({
+    NotoSans_400Regular: require("./assets/fonts/NotoSans_400Regular.ttf"),
+    NotoSans_700Bold: require("./assets/fonts/NotoSans_700Bold.ttf"),
+    NotoSansKR_300Light: require("./assets/fonts/NotoSansKR_300Light.ttf"),
+    NotoSansKR_400Regular: require("./assets/fonts/NotoSansKR_400Regular.ttf"),
+    NotoSansKR_500Medium: require("./assets/fonts/NotoSansKR_500Medium.ttf"),
+    NotoSansKR_700Bold: require("./assets/fonts/NotoSansKR_700Bold.ttf"),
+    NotoSansKR_900Black: require("./assets/fonts/NotoSansKR_900Black.ttf"),
   });
 
   const initialState = {
     // [로딩화면 boolean 값 : 데이터 다 받아오면 false 할당]
     isLoading: true,
+    isFirstLaunch: false,
 
     latitude: 0,
     longitude: 0,
@@ -61,6 +63,8 @@ export default function App() {
     switch (action.type) {
       case "SET_ISLOADING":
         return { ...state, isLoading: false };
+      case "SET_ISFIRSTLAUNCH":
+        return { ...state, isFirstLaunch: true };
       case "SET_LOCATION":
         return {
           ...state,
@@ -134,29 +138,16 @@ export default function App() {
     Text.defaultProps.allowFontScaling = false;
   };
 
-  /**
-   * 배열에서 최빈 값 구하는 함수
-   */
-  // function getMode(array) {
-  //   // 1. 출연 빈도 구하기
-  //   const counts = array.reduce((pv, cv) => {
-  //     pv[cv] = (pv[cv] || 0) + 1;
-  //     return pv;
-  //   }, {});
-  //   // 2. 최빈값 구하기
-  //   const keys = Object.keys(counts);
-  //   let mode = keys[0];
-  //   keys.forEach((val, idx) => {
-  //     if (counts[val] > counts[mode]) {
-  //       mode = val;
-  //     }
-  //   });
-  //   console.log("mode = " + mode);
-  //   return mode;
-  // }
-
-  // const strings = ["a", "b", "b", "c", "c", "c", "d", "d", "d", "d"];
-  // getMode(strings);
+  getCheckFirstLaunch = async () => {
+    const isFirstLaunch = await checkFirstLaunch();
+    console.log("isFirstLaunch: " + JSON.stringify(isFirstLaunch));
+    if (isFirstLaunch) {
+      console.log("앱 최초 실행 여부 : " + isFirstLaunch.toString());
+      dispatch({
+        type: "SET_ISFIRSTLAUNCH",
+      });
+    }
+  };
 
   /**
    * 클래스 생명주기 메서드 중 componentDidMount() 와 동일한 기능을 한다.
@@ -165,15 +156,26 @@ export default function App() {
    * 배열안에 [count] 같이 인자를 넣어주면 해당 인자가 업데이트 될 때 마다 실행된다.
    */
   useEffect(() => {
+    getCheckFirstLaunch();
     getLocation();
   }, []);
 
+  if (!fontsLoaded) {
+    return null;
+  }
+
+  // modal이 앱 로드 된 뒤에 뜨도록 수정해야함.
+  // if (state.isFirstLaunch) {
+  //   return <ModalComponent />;
+  // }
+
   return state.isLoading ? (
-    <Loading />
+    <LoadingComponent />
   ) : (
     <HeaderComponent>
       <AddressComponent addrObj={state.addrObj} />
       <WeatherComponent addrObj={state.addrObj} gridX={state.gridX} gridY={state.gridY} latitude={state.latitude} longitude={state.longitude} />
+      {state.isFirstLaunch && <ModalComponent />}
     </HeaderComponent>
   );
 }

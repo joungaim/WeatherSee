@@ -6,7 +6,7 @@ import GetWeatherImage from "../GetWeatherImage";
 import { IMG_WEATHER3_SRC } from "../ImageSrc";
 import { SrtWeather } from "../../src/UltStrWeather";
 import { API_KEY } from "../../src/ApiKey";
-import { srtBaseDate, srtBaseTime } from "../../src/Time";
+import { srtBaseDate, srtBaseTime, todayDate, currentAclock } from "../../src/Time";
 
 function Weather3Component(props) {
   const gridX = props.gridX;
@@ -110,18 +110,14 @@ function Weather3Component(props) {
           <ScrollView horizontal style={{ height: 120 }} showsHorizontalScrollIndicator={false}>
             {state.srtWeatherTmpObj.map((arr, i) => (
               <>
-                {Number(arr.fcstTime.substr(0, 2)) == 0 &&
-                  Number(moment(arr.fcstDate).diff(moment(state.srtWeatherTmpObj[0].fcstDate), "days")) > 0 &&
-                  Number(moment(arr.fcstDate).diff(moment(state.srtWeatherTmpObj[0].fcstDate), "days")) < 3 && (
-                    <View style={styles.ractangle_weather3_text}>
-                      <View style={styles.devider_weather3} />
-                      <Text style={[styles.txt_body2_b, { marginTop: 10, marginBottom: 10 }]}>
-                        {Number(moment(arr.fcstDate).diff(moment(state.srtWeatherTmpObj[0].fcstDate), "days")) == 1 ? "내일" : "모레"}
-                      </Text>
-                      <View style={styles.devider_weather3} />
-                    </View>
-                  )}
-                {Number(moment(arr.fcstDate).diff(moment(state.srtWeatherTmpObj[0].fcstDate), "days")) < 3 && arr.fcstDate + String(arr.fcstTime) > moment().format("YYYYMMDDHHmm") && (
+                {Number(arr.fcstTime.substr(0, 2)) == 0 && Number(moment(arr.fcstDate).diff(moment(todayDate), "days")) > 0 && Number(moment(arr.fcstDate).diff(moment(todayDate), "days")) < 3 && (
+                  <View style={Number(moment(arr.fcstDate).diff(moment(todayDate), "days")) == 1 && currentAclock == 23 ? styles.ractangle_weather3_text : styles.ractangle_weather3_text_margin}>
+                    <View style={styles.devider_weather3} />
+                    <Text style={[styles.txt_body2_b, { marginTop: 10, marginBottom: 10 }]}>{Number(moment(arr.fcstDate).diff(moment(todayDate), "days")) == 1 ? "내일" : "모레"}</Text>
+                    <View style={styles.devider_weather3} />
+                  </View>
+                )}
+                {Number(moment(arr.fcstDate).diff(moment(todayDate), "days")) < 3 && arr.fcstDate + String(arr.fcstTime) > moment().format("YYYYMMDDHHmm") && (
                   <View style={arr.fcstDate + String(arr.fcstTime).substring(0, 2) == moment().add(1, "h").format("YYYYMMDDHH") ? styles.ractangle_weather3 : styles.ractangle_weather3_margin} id={i}>
                     <Text style={styles.txt_caption_sb}>
                       {Number(arr.fcstTime.substr(0, 2)) == 12

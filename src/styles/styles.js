@@ -10,14 +10,35 @@ const styles = StyleSheet.create({
     backgroundColor: "#F2F2F7",
   },
 
+  container_load: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  container_madal: {
+    backgroundColor: "#000000aa",
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
   header: {
     height: 25,
   },
   wrapper: { height: 90 },
-  slide1: { height: 90 },
-  slide2: { height: 90 },
+  slide1: { height: 90, paddingLeft: "4.5%", paddingRight: "4.5%" },
+  slide2: { height: 90, paddingLeft: "4.5%", paddingRight: "4.5%" },
   content: {
     flex: 1,
+  },
+
+  content_modal: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginLeft: "10%",
+    marginRight: "10%",
   },
 
   content_weather: {
@@ -40,13 +61,7 @@ const styles = StyleSheet.create({
     paddingRight: "4.5%",
   },
 
-  // content_weather10_first: {
-  //   paddingTop: "5%",
-  //   justifyContent: "space-between",
-  //   flexDirection: "row",
-  // },
-
-  content_weather10: {
+  content_row: {
     justifyContent: "space-between",
     flexDirection: "row",
   },
@@ -79,6 +94,13 @@ const styles = StyleSheet.create({
     paddingTop: "5%",
   },
 
+  devider_modal: {
+    borderBottomColor: "#CCCCCC",
+    borderBottomWidth: 1,
+    width: 230,
+    marginTop: 20,
+  },
+
   devider_weather3: {
     borderBottomColor: "#CCCCCC",
     borderBottomWidth: 1,
@@ -95,6 +117,14 @@ const styles = StyleSheet.create({
     fontSize: 85,
     lineHeight: 90,
     color: "white",
+  },
+
+  txt_load: {
+    fontFamily: "NotoSans_700Bold",
+    fontSize: 24,
+    color: "#636366",
+    lineHeight: 26,
+    marginTop: 15,
   },
 
   txt_h5_b: {
@@ -277,7 +307,7 @@ const styles = StyleSheet.create({
   },
 
   ractangle1: {
-    backgroundColor: (0 <= currentAclock && currentAclock <= 17) || 18 <= currentAclock ? "#5E5CE6" : "#007AFF",
+    backgroundColor: (0 <= currentAclock && currentAclock <= 7) || 18 <= currentAclock ? "#5E5CE6" : "#007AFF",
     flexDirection: "row",
     borderRadius: 14,
     height: 203,
@@ -367,11 +397,29 @@ const styles = StyleSheet.create({
    */
   ractangle_weather3_text: {
     flex: 1,
-    width: 80,
+    width: 55,
     height: 100,
     justifyContent: "center",
     alignItems: "center",
-    marginLeft: 8,
+    marginRight: 8,
+  },
+
+  ractangle_weather3_text_margin: {
+    flex: 1,
+    width: 55,
+    height: 100,
+    justifyContent: "center",
+    alignItems: "center",
+    marginLeft: 16,
+    marginRight: 8,
+  },
+
+  ractangle_modal: {
+    backgroundColor: "#ffffff",
+    margin: 30,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
   },
 
   contain_detail: {

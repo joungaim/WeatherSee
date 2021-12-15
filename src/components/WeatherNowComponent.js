@@ -17,7 +17,7 @@ function WeatherNowComponent(props) {
 
   //사용 위치 : 날씨 아이콘, 현재 기온
   if (ultSrtWeatherArr != "empty") {
-    temp = ultSrtWeatherArr[24].fcstValue; // 현재 기온
+    temp = Math.round(ultSrtWeatherArr[24].fcstValue); // 현재 기온
     sky = ultSrtWeatherArr[18].fcstValue; // 현재 하늘 상태
     pty = ultSrtWeatherArr[6].fcstValue; // 현재 강수 코드
     lgy = ultSrtWeatherArr[0].fcstValue; // 현재 낙뢰 코드

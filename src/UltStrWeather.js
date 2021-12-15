@@ -1,7 +1,7 @@
 import React from "react";
 import axios from "axios";
 import moment from "moment";
-
+import { getSepArrByDate, getModeValue } from "../src/ArrayManager";
 /**
  * [초단기예보조회용 HTTP 비동기 통신 ]
  */
@@ -82,22 +82,59 @@ async function Srt10Weather(apikey, nx, ny) {
     .then(function (response) {
       weather10Data = response.data.response.body.items.item; //필요한 정보만 받아오기 전부 다 받아 오려면 response.data 까지만 적는다.
 
-      weather10Data = weather10Data.filter((ele) => {
-        return ele.category == "TMN" || ele.category == "TMX" || (ele.category == "SKY" && ele.fcstTime == "0900") || (ele.category == "POP" && Number(ele.fcstValue) >= 40);
+      // 최저 기온 [tmn]
+      const weather10TmnArr = weather10Data.filter((ele) => {
+        return ele.category == "TMN";
       });
 
-      // POP가 중간중간 끼여 있으면 TMN TMX SKY 를 순서대로 쓰기에 불편하기 때문에 배열 뒤로 보내는 코드
-      weather10Data = weather10Data.filter((ele) => ele.category != "POP").concat(weather10Data.filter((ele) => ele.category == "POP"));
+      // console.log("weather10TmpArr : ", weather10TmnArr);
 
-      const weather10DataLth = 9; // 단기예보는 3일간의 날씨를 불러오는 데 1일에 TMX, TMN, SKY 는 각각 하나씩 있으므로 3일x3개는 9개. 뒤에 POP가 있을 수 있으므로 배열 길이로 체크하면 안됨.
-      let j = 0;
-      for (let i = 0; i < weather10DataLth; i += 3) {
-        srtWeather0200Arr[j] = {
-          tmn: Math.round(weather10Data[i].fcstValue),
-          sky: Number(weather10Data[i + 1].fcstValue),
-          tmx: Math.round(weather10Data[i + 2].fcstValue),
+      // 최고 기온 [tmx]
+      const weather10TmxArr = weather10Data.filter((ele) => {
+        return ele.category == "TMX";
+      });
+
+      // console.log("weather10TmpArr : ", weather10TmxArr);
+
+      // 날씨 아이콘 [sky]
+      const weather10SkyOrgArr = weather10Data.filter((ele) => {
+        return ele.category == "SKY";
+      });
+      // console.log("weather10SkyOrgArr : ", weather10SkyOrgArr);
+
+      let weather10SkyArr = [];
+      for (let i = 0; i < 3; i++) {
+        weather10SkyArr[i] = getModeValue(getSepArrByDate(weather10SkyOrgArr, baseDate, i));
+      }
+      console.log("weather10SkyArr : ", weather10SkyArr);
+
+      // 오전, 오후 강수확률 [popAm, popPm]
+      const weather10PopOrgArr = weather10Data.filter((ele) => {
+        return ele.category == "POP" && Number(ele.fcstValue) >= 40;
+      });
+      // console.log("weather10PopOrgArr : ", weather10PopOrgArr);
+      let weather10PopAmArr = [];
+      let weather10PopPmArr = [];
+      for (let i = 0; i < 3; i++) {
+        weather10PopAmArr[i] = Math.max.apply(null, getSepArrByDate(weather10PopOrgArr, baseDate, i, "popAm"));
+        weather10PopPmArr[i] = Math.max.apply(null, getSepArrByDate(weather10PopOrgArr, baseDate, i, "popPm"));
+      }
+
+      console.log("weather10PopAmArr : ", weather10PopAmArr);
+      console.log("weather10PopPmArr : ", weather10PopPmArr);
+
+      // POP가 중간중간 끼여 있으면 TMN TMX SKY 를 순서대로 쓰기에 불편하기 때문에 배열 뒤로 보내는 코드
+      // weather10Data = weather10Data.filter((ele) => ele.category != "POP").concat(weather10Data.filter((ele) => ele.category == "POP"));
+
+      const weather10DataLth = 3; // 단기예보는 3일간의 날씨를 불러오는 데 1일에 TMX, TMN, SKY 는 각각 하나씩 있으므로 3일x3개는 9개. 뒤에 POP가 있을 수 있으므로 배열 길이로 체크하면 안됨.
+      for (let i = 0; i < weather10DataLth; i++) {
+        srtWeather0200Arr[i] = {
+          tmn: Math.round(weather10TmnArr[i].fcstValue),
+          tmx: Math.round(weather10TmxArr[i].fcstValue),
+          sky: Number(weather10SkyArr[i]),
+          popAm: Number(weather10PopAmArr[i]),
+          popPm: Number(weather10PopPmArr[i]),
         };
-        j++;
       }
 
       // console.log("strWeather10Obj = " + JSON.stringify(weather10Data));
