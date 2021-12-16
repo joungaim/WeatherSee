@@ -12,6 +12,7 @@ import { Address } from "./src/Address";
 import { GridXY } from "./src/GridXY";
 import checkFirstLaunch from "./src/CheckFirstLaunch";
 import { useFonts } from "expo-font";
+import styles from "./src/styles/styles";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 

@@ -3,12 +3,19 @@ import { View, Text, Modal, TouchableHighlight, Image } from "react-native";
 import styles from "../styles/styles";
 
 function ModalComponent(props) {
-  const [close, setClose] = useState(true);
-  const onPress = () => setClose(false);
+  const [permiClose, setPermiClose] = useState(true);
+  const [coachClose, setCoachClose] = useState(false);
+  const onPress = () => {
+    setPermiClose(false);
+    setCoachClose(true);
+  };
+  const onPressCoach = () => {
+    setCoachClose(false);
+  };
 
   return (
     <>
-      <Modal transparent={true} visible={close}>
+      <Modal transparent={true} visible={permiClose}>
         <View style={styles.container_madal}>
           <View style={styles.ractangle_modal}>
             <Image style={{ resizeMode: "contain", marginTop: 30 }} source={require("../../assets/img/permission/sun.png")} />
@@ -40,6 +47,17 @@ function ModalComponent(props) {
                 </View>
               </TouchableHighlight>
             </View>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal transparent={true} visible={coachClose}>
+        <View style={styles.container_madal_coach}>
+          <TouchableHighlight onPress={onPressCoach} style={{ alignItems: "flex-end", justifyContent: "flex-start" }}>
+            <Image style={{ resizeMode: "contain", marginTop: "10%", marginRight: "4.5%" }} source={require("../../assets/img/coachmark/close.png")} />
+          </TouchableHighlight>
+          <View style={{ alignItems: "center", justifyContent: "flex-start", marginTop: "30%" }}>
+            <Image style={{ resizeMode: "contain" }} source={require("../../assets/img/coachmark/txt.png")} />
           </View>
         </View>
       </Modal>

@@ -23,6 +23,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
 
+  container_madal_coach: {
+    backgroundColor: "#000000aa",
+    flex: 1,
+  },
+
   header: {
     height: 25,
   },
