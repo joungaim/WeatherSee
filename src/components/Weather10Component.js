@@ -12,6 +12,8 @@ import moment from "moment";
 function Weather10Component(props) {
   const srtWeather0200Arr = props.srtWeather0200Arr;
   const addrText = props.addrObj.addrText;
+  const addrSi = props.addrObj.addrSi; //level1
+  const addrGu = props.addrObj.addrGu; //level2
 
   const initialState = {
     weather10Arr: {},
@@ -46,9 +48,14 @@ function Weather10Component(props) {
       const weatherItem = await AsyncStorage.getItem("@midWeather");
       const dateItem = await AsyncStorage.getItem("@midBaseDateTime");
       const addrItem = await AsyncStorage.getItem("@addrText");
-      console.log("중기 예보 쿠키 midBaseDateTime", dateItem);
+      console.log("중기 예보 쿠키 dateItem", dateItem);
       console.log("중기 예보 현재 midBaseDateTime", midBaseDateTime);
-      if (midBaseDateTime == dateItem && addrItem == addrText && weatherItem !== null) {
+
+      console.log("addrItem :", addrItem);
+      console.log("addrSi + addrGu :", addrSi + addrGu);
+      console.log("weatherItem :", weatherItem);
+
+      if (midBaseDateTime == dateItem && addrItem == addrSi + addrGu && weatherItem !== null) {
         midLandArr = JSON.parse(weatherItem);
       } else {
         const midRegId = await RegId(addrText);
@@ -62,7 +69,7 @@ function Weather10Component(props) {
 
         const midWeather = ["@midWeather", JSON.stringify(midLandArr)];
         const midDateTime = ["@midBaseDateTime", midBaseDateTime];
-        const addr = ["@addrText", addrText];
+        const addr = ["@addrText", addrSi + addrGu];
 
         await AsyncStorage.multiSet([midWeather, midDateTime, addr]);
       }
@@ -145,7 +152,7 @@ function Weather10Component(props) {
                     flexDirection: "row",
                     alignItems: "center",
                     justifyContent: "flex-start",
-                    width: "22%",
+                    width: "20%",
                     marginLeft: "5%",
                   }}
                 >

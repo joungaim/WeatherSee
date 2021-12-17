@@ -86,23 +86,33 @@ function DustCovidComponent(props) {
       return ele.level1 == addrSi;
     });
 
-    stationObj = stationObj.filter((ele) => {
-      return ele.level2 == addrGu;
+    stationObj2 = stationObj.filter((ele) => {
+      return addrGu.includes(ele.level2);
     });
 
-    if (stationObj.length > 1) {
-      let minDistance = getDistanceInKm(stationObj[0].latitude, stationObj[0].longitude, latitude, longitude);
+    if (stationObj2.length < 1) {
+      stationObj2 = stationObj;
+    }
+    console.log("stationObj2 level2 : ", stationObj2);
+
+    if (stationObj2.length > 1) {
+      let minDistance;
+      let chkDistance;
       let nearestStation;
-      for (let i = 1; i < stationObj.length; i++) {
-        if (minDistance > getDistanceInKm(stationObj[i].latitude, stationObj[i].longitude, latitude, longitude)) {
-          minDistance = getDistanceInKm(stationObj[i].latitude, stationObj[i].longitude, latitude, longitude);
-          nearestStation = stationObj[i];
+      for (let i = 0; i < stationObj2.length; i++) {
+        chkDistance = getDistanceInKm(stationObj2[i].latitude, stationObj2[i].longitude, latitude, longitude);
+        if (!minDistance) {
+          minDistance = chkDistance;
+        }
+        if (minDistance > chkDistance) {
+          minDistance = chkDistance;
+          nearestStation = stationObj2[i];
         }
       }
-      stationObj[0] = nearestStation;
+      stationObj2[0] = nearestStation;
     }
 
-    return stationObj;
+    return stationObj2;
   };
 
   getDustGrade = (dust) => {
@@ -178,6 +188,7 @@ function DustCovidComponent(props) {
     try {
       const dateItem = await AsyncStorage.getItem("@dustDate");
       const dustItem = await AsyncStorage.getItem("@dustObj");
+      const dustStationNameItem = await AsyncStorage.getItem("@stationName");
       const pm10GradeItem = await AsyncStorage.getItem("@pm10Grade");
       const pm25GradeItem = await AsyncStorage.getItem("@pm25Grade");
       const pm10GradeStrItem = await AsyncStorage.getItem("@pm10GradeStr");
@@ -186,7 +197,15 @@ function DustCovidComponent(props) {
       console.log("미세먼지 예보 쿠키 dateItem", dateItem);
       console.log("미세먼지 예보 현재 todayDateTime", todayDateTime);
 
-      if (Number(todayDateTime) < Number(dateItem) && dustItem !== null && pm10GradeItem !== null && pm25GradeItem !== null && pm10GradeStrItem !== null && pm25GradeStrItem !== null) {
+      if (
+        Number(todayDateTime) < Number(dateItem) &&
+        dustItem !== null &&
+        pm10GradeItem !== null &&
+        pm25GradeItem !== null &&
+        pm10GradeStrItem !== null &&
+        pm25GradeStrItem !== null &&
+        dustStationNameItem === stationName
+      ) {
         dust = JSON.parse(dustItem);
         pm10Grade = Number(pm10GradeItem);
         pm25Grade = Number(pm25GradeItem);
@@ -200,12 +219,13 @@ function DustCovidComponent(props) {
         crntDate = getAfter15Min(crntDate);
         const dustDate = ["@dustDate", crntDate];
         const dustObj = ["@dustObj", JSON.stringify(dust)];
+        const dustStationName = ["@stationName", stationName];
         const dustPm10Grade = ["@pm10Grade", String(pm10Grade)];
         const dustPm25Grade = ["@pm25Grade", String(pm25Grade)];
         const dustPm10GradeStr = ["@pm10GradeStr", pm10GradeStr];
         const dustPm25GradeStr = ["@pm25GradeStr", pm25GradeStr];
 
-        await AsyncStorage.multiSet([dustDate, dustObj, dustPm10Grade, dustPm25Grade, dustPm10GradeStr, dustPm25GradeStr]);
+        await AsyncStorage.multiSet([dustDate, dustObj, dustStationName, dustPm10Grade, dustPm25Grade, dustPm10GradeStr, dustPm25GradeStr]);
       }
     } catch (e) {
       // error reading value

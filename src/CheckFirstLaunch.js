@@ -1,7 +1,7 @@
 import React from "react";
 import { AsyncStorage } from "react-native";
 
-const KEY_VALUE = "@isFirstLaunch21";
+const KEY_VALUE = "@isFirstLaunch28";
 
 /**
  * 앱 최초 실행 여부 조회 함수
