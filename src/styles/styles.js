@@ -92,6 +92,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
   },
+  margin_weather10: {
+    marginTop: 13.2,
+    marginBottom: 13.2,
+  },
 
   devider: {
     borderBottomColor: "#CCCCCC",
@@ -150,6 +154,15 @@ const styles = StyleSheet.create({
     lineHeight: 24.5,
     marginTop: 23,
     marginBottom: 23,
+  },
+
+  txt_h6_b_weather10: {
+    fontSize: 20,
+    color: "black",
+    fontFamily: "NotoSansKR_700Bold",
+    lineHeight: 24.5,
+    marginTop: 23,
+    marginBottom: 9.2,
   },
 
   txt_subtitle1_b: {

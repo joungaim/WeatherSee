@@ -17,6 +17,7 @@ function Weather10Component(props) {
 
   const initialState = {
     weather10Arr: {},
+    isPop: 0,
     midLandArr: [],
     loaded: false,
   };
@@ -27,6 +28,7 @@ function Weather10Component(props) {
         return {
           ...state,
           weather10Arr: action.weather10Arr,
+          isPop: action.isPop,
           loaded: action.loaded,
         };
       case "SET_MID_WEATHER_OBJ":
@@ -98,9 +100,12 @@ function Weather10Component(props) {
       });
     } else if (state.midLandArr.length > 1 && srtWeather0200Arr != "empty") {
       const weather10Arr = [...srtWeather0200Arr, ...state.midLandArr];
-
+      const isPop = weather10Arr.filter((ele) => {
+        return ele.popAm >= 40 || ele.popPm >= 40;
+      }).length;
       dispatch({
         type: "SET_WEATHER10_OBJ",
+        isPop: isPop,
         weather10Arr: weather10Arr,
         loaded: true,
       });
@@ -115,14 +120,14 @@ function Weather10Component(props) {
 
   return (
     state.loaded && (
-      <View style={[styles.ractangle_bg, { height: 550 }]}>
+      <View style={[styles.ractangle_bg, { paddingBottom: 4 }]}>
         <View style={styles.content_padding}>
-          <Text style={styles.txt_h6_b}>10일 예보</Text>
+          <Text style={styles.txt_h6_b_weather10}>10일 예보</Text>
 
           {state.weather10Arr.map((arr, i) => (
             <>
-              <View style={[styles.content_row, { marginTop: i == 0 ? 0 : 13.2, marginBottom: 13.2 }]}>
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <View style={[styles.content_row]}>
+                <View style={[styles.margin_weather10, { flex: 5, flexDirection: "row", alignItems: "center" }]}>
                   <Text
                     style={[
                       styles.txt_subtitle1_b,
@@ -147,25 +152,17 @@ function Weather10Component(props) {
                   </Text>
                 </View>
 
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "flex-start",
-                    width: "20%",
-                    marginLeft: "5%",
-                  }}
-                >
+                <View style={[styles.margin_weather10, { flex: 1.5, alignItems: "center", justifyContent: "center" }]}>
                   <Image style={{ resizeMode: "contain" }} source={IMG_WEATHER10_SRC[GetWeatherImage(arr.sky)].image} />
-                  {(arr.popAm >= 40 || arr.popPm >= 40) && (
-                    <View style={{ marginLeft: 8 }}>
-                      {arr.popAm >= 40 && <Text style={styles.txt_caption_r}>오전 {arr.popAm}%</Text>}
-                      {arr.popPm >= 40 && <Text style={styles.txt_caption_r}>오후 {arr.popPm}%</Text>}
-                    </View>
-                  )}
                 </View>
+                {state.isPop > 0 && (
+                  <View style={{ flex: 2, alignItems: "flex-start", justifyContent: "center" }}>
+                    {arr.popAm >= 40 && <Text style={styles.txt_caption_r}>오전 {arr.popAm}%</Text>}
+                    {arr.popPm >= 40 && <Text style={styles.txt_caption_r}>오후 {arr.popPm}%</Text>}
+                  </View>
+                )}
 
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <View style={[styles.margin_weather10, { flex: 4, flexDirection: "row", alignItems: "center", justifyContent: "flex-end" }]}>
                   <View style={styles.content_weather10_taMax}>
                     <Text style={styles.txt_subtitle1_b}>{arr.tmx}°</Text>
                   </View>
