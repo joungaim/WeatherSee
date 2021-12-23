@@ -1,6 +1,7 @@
 import React, { useReducer, useEffect } from "react";
 import { AsyncStorage } from "react-native";
 import moment from "moment";
+import AddressComponent from "../../src/components/AddressComponent";
 import WeatherNowComponent from "../../src/components/WeatherNowComponent";
 import DustCovidComponent from "../../src/components/DustCovidComponent";
 import Weather3Component from "../../src/components/Weather3Component";
@@ -27,6 +28,18 @@ function WeatherComponent(props) {
 
   function reducer(state, action) {
     switch (action.type) {
+      case "SET_ISLOADING":
+        return { ...state, isLoading: false };
+      case "SET_LOCATION":
+        return {
+          ...state,
+          latitude: action.latitude,
+          longitude: action.longitude,
+          gridX: action.gridX,
+          gridY: action.gridY,
+        };
+      case "SET_ADDR_OBJ":
+        return { ...state, addrObj: action.addrObj };
       case "SET_ULT_SRT_WEATHER":
         return {
           ...state,
@@ -67,11 +80,13 @@ function WeatherComponent(props) {
         ultSrtWeatherArr = JSON.parse(weatherItem);
       } else {
         ultSrtWeatherArr = await UltSrtWeather(API_KEY, ultSrtBaseDate, ultSrtBaseTime, gridX, gridY);
-        const ultSrtWeather = ["@ultSrtWeather", JSON.stringify(ultSrtWeatherArr)];
-        const ultSrtDate = ["@ultSrtBaseDate", ultSrtBaseDate];
-        const ultSrtTime = ["@ultSrtBaseTime", ultSrtBaseTime];
+        if (ultSrtWeatherArr.length > 0) {
+          const ultSrtWeather = ["@ultSrtWeather", JSON.stringify(ultSrtWeatherArr)];
+          const ultSrtDate = ["@ultSrtBaseDate", ultSrtBaseDate];
+          const ultSrtTime = ["@ultSrtBaseTime", ultSrtBaseTime];
 
-        await AsyncStorage.multiSet([ultSrtWeather, ultSrtDate, ultSrtTime]);
+          await AsyncStorage.multiSet([ultSrtWeather, ultSrtDate, ultSrtTime]);
+        }
       }
     } catch (e) {
       // error reading value
@@ -106,20 +121,23 @@ function WeatherComponent(props) {
     }
 
     try {
-      const dateItem = await AsyncStorage.getItem("@srt0200BaseDate");
+      const dateItem = await AsyncStorage.getItem("@srt0200BaseDate2");
       const weatherItem = await AsyncStorage.getItem("@srtWeather02004");
       const gridXItem = await AsyncStorage.getItem("@gridX");
       const gridYItem = await AsyncStorage.getItem("@gridY");
       console.log("10일 예보 쿠키 baseDate", dateItem);
       console.log("10일 예보 현재 crntBaseDate", crntBaseDate);
+
       if (crntBaseDate == dateItem && gridXStr == gridXItem && gridYStr == gridYItem && weatherItem !== null) {
         srtWeather0200Arr = JSON.parse(weatherItem);
       } else {
         ({ srtWeather0200Arr, baseDate } = await Srt10Weather(API_KEY, gridX, gridY));
-        const srtWeather0200 = ["@srtWeather02004", JSON.stringify(srtWeather0200Arr)];
-        const srt0200BaseDate = ["@srt0200BaseDate", baseDate];
+        if (srtWeather0200Arr.length > 0) {
+          const srtWeather0200 = ["@srtWeather02004", JSON.stringify(srtWeather0200Arr)];
+          const srt0200BaseDate1 = ["@srt0200BaseDate2", baseDate];
 
-        await AsyncStorage.multiSet([srtWeather0200, srt0200BaseDate]);
+          await AsyncStorage.multiSet([srtWeather0200, srt0200BaseDate1]);
+        }
       }
     } catch (e) {
       // error reading value
@@ -141,6 +159,7 @@ function WeatherComponent(props) {
 
   return (
     <>
+      <AddressComponent addrObj={props.addrObj} />
       <WeatherNowComponent
         ultSrtWeatherArr={state.ultSrtWeatherArr.length > 1 ? state.ultSrtWeatherArr : "empty"}
         srtWeather0200Arr={state.srtWeather0200Arr.length > 1 ? state.srtWeather0200Arr[0] : "empty"}

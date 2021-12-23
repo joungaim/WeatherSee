@@ -1,18 +1,10 @@
 import React, { useEffect, useReducer } from "react";
-import { Alert, AsyncStorage, Text, Modal, View, TouchableHighlight, Image } from "react-native";
-import * as Location from "expo-location";
+import { Text } from "react-native";
 import "moment/locale/ko";
 import firebase from "firebase/app";
-import LoadingComponent from "./src/components/LoadingComponent";
 import HeaderComponent from "./src/components/HeaderComponent";
-import AddressComponent from "./src/components/AddressComponent";
-import WeatherComponent from "./src/components/WeatherComponent";
-import ModalComponent from "./src/components/ModalComponent";
-import { Address } from "./src/Address";
-import { GridXY } from "./src/GridXY";
 import checkFirstLaunch from "./src/CheckFirstLaunch";
 import { useFonts } from "expo-font";
-import styles from "./src/styles/styles";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -89,52 +81,6 @@ export default function App() {
    * 3. 위,경도를 getGridGPS 호출하여 좌표값으로 바꾼후 getWeather 호출
    */
   getLocation = async () => {
-    let { status } = await Location.requestForegroundPermissionsAsync();
-    if (status !== "granted") {
-      Alert.alert("Permission to access location was denied");
-      return;
-    }
-
-    const {
-      coords: { latitude, longitude },
-    } = await Location.getCurrentPositionAsync({});
-
-    const { gridX, gridY } = await GridXY(latitude, longitude);
-
-    const gridXStr = String(gridX);
-    const gridYStr = String(gridY);
-
-    try {
-      const gridXItem = await AsyncStorage.getItem("@gridX");
-      const gridYItem = await AsyncStorage.getItem("@gridY");
-      if (gridXItem === null || gridYItem === null || gridXStr !== gridXItem || gridYStr !== gridYItem) {
-        const gridX_ = ["@gridX", gridXStr];
-        const gridY_ = ["@gridY", gridYStr];
-        await AsyncStorage.multiSet([gridX_, gridY_]);
-      }
-    } catch (e) {
-      // error reading value
-    }
-
-    dispatch({
-      type: "SET_LOCATION",
-      latitude: latitude,
-      longitude: longitude,
-      gridX: gridX,
-      gridY: gridY,
-    });
-
-    const { addrText, addrSi, addrGu, addrDong } = await Address(latitude, longitude);
-
-    dispatch({
-      type: "SET_ADDR_OBJ",
-      addrObj: { addrText, addrSi, addrGu, addrDong },
-    });
-
-    dispatch({
-      type: "SET_ISLOADING",
-    });
-
     if (Text.defaultProps == null) Text.defaultProps = {};
     Text.defaultProps.allowFontScaling = false;
   };
@@ -165,18 +111,5 @@ export default function App() {
     return null;
   }
 
-  // modal이 앱 로드 된 뒤에 뜨도록 수정해야함.
-  // if (state.isFirstLaunch) {
-  //   return <ModalComponent />;
-  // }
-
-  return state.isLoading ? (
-    <LoadingComponent />
-  ) : (
-    <HeaderComponent>
-      <AddressComponent addrObj={state.addrObj} />
-      <WeatherComponent addrObj={state.addrObj} gridX={state.gridX} gridY={state.gridY} latitude={state.latitude} longitude={state.longitude} />
-      {state.isFirstLaunch && <ModalComponent />}
-    </HeaderComponent>
-  );
+  return <HeaderComponent isFirstLaunch={state.isFirstLaunch} />;
 }

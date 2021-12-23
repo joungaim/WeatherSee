@@ -50,7 +50,7 @@ function Weather3Component(props) {
       const weatherPtyItem = await AsyncStorage.getItem("@srtWeatherPty");
       const weatherPopItem = await AsyncStorage.getItem("@srtWeatherPop");
 
-      const dateItem = await AsyncStorage.getItem("@srtBaseDate");
+      const dateItem = await AsyncStorage.getItem("@srtBaseDate1");
       const timeItem = await AsyncStorage.getItem("@srtBaseTime");
       const gridXItem = await AsyncStorage.getItem("@gridX");
       const gridYItem = await AsyncStorage.getItem("@gridY");
@@ -74,15 +74,17 @@ function Weather3Component(props) {
         srtWeatherPopObj = JSON.parse(weatherPopItem);
       } else {
         ({ srtWeatherTmpObj, srtWeatherSkyObj, srtWeatherPtyObj, srtWeatherPopObj } = await SrtWeather(API_KEY, srtBaseDate, srtBaseTime, gridX, gridY));
-        const srtWeatherTmp = ["@srtWeatherTmp", JSON.stringify(srtWeatherTmpObj)];
-        const srtWeatherSky = ["@srtWeatherSky", JSON.stringify(srtWeatherSkyObj)];
-        const srtWeatherPty = ["@srtWeatherPty", JSON.stringify(srtWeatherPtyObj)];
-        const srtWeatherPop = ["@srtWeatherPop", JSON.stringify(srtWeatherPopObj)];
+        if (srtWeatherTmpObj.length > 0 && srtWeatherSkyObj.length > 0 && srtWeatherPtyObj.length > 0 && srtWeatherPopObj.length > 0) {
+          const srtWeatherTmp = ["@srtWeatherTmp", JSON.stringify(srtWeatherTmpObj)];
+          const srtWeatherSky = ["@srtWeatherSky", JSON.stringify(srtWeatherSkyObj)];
+          const srtWeatherPty = ["@srtWeatherPty", JSON.stringify(srtWeatherPtyObj)];
+          const srtWeatherPop = ["@srtWeatherPop", JSON.stringify(srtWeatherPopObj)];
 
-        const srtDate = ["@srtBaseDate", srtBaseDate];
-        const srtTime = ["@srtBaseTime", srtBaseTime];
+          const srtDate = ["@srtBaseDate1", srtBaseDate];
+          const srtTime = ["@srtBaseTime", srtBaseTime];
 
-        await AsyncStorage.multiSet([srtWeatherTmp, srtWeatherSky, srtWeatherPty, srtWeatherPop, srtDate, srtTime]);
+          await AsyncStorage.multiSet([srtWeatherTmp, srtWeatherSky, srtWeatherPty, srtWeatherPop, srtDate, srtTime]);
+        }
       }
     } catch (e) {
       // error reading value

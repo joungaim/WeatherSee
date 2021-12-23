@@ -63,17 +63,18 @@ function Weather10Component(props) {
         const midRegId = await RegId(addrText);
         midLandArr = await MidLandWeather(API_KEY, midBaseDateTime, midRegId.midLand);
         const midTaArr = await MidTaWeather(API_KEY, midBaseDateTime, midRegId.midTa);
+        if (midLandArr.length > 0 && midTaArr.length > 0) {
+          for (let i = 0; i < 7; i++) {
+            midLandArr[i].tmn = midTaArr[i].tmn;
+            midLandArr[i].tmx = midTaArr[i].tmx;
+          }
 
-        for (let i = 0; i < 7; i++) {
-          midLandArr[i].tmn = midTaArr[i].tmn;
-          midLandArr[i].tmx = midTaArr[i].tmx;
+          const midWeather = ["@midWeather", JSON.stringify(midLandArr)];
+          const midDateTime = ["@midBaseDateTime", midBaseDateTime];
+          const addr = ["@addrText", addrSi + addrGu];
+
+          await AsyncStorage.multiSet([midWeather, midDateTime, addr]);
         }
-
-        const midWeather = ["@midWeather", JSON.stringify(midLandArr)];
-        const midDateTime = ["@midBaseDateTime", midBaseDateTime];
-        const addr = ["@addrText", addrSi + addrGu];
-
-        await AsyncStorage.multiSet([midWeather, midDateTime, addr]);
       }
     } catch (e) {
       // error reading value

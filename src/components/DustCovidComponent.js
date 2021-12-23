@@ -77,7 +77,7 @@ function DustCovidComponent(props) {
     var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
     var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     var d = R * c; // 좌표사이 거리(km)
-    console.log("두 좌표 사이의 거리 : ", d);
+    // console.log("두 좌표 사이의 거리 : ", d);
     return d;
   };
 
@@ -93,7 +93,7 @@ function DustCovidComponent(props) {
     if (stationObj2.length < 1) {
       stationObj2 = stationObj;
     }
-    console.log("stationObj2 level2 : ", stationObj2);
+    // console.log("stationObj2 level2 : ", stationObj2);
 
     if (stationObj2.length > 1) {
       let minDistance;
@@ -103,6 +103,7 @@ function DustCovidComponent(props) {
         chkDistance = getDistanceInKm(stationObj2[i].latitude, stationObj2[i].longitude, latitude, longitude);
         if (!minDistance) {
           minDistance = chkDistance;
+          nearestStation = stationObj2[i];
         }
         if (minDistance > chkDistance) {
           minDistance = chkDistance;
