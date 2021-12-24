@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Text, View, StatusBar, Image, Animated, Easing } from "react-native";
+import { Text, View, StatusBar, Platform, Animated, Easing } from "react-native";
 import styles from "../styles/styles";
 
 export default function LoadingComponent() {
@@ -21,9 +21,10 @@ export default function LoadingComponent() {
     outputRange: ["0deg", "360deg"],
   });
 
+  const statusBarStyle = Platform.OS === "ios" ? "dark-content" : "auto";
   return (
     <View style={styles.container_load}>
-      <StatusBar barStyle="dark-content" />
+      <StatusBar barStyle={statusBarStyle} />
       <Animated.Image style={{ resizeMode: "contain", transform: [{ rotate: spin }] }} source={require("../../assets/img/loading/sun.png")} />
       <Text style={styles.txt_load}>Day See</Text>
     </View>

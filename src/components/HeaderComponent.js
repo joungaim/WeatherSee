@@ -91,29 +91,31 @@ function HeaderComponent(props) {
       return;
     }
 
+    // 다른 지역 테스트 코드 : 끝나면 풀기
     const {
       coords: { latitude, longitude },
     } = await Location.getCurrentPositionAsync({});
 
-    // 다른 지역 테스트 코드
+    // 다른 지역 테스트 코드 : 끝나면 삭제
     // const latitude = 35.19631127996341;
     // const longitude = 129.0337727390025;
 
     const { gridX, gridY } = await GridXY(latitude, longitude);
 
-    const gridXStr = String(gridX);
-    const gridYStr = String(gridY);
-    try {
-      const gridXItem = await AsyncStorage.getItem("@gridX");
-      const gridYItem = await AsyncStorage.getItem("@gridY");
-      if (gridXItem === null || gridYItem === null || gridXStr !== gridXItem || gridYStr !== gridYItem) {
-        const gridX_ = ["@gridX", gridXStr];
-        const gridY_ = ["@gridY", gridYStr];
-        await AsyncStorage.multiSet([gridX_, gridY_]);
-      }
-    } catch (e) {
-      // error reading value
-    }
+    // const gridXStr = String(gridX);
+    // const gridYStr = String(gridY);
+    // try {
+    //   const gridXItem = await AsyncStorage.getItem("@gridX");
+    //   const gridYItem = await AsyncStorage.getItem("@gridY");
+    //   console.log("Header gridXItem : ", gridXItem, " , gridYItem: ", gridYItem);
+    //   if (gridXItem === null || gridYItem === null || gridXStr !== gridXItem || gridYStr !== gridYItem) {
+    //     const gridX_ = ["@gridX", gridXStr];
+    //     const gridY_ = ["@gridY", gridYStr];
+    //     await AsyncStorage.multiSet([gridX_, gridY_]);
+    //   }
+    // } catch (e) {
+    //   // error reading value
+    // }
 
     dispatch({
       type: "SET_LOCATION",

@@ -15,8 +15,8 @@ import { ultSrtBaseDate, ultSrtBaseTime } from "../../src/Time";
 function WeatherComponent(props) {
   const gridX = props.gridX;
   const gridY = props.gridY;
-  const gridXStr = String(gridX);
-  const gridYStr = String(gridY);
+  const gridXYStr = String(gridX) + String(gridY);
+  // const gridYStr = String(gridY);
 
   const initialState = {
     // [초단기예보 조회용 변수]
@@ -72,11 +72,12 @@ function WeatherComponent(props) {
       const weatherItem = await AsyncStorage.getItem("@ultSrtWeather");
       const dateItem = await AsyncStorage.getItem("@ultSrtBaseDate");
       const timeItem = await AsyncStorage.getItem("@ultSrtBaseTime");
-      const gridXItem = await AsyncStorage.getItem("@gridX");
-      const gridYItem = await AsyncStorage.getItem("@gridY");
+      const gridXYItem = await AsyncStorage.getItem("@ultSrtgridXY");
       console.log("초단기 예보 쿠키 baseDate, Time", dateItem, ", ", timeItem);
       console.log("초단기 예보 현재 ultSrtBaseDate, ultSrtBaseTime", ultSrtBaseDate, ", ", ultSrtBaseTime);
-      if (ultSrtBaseDate == dateItem && ultSrtBaseTime == timeItem && gridXStr == gridXItem && gridYStr == gridYItem && weatherItem !== null) {
+      console.log("초단기 예보 쿠키 gridXYItem : ", gridXYItem);
+      console.log("초단기 예보 현재 gridXYStr : ", gridXYStr);
+      if (ultSrtBaseDate == dateItem && ultSrtBaseTime == timeItem && gridXYStr == gridXYItem && weatherItem !== null) {
         ultSrtWeatherArr = JSON.parse(weatherItem);
       } else {
         ultSrtWeatherArr = await UltSrtWeather(API_KEY, ultSrtBaseDate, ultSrtBaseTime, gridX, gridY);
@@ -84,8 +85,9 @@ function WeatherComponent(props) {
           const ultSrtWeather = ["@ultSrtWeather", JSON.stringify(ultSrtWeatherArr)];
           const ultSrtDate = ["@ultSrtBaseDate", ultSrtBaseDate];
           const ultSrtTime = ["@ultSrtBaseTime", ultSrtBaseTime];
+          const gridXY = ["@ultSrtgridXY", gridXYStr];
 
-          await AsyncStorage.multiSet([ultSrtWeather, ultSrtDate, ultSrtTime]);
+          await AsyncStorage.multiSet([ultSrtWeather, ultSrtDate, ultSrtTime, gridXY]);
         }
       }
     } catch (e) {
@@ -123,20 +125,21 @@ function WeatherComponent(props) {
     try {
       const dateItem = await AsyncStorage.getItem("@srt0200BaseDate2");
       const weatherItem = await AsyncStorage.getItem("@srtWeather02004");
-      const gridXItem = await AsyncStorage.getItem("@gridX");
-      const gridYItem = await AsyncStorage.getItem("@gridY");
+      const gridXYItem = await AsyncStorage.getItem("@srt0200gridXY");
       console.log("10일 예보 쿠키 baseDate", dateItem);
       console.log("10일 예보 현재 crntBaseDate", crntBaseDate);
-
-      if (crntBaseDate == dateItem && gridXStr == gridXItem && gridYStr == gridYItem && weatherItem !== null) {
+      console.log("10일 예보 쿠키 gridXYItem : ", gridXYItem);
+      console.log("10일 예보 현재 gridXYStr : ", gridXYStr);
+      if (crntBaseDate == dateItem && gridXYStr == gridXYItem && weatherItem !== null) {
         srtWeather0200Arr = JSON.parse(weatherItem);
       } else {
         ({ srtWeather0200Arr, baseDate } = await Srt10Weather(API_KEY, gridX, gridY));
         if (srtWeather0200Arr.length > 0) {
           const srtWeather0200 = ["@srtWeather02004", JSON.stringify(srtWeather0200Arr)];
           const srt0200BaseDate1 = ["@srt0200BaseDate2", baseDate];
+          const gridXY = ["@srt0200gridXY", gridXYStr];
 
-          await AsyncStorage.multiSet([srtWeather0200, srt0200BaseDate1]);
+          await AsyncStorage.multiSet([srtWeather0200, srt0200BaseDate1, gridXY]);
         }
       }
     } catch (e) {

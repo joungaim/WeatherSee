@@ -11,8 +11,7 @@ import { srtBaseDate, srtBaseTime, todayDate, currentAclock } from "../../src/Ti
 function Weather3Component(props) {
   const gridX = props.gridX;
   const gridY = props.gridY;
-  const gridXStr = String(gridX);
-  const gridYStr = String(gridY);
+  const gridXYStr = String(gridX) + String(gridY);
 
   const initialState = {
     srtWeatherTmpObj: {},
@@ -52,22 +51,12 @@ function Weather3Component(props) {
 
       const dateItem = await AsyncStorage.getItem("@srtBaseDate1");
       const timeItem = await AsyncStorage.getItem("@srtBaseTime");
-      const gridXItem = await AsyncStorage.getItem("@gridX");
-      const gridYItem = await AsyncStorage.getItem("@gridY");
+      const gridXYItem = await AsyncStorage.getItem("@srtgridXY");
 
       console.log("단기(3일) 예보 쿠키 baseDate, Time", dateItem, ", ", timeItem);
       console.log("단기(3일) 예보 현재 srtBaseDate, srtBaseTime", srtBaseDate, ", ", srtBaseTime);
 
-      if (
-        srtBaseDate == dateItem &&
-        srtBaseTime == timeItem &&
-        gridXStr == gridXItem &&
-        gridYStr == gridYItem &&
-        weatherTmpItem !== null &&
-        weatherSkyItem !== null &&
-        weatherPtyItem !== null &&
-        weatherPopItem !== null
-      ) {
+      if (srtBaseDate == dateItem && srtBaseTime == timeItem && gridXYStr == gridXYItem && weatherTmpItem !== null && weatherSkyItem !== null && weatherPtyItem !== null && weatherPopItem !== null) {
         srtWeatherTmpObj = JSON.parse(weatherTmpItem);
         srtWeatherSkyObj = JSON.parse(weatherSkyItem);
         srtWeatherPtyObj = JSON.parse(weatherPtyItem);
@@ -82,8 +71,9 @@ function Weather3Component(props) {
 
           const srtDate = ["@srtBaseDate1", srtBaseDate];
           const srtTime = ["@srtBaseTime", srtBaseTime];
+          const gridXY = ["@srtgridXY", gridXYStr];
 
-          await AsyncStorage.multiSet([srtWeatherTmp, srtWeatherSky, srtWeatherPty, srtWeatherPop, srtDate, srtTime]);
+          await AsyncStorage.multiSet([srtWeatherTmp, srtWeatherSky, srtWeatherPty, srtWeatherPop, srtDate, srtTime, gridXY]);
         }
       }
     } catch (e) {

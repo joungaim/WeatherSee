@@ -56,8 +56,8 @@ function ModalComponent(props) {
           <TouchableHighlight onPress={onPressCoach} style={{ alignItems: "flex-end", justifyContent: "flex-start" }}>
             <Image style={{ resizeMode: "contain", marginTop: "10%", marginRight: "4.5%" }} source={require("../../assets/img/coachmark/close.png")} />
           </TouchableHighlight>
-          <View style={{ alignItems: "center", justifyContent: "flex-start", marginTop: "30%" }}>
-            <Image style={{ resizeMode: "contain" }} source={require("../../assets/img/coachmark/txt.png")} />
+          <View style={{ alignItems: "center", justifyContent: "flex-start", marginTop: 160 }}>
+            <Image style={{ width: "91%", resizeMode: "contain" }} source={require("../../assets/img/coachmark/coach-mark.png")} />
           </View>
         </View>
       </Modal>
