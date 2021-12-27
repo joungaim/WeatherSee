@@ -7,6 +7,7 @@ import { getSepArrByDate, getModeValue } from "../src/ArrayManager";
  */
 async function UltSrtWeather(apikey, basedate, basetime, nx, ny) {
   const ultSrtUrl = `http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtFcst?serviceKey=${apikey}&numOfRows=100&pageNo=1&base_date=${basedate}&base_time=${basetime}&nx=${nx}&ny=${ny}&dataType=JSON`;
+  // const ultSrtUrl = `http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtFcst?serviceKey=${apikey}&numOfRows=100&pageNo=1&base_dat=${basedate}&base_time=${basetime}&nx=${nx}&ny=${ny}&dataType=JSON`; //에러 테스트용 url
   let ultSrtWeatherResponseData;
   console.log("초단기예보 url : " + ultSrtUrl);
   await axios
@@ -16,6 +17,7 @@ async function UltSrtWeather(apikey, basedate, basetime, nx, ny) {
     })
     .catch(function (error) {
       console.log("초단기예보 실패 : " + error);
+      return null;
     });
   return ultSrtWeatherResponseData;
 }

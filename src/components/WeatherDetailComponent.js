@@ -4,7 +4,6 @@ import { View, Image, Text } from "react-native";
 
 function WeatherDetailComponent(props) {
   const ultSrtWeatherArr = props.ultSrtWeatherArr;
-
   let temp = 0; // 기온
   let wind = 0; // 풍속
   let feelTemp = 0; // 체감온도
@@ -39,7 +38,7 @@ function WeatherDetailComponent(props) {
     { title: "북풍", degree: "180" },
   ];
 
-  if (ultSrtWeatherArr != "empty") {
+  if (ultSrtWeatherArr !== "empty") {
     loaded = true;
 
     temp = ultSrtWeatherArr[24].fcstValue;

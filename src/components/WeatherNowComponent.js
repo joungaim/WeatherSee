@@ -68,7 +68,7 @@ function WeatherNowComponent(props) {
     srtWeather0200Loaded = true;
   }
 
-  return (
+  return ultSrtWeatherArr != "empty" && srtWeather0200Arr != "empty" ? (
     <View style={styles.content_padding}>
       <View style={styles.ractangle1}>
         {ultSrtLoaded && <Image style={styles.img_weathericon} source={IMG_WEATHER_SRC[icon].image} />}
@@ -79,6 +79,15 @@ function WeatherNowComponent(props) {
               최고:{tmx}° 최저:{tmn}°
             </Text>
           )}
+        </View>
+      </View>
+    </View>
+  ) : (
+    <View style={styles.content_padding}>
+      <View style={styles.ractangle1}>
+        <Image style={styles.img_weathericon} source={IMG_WEATHER_SRC[1].image} />
+        <View style={styles.content_weather}>
+          <Text style={[styles.txt_subtitle2_r_w, { marginTop: 1, marginLeft: 5 }]}>현재 온도를 정상적으로 조회하지 못하였습니다. 앱을 새로고침 해주세요.</Text>
         </View>
       </View>
     </View>

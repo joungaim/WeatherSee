@@ -69,7 +69,7 @@ function WeatherComponent(props) {
     let ultSrtWeatherArr;
 
     try {
-      const weatherItem = await AsyncStorage.getItem("@ultSrtWeather");
+      const weatherItem = await AsyncStorage.getItem("@ultSrtWeather3");
       const dateItem = await AsyncStorage.getItem("@ultSrtBaseDate");
       const timeItem = await AsyncStorage.getItem("@ultSrtBaseTime");
       const gridXYItem = await AsyncStorage.getItem("@ultSrtgridXY");
@@ -81,8 +81,11 @@ function WeatherComponent(props) {
         ultSrtWeatherArr = JSON.parse(weatherItem);
       } else {
         ultSrtWeatherArr = await UltSrtWeather(API_KEY, ultSrtBaseDate, ultSrtBaseTime, gridX, gridY);
-        if (ultSrtWeatherArr.length > 0) {
-          const ultSrtWeather = ["@ultSrtWeather", JSON.stringify(ultSrtWeatherArr)];
+        if (ultSrtWeatherArr === undefined) {
+          console.log("초단기 예보 API 조회 중 에러 발생");
+          ultSrtWeatherArr = "empty";
+        } else if (ultSrtWeatherArr.length > 0) {
+          const ultSrtWeather = ["@ultSrtWeather3", JSON.stringify(ultSrtWeatherArr)];
           const ultSrtDate = ["@ultSrtBaseDate", ultSrtBaseDate];
           const ultSrtTime = ["@ultSrtBaseTime", ultSrtBaseTime];
           const gridXY = ["@ultSrtgridXY", gridXYStr];
@@ -156,6 +159,14 @@ function WeatherComponent(props) {
     getSrtWeather0200();
   };
 
+  checkNull = (value) => {
+    if (value == "" || value == null || value == undefined || (value != null && typeof value == "object" && !Object.keys(value).length) || !value) {
+      return false;
+    } else {
+      return true;
+    }
+  };
+
   useEffect(() => {
     getWeather();
   }, []);
@@ -164,13 +175,13 @@ function WeatherComponent(props) {
     <>
       <AddressComponent addrObj={props.addrObj} />
       <WeatherNowComponent
-        ultSrtWeatherArr={state.ultSrtWeatherArr.length > 1 ? state.ultSrtWeatherArr : "empty"}
+        ultSrtWeatherArr={checkNull(state.ultSrtWeatherArr) ? state.ultSrtWeatherArr : "empty"}
         srtWeather0200Arr={state.srtWeather0200Arr.length > 1 ? state.srtWeather0200Arr[0] : "empty"}
       />
       <DustCovidComponent addrObj={props.addrObj} latitude={props.latitude} longitude={props.longitude} />
       <Weather3Component gridX={props.gridX} gridY={props.gridY} />
       <Weather10Component addrObj={props.addrObj} srtWeather0200Arr={state.srtWeather0200Arr.length > 1 ? state.srtWeather0200Arr : "empty"} />
-      <WeatherDetailComponent ultSrtWeatherArr={state.ultSrtWeatherArr.length > 1 ? state.ultSrtWeatherArr : "empty"} />
+      <WeatherDetailComponent ultSrtWeatherArr={checkNull(state.ultSrtWeatherArr) ? state.ultSrtWeatherArr : "empty"} />
       <WeatherClothesComponent srtWeather0200Arr={state.srtWeather0200Arr.length > 1 ? state.srtWeather0200Arr[0] : "empty"} />
     </>
   );
