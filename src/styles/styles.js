@@ -54,6 +54,13 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
   },
 
+  content_weather_err: {
+    flex: 1,
+    paddingTop: "20%",
+    paddingBottom: "20%",
+    alignItems: "center",
+  },
+
   content_padding: {
     paddingLeft: "4.5%",
     paddingRight: "4.5%",
@@ -171,6 +178,12 @@ const styles = StyleSheet.create({
     color: "black",
     lineHeight: 22,
   },
+  txt_subtitle1_b_w: {
+    fontFamily: "NotoSansKR_700Bold",
+    fontSize: 18,
+    color: "white",
+    lineHeight: 22,
+  },
 
   txt_subtitle1_b_r: {
     fontFamily: "NotoSansKR_700Bold",
@@ -207,6 +220,13 @@ const styles = StyleSheet.create({
     color: "black",
   },
 
+  txt_subtitle2_b_w: {
+    fontFamily: "NotoSansKR_700Bold",
+    fontSize: 14,
+    lineHeight: 16,
+    color: "white",
+  },
+
   txt_subtitle2_r_w: {
     fontFamily: "NotoSansKR_500Medium",
     fontSize: 14,
@@ -218,6 +238,13 @@ const styles = StyleSheet.create({
     fontFamily: "NotoSansKR_400Regular",
     fontSize: 14,
     color: "#8A8A8E",
+    lineHeight: 19,
+  },
+
+  txt_body2_r_w: {
+    fontFamily: "NotoSansKR_400Regular",
+    fontSize: 14,
+    color: "white",
     lineHeight: 19,
   },
 
@@ -370,6 +397,15 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     alignItems: "center",
     justifyContent: "center",
+  },
+
+  ractangle_err: {
+    backgroundColor: "#F3F3F9",
+    borderRadius: 14,
+    width: "100%",
+    height: 100,
+    justifyContent: "center",
+    alignItems: "center",
   },
 
   ractangle_detail: {

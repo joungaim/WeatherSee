@@ -6,20 +6,23 @@ import { RegId } from "../../src/RegId";
 import GetWeatherImage from "../GetWeatherImage";
 import { midBaseDateTime } from "../../src/Time";
 import { API_KEY } from "../../src/ApiKey";
+import checkNotNull from "../CheckNotNull";
 import { MidLandWeather, MidTaWeather } from "../../src/UltStrWeather";
+import ErrorComponent from "../../src/components/ErrorComponent";
 import moment from "moment";
 
 function Weather10Component(props) {
   const srtWeather0200Arr = props.srtWeather0200Arr;
+  const isNotNullSrt = checkNotNull(srtWeather0200Arr);
+
   const addrText = props.addrObj.addrText;
   const addrSi = props.addrObj.addrSi; //level1
   const addrGu = props.addrObj.addrGu; //level2
 
   const initialState = {
-    weather10Arr: {},
+    weather10Arr: null,
     isPop: 0,
-    midLandArr: [],
-    loaded: false,
+    midLandArr: null,
   };
 
   function reducer(state, action) {
@@ -29,7 +32,6 @@ function Weather10Component(props) {
           ...state,
           weather10Arr: action.weather10Arr,
           isPop: action.isPop,
-          loaded: action.loaded,
         };
       case "SET_MID_WEATHER_OBJ":
         return {
@@ -47,15 +49,11 @@ function Weather10Component(props) {
     let midLandArr;
 
     try {
-      const weatherItem = await AsyncStorage.getItem("@midWeather");
+      const weatherItem = await AsyncStorage.getItem("@midWeather2");
       const dateItem = await AsyncStorage.getItem("@midBaseDateTime");
       const addrItem = await AsyncStorage.getItem("@addrText");
-      console.log("중기 예보 쿠키 dateItem", dateItem);
-      console.log("중기 예보 현재 midBaseDateTime", midBaseDateTime);
-
-      console.log("addrItem :", addrItem);
-      console.log("addrSi + addrGu :", addrSi + addrGu);
-      console.log("weatherItem :", weatherItem);
+      console.log("중기 예보 쿠키 dateItem : ", dateItem, "/ addrItem : ", addrItem);
+      console.log("중기 예보 현재 midBaseDateTime : ", midBaseDateTime, " / addrSi + addrGu : ", addrSi + addrGu);
 
       if (midBaseDateTime == dateItem && addrItem == addrSi + addrGu && weatherItem !== null) {
         midLandArr = JSON.parse(weatherItem);
@@ -63,17 +61,19 @@ function Weather10Component(props) {
         const midRegId = await RegId(addrText);
         midLandArr = await MidLandWeather(API_KEY, midBaseDateTime, midRegId.midLand);
         const midTaArr = await MidTaWeather(API_KEY, midBaseDateTime, midRegId.midTa);
-        if (midLandArr.length > 0 && midTaArr.length > 0) {
+        if (checkNotNull(midLandArr) && checkNotNull(midTaArr)) {
           for (let i = 0; i < 7; i++) {
             midLandArr[i].tmn = midTaArr[i].tmn;
             midLandArr[i].tmx = midTaArr[i].tmx;
           }
 
-          const midWeather = ["@midWeather", JSON.stringify(midLandArr)];
+          const midWeather = ["@midWeather2", JSON.stringify(midLandArr)];
           const midDateTime = ["@midBaseDateTime", midBaseDateTime];
           const addr = ["@addrText", addrSi + addrGu];
 
           await AsyncStorage.multiSet([midWeather, midDateTime, addr]);
+        } else {
+          midLandArr = "";
         }
       }
     } catch (e) {
@@ -83,23 +83,19 @@ function Weather10Component(props) {
   };
 
   getWeather10 = async () => {
-    if (state.midLandArr.length < 1 && srtWeather0200Arr != "empty") {
+    // midLandArr 값은 조회되기 전이고, 부모 컴포넌트에서 10일 예보만 받아왔을 때
+    if (state.midLandArr === null && isNotNullSrt) {
+      let weather10Arr = "";
       const midLandArr = await getMidWeather();
-      const weather10Arr = [...srtWeather0200Arr, ...midLandArr];
-
+      if (checkNotNull(midLandArr)) {
+        weather10Arr = [...srtWeather0200Arr, ...midLandArr];
+      }
       dispatch({
         type: "SET_WEATHER10_OBJ",
         weather10Arr: weather10Arr,
-        loaded: true,
       });
-    } else if (state.midLandArr.length < 1 && srtWeather0200Arr == "empty") {
-      const midLandArr = await getMidWeather();
-
-      dispatch({
-        type: "SET_MID_WEATHER_OBJ",
-        midLandArr: midLandArr,
-      });
-    } else if (state.midLandArr.length > 1 && srtWeather0200Arr != "empty") {
+      // midLandArr 값이 조회되기 전이고, 부모 컴포넌트에서 10일 예보값을 받아오지 못했을 때
+    } else if (checkNotNull(state.midLandArr) && isNotNullSrt) {
       const weather10Arr = [...srtWeather0200Arr, ...state.midLandArr];
       const isPop = weather10Arr.filter((ele) => {
         return ele.popAm >= 40 || ele.popPm >= 40;
@@ -108,7 +104,6 @@ function Weather10Component(props) {
         type: "SET_WEATHER10_OBJ",
         isPop: isPop,
         weather10Arr: weather10Arr,
-        loaded: true,
       });
     } else {
       // console.log("state.midLandArr.length : " + state.midLandArr.length + ", srtWeather0200Arr : " + srtWeather0200Arr);
@@ -119,8 +114,8 @@ function Weather10Component(props) {
     getWeather10();
   }, [srtWeather0200Arr, state.midLandArr]);
 
-  return (
-    state.loaded && (
+  if (isNotNullSrt && checkNotNull(state.weather10Arr)) {
+    return (
       <View style={[styles.ractangle_bg, { paddingBottom: 4 }]}>
         <View style={styles.content_padding}>
           <Text style={styles.txt_h6_b_weather10}>10일 예보</Text>
@@ -177,8 +172,12 @@ function Weather10Component(props) {
           ))}
         </View>
       </View>
-    )
-  );
+    );
+  } else if ((!state.weather10Arr && state.weather10Arr === "") || (!srtWeather0200Arr && srtWeather0200Arr === "")) {
+    return <ErrorComponent title="10일 예보" />;
+  } else {
+    return null;
+  }
 }
 
 export default Weather10Component;

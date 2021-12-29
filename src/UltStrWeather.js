@@ -13,11 +13,15 @@ async function UltSrtWeather(apikey, basedate, basetime, nx, ny) {
   await axios
     .get(ultSrtUrl)
     .then(function (response) {
-      ultSrtWeatherResponseData = response.data.response.body.items.item;
+      if (!response) {
+        ultSrtWeatherResponseData = "";
+      } else {
+        ultSrtWeatherResponseData = response.data.response.body.items.item;
+      }
     })
     .catch(function (error) {
+      ultSrtWeatherResponseData = "";
       console.log("초단기예보 실패 : " + error);
-      return null;
     });
   return ultSrtWeatherResponseData;
 }
@@ -75,6 +79,7 @@ async function Srt10Weather(apikey, nx, ny) {
   }
 
   const srt10Url = `http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?serviceKey=${apikey}&numOfRows=1000&pageNo=1&dataType=JSON&base_date=${baseDate}&base_time=${baseTime}&nx=${nx}&ny=${ny}`;
+  // const srt10Url = `http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?serviceKey=${apikey}&numOfRows=1000&pageNo=1&dataTyp=JSON&base_date=${baseDate}&base_time=${baseTime}&nx=${nx}&ny=${ny}`; //테스트용 코드
   let weather10Data;
   let srtWeather0200Arr = [];
 
@@ -84,46 +89,33 @@ async function Srt10Weather(apikey, nx, ny) {
     .then(function (response) {
       weather10Data = response.data.response.body.items.item; //필요한 정보만 받아오기 전부 다 받아 오려면 response.data 까지만 적는다.
 
-      // 최저 기온 [tmn]
       const weather10TmnArr = weather10Data.filter((ele) => {
         return ele.category == "TMN";
-      });
+      }); // 최저 기온 [tmn]
 
-      // console.log("weather10TmpArr : ", weather10TmnArr);
-
-      // 최고 기온 [tmx]
       const weather10TmxArr = weather10Data.filter((ele) => {
         return ele.category == "TMX";
-      });
+      }); // 최고 기온 [tmx]
 
-      // console.log("weather10TmpArr : ", weather10TmxArr);
-
-      // 날씨 아이콘 [sky]
       const weather10SkyOrgArr = weather10Data.filter((ele) => {
         return ele.category == "SKY";
-      });
-      // console.log("weather10SkyOrgArr : ", weather10SkyOrgArr);
+      }); // 날씨 아이콘 [sky]
 
       let weather10SkyArr = [];
       for (let i = 0; i < 3; i++) {
         weather10SkyArr[i] = getModeValue(getSepArrByDate(weather10SkyOrgArr, baseDate, i));
       }
-      console.log("weather10SkyArr : ", weather10SkyArr);
 
-      // 오전, 오후 강수확률 [popAm, popPm]
       const weather10PopOrgArr = weather10Data.filter((ele) => {
         return ele.category == "POP" && Number(ele.fcstValue) >= 40;
-      });
-      // console.log("weather10PopOrgArr : ", weather10PopOrgArr);
+      }); // 오전, 오후 강수확률 [popAm, popPm]
+
       let weather10PopAmArr = [];
       let weather10PopPmArr = [];
       for (let i = 0; i < 3; i++) {
         weather10PopAmArr[i] = Math.max.apply(null, getSepArrByDate(weather10PopOrgArr, baseDate, i, "popAm"));
         weather10PopPmArr[i] = Math.max.apply(null, getSepArrByDate(weather10PopOrgArr, baseDate, i, "popPm"));
       }
-
-      console.log("weather10PopAmArr : ", weather10PopAmArr);
-      console.log("weather10PopPmArr : ", weather10PopPmArr);
 
       // POP가 중간중간 끼여 있으면 TMN TMX SKY 를 순서대로 쓰기에 불편하기 때문에 배열 뒤로 보내는 코드
       // weather10Data = weather10Data.filter((ele) => ele.category != "POP").concat(weather10Data.filter((ele) => ele.category == "POP"));
@@ -142,6 +134,7 @@ async function Srt10Weather(apikey, nx, ny) {
       // console.log("strWeather10Obj = " + JSON.stringify(weather10Data));
     })
     .catch(function (error) {
+      srtWeather0200Arr = "";
       console.log("10일 예보용 단기예보 실패 : " + error);
     });
   return { srtWeather0200Arr, baseDate };
@@ -195,6 +188,7 @@ async function MidLandWeather(apikey, basetime, midRegId) {
       // console.log("중기육상예보 데이터 ", midLandData);
     })
     .catch(function (error) {
+      midLandArr = "";
       console.log("중기육상예보 실패 : " + error);
     });
   return midLandArr;
@@ -226,6 +220,7 @@ async function MidTaWeather(apikey, basetime, midRegId) {
       // console.log("중기기온예보 데이터 수정", midTaData);
     })
     .catch(function (error) {
+      midTaArr = "";
       console.log("중기기온예보조회 실패 : " + error);
     });
   return midTaArr;

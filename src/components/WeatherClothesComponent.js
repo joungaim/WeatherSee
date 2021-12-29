@@ -3,6 +3,8 @@ import { View, Image, Text } from "react-native";
 import moment from "moment";
 import styles from "../styles/styles";
 import { IMG_CLOTHES_ON_SRC, IMG_CLOTHES_RCTNGL_SRC } from "../ImageSrc";
+import checkNotNull from "../CheckNotNull";
+import ErrorComponent from "../../src/components/ErrorComponent";
 
 /**
  * 옷차림 예보용
@@ -16,6 +18,8 @@ import { IMG_CLOTHES_ON_SRC, IMG_CLOTHES_RCTNGL_SRC } from "../ImageSrc";
  */
 function WeatherClothesComponent(props) {
   const srtWeather0200Arr = props.srtWeather0200Arr;
+  const isNotNullSrt = checkNotNull(srtWeather0200Arr);
+
   const crntMnth = moment().format("MM"); //현재 달
   let tmx = 0;
   let tmn = 0;
@@ -59,10 +63,10 @@ function WeatherClothesComponent(props) {
     },
   ];
 
-  if (srtWeather0200Arr != "empty") {
+  if (isNotNullSrt) {
     loaded = true;
-    tmx = srtWeather0200Arr.tmx; //오늘 최고기온
-    tmn = srtWeather0200Arr.tmn; //오늘 최저기온
+    tmx = srtWeather0200Arr[0].tmx; //오늘 최고기온
+    tmn = srtWeather0200Arr[0].tmn; //오늘 최저기온
     basedTemp = tmx - (tmx - tmn) / 2; //오늘 평균 기온 ex. 31 28일때, 중간온도를 구하기 위해 31-28=3 / 3/2=1.5 / 31-1.5=29.5가 오늘의 평균 기온이다.
 
     if (basedTemp >= 28) {
@@ -110,45 +114,51 @@ function WeatherClothesComponent(props) {
     }
   }
 
-  return (
-    loaded && (
-      <View style={[styles.ractangle_bg, { height: 250 }]}>
-        <View style={styles.content_padding}>
-          <Text style={styles.txt_h6_b}> 옷차림 예보 </Text>
-        </View>
-        <View style={styles.content_padding}>
-          <Image style={styles.img_clothes} source={onRctngle} />
-          <View
-            style={{
-              marginTop: -66,
-              marginLeft: "5.5%",
-              marginRight: "5.5%",
-            }}
-          >
-            <Text style={styles.txt_subtitle2_b}>{clothesTitle}</Text>
-            <Text style={[styles.txt_caption_r, { marginTop: 7 }]}>{clothesSub}</Text>
+  if (isNotNullSrt) {
+    return (
+      loaded && (
+        <View style={[styles.ractangle_bg, { height: 250 }]}>
+          <View style={styles.content_padding}>
+            <Text style={styles.txt_h6_b}> 옷차림 예보 </Text>
           </View>
+          <View style={styles.content_padding}>
+            <Image style={styles.img_clothes} source={onRctngle} />
+            <View
+              style={{
+                marginTop: -66,
+                marginLeft: "5.5%",
+                marginRight: "5.5%",
+              }}
+            >
+              <Text style={styles.txt_subtitle2_b}>{clothesTitle}</Text>
+              <Text style={[styles.txt_caption_r, { marginTop: 7 }]}>{clothesSub}</Text>
+            </View>
 
-          <View
-            style={{
-              flexDirection: "row",
-              marginTop: 50,
-              marginLeft: "2.5%",
-              marginRight: "2.5%",
-              justifyContent: "space-between",
-            }}
-          >
-            {IMG_CLOTHES_OFF_SRC.map((arr, i) => (
-              <View style={{ flex: 1, alignItems: "center" }}>
-                <Image style={styles.img_contain_clothes} source={arr.image} />
-                <Text style={onText == i ? styles.txt_caption_b : styles.txt_caption_r}>{arr.text}</Text>
-              </View>
-            ))}
+            <View
+              style={{
+                flexDirection: "row",
+                marginTop: 50,
+                marginLeft: "2.5%",
+                marginRight: "2.5%",
+                justifyContent: "space-between",
+              }}
+            >
+              {IMG_CLOTHES_OFF_SRC.map((arr, i) => (
+                <View style={{ flex: 1, alignItems: "center" }}>
+                  <Image style={styles.img_contain_clothes} source={arr.image} />
+                  <Text style={onText == i ? styles.txt_caption_b : styles.txt_caption_r}>{arr.text}</Text>
+                </View>
+              ))}
+            </View>
           </View>
         </View>
-      </View>
-    )
-  );
+      )
+    );
+  } else if (!srtWeather0200Arr && srtWeather0200Arr === "") {
+    return <ErrorComponent title="옷차림 예보" />;
+  } else {
+    return null;
+  }
 }
 
 export default WeatherClothesComponent;

@@ -1,9 +1,13 @@
 import React from "react";
 import styles from "../styles/styles";
+import ErrorComponent from "../../src/components/ErrorComponent";
+import checkNotNull from "../CheckNotNull";
 import { View, Image, Text } from "react-native";
 
 function WeatherDetailComponent(props) {
   const ultSrtWeatherArr = props.ultSrtWeatherArr;
+  const isNotNullUlt = checkNotNull(ultSrtWeatherArr);
+
   let temp = 0; // 기온
   let wind = 0; // 풍속
   let feelTemp = 0; // 체감온도
@@ -38,7 +42,7 @@ function WeatherDetailComponent(props) {
     { title: "북풍", degree: "180" },
   ];
 
-  if (ultSrtWeatherArr !== "empty") {
+  if (isNotNullUlt) {
     loaded = true;
 
     temp = ultSrtWeatherArr[24].fcstValue;
@@ -53,9 +57,8 @@ function WeatherDetailComponent(props) {
     windIconDegree = windIconDirctArr[windIconDirct].degree;
     windTitle = windIconDirctArr[windIconDirct].title;
   }
-
-  return (
-    loaded && (
+  if (isNotNullUlt) {
+    return (
       <View style={[styles.ractangle_bg, { height: 170 }]}>
         <View style={styles.content_padding}>
           <Text style={styles.txt_h6_b}>상세 예보</Text>
@@ -93,8 +96,12 @@ function WeatherDetailComponent(props) {
           </View>
         </View>
       </View>
-    )
-  );
+    );
+  } else if (!ultSrtWeatherArr && ultSrtWeatherArr === "") {
+    return <ErrorComponent title="상세예보" />;
+  } else {
+    return null;
+  }
 }
 
 export default WeatherDetailComponent;

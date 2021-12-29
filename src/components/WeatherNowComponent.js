@@ -3,10 +3,11 @@ import styles from "../styles/styles";
 import { View, Image, Text } from "react-native";
 import moment from "moment";
 import { IMG_WEATHER_SRC } from "../ImageSrc";
+import checkNotNull from "../CheckNotNull";
 
 function WeatherNowComponent(props) {
   const ultSrtWeatherArr = props.ultSrtWeatherArr;
-
+  const isNotNullUlt = checkNotNull(ultSrtWeatherArr);
   let icon = 0;
   let temp = "";
   let sky = "";
@@ -16,7 +17,7 @@ function WeatherNowComponent(props) {
   const crtTime = moment().format("HH");
 
   //사용 위치 : 날씨 아이콘, 현재 기온
-  if (ultSrtWeatherArr != "empty") {
+  if (isNotNullUlt) {
     temp = Math.round(ultSrtWeatherArr[24].fcstValue); // 현재 기온
     sky = ultSrtWeatherArr[18].fcstValue; // 현재 하늘 상태
     pty = ultSrtWeatherArr[6].fcstValue; // 현재 강수 코드
@@ -57,41 +58,48 @@ function WeatherNowComponent(props) {
   }
 
   const srtWeather0200Arr = props.srtWeather0200Arr;
-
+  const isNotNullSrt = checkNotNull(srtWeather0200Arr);
   let tmx = 0;
   let tmn = 0;
   let srtWeather0200Loaded = false;
 
-  if (srtWeather0200Arr != "empty") {
-    tmx = Math.round(srtWeather0200Arr.tmx);
-    tmn = Math.round(srtWeather0200Arr.tmn);
+  if (isNotNullSrt) {
+    tmx = Math.round(srtWeather0200Arr[0].tmx);
+    tmn = Math.round(srtWeather0200Arr[0].tmn);
     srtWeather0200Loaded = true;
   }
 
-  return ultSrtWeatherArr != "empty" && srtWeather0200Arr != "empty" ? (
-    <View style={styles.content_padding}>
-      <View style={styles.ractangle1}>
-        {ultSrtLoaded && <Image style={styles.img_weathericon} source={IMG_WEATHER_SRC[icon].image} />}
-        <View style={styles.content_weather}>
-          {ultSrtLoaded && <Text style={styles.txt_weather}>{temp}°</Text>}
-          {srtWeather0200Loaded && (
-            <Text style={[styles.txt_subtitle2_r_w, { marginTop: 1, marginLeft: 5 }]}>
-              최고:{tmx}° 최저:{tmn}°
-            </Text>
-          )}
+  if (isNotNullUlt && isNotNullSrt) {
+    return (
+      <View style={styles.content_padding}>
+        <View style={styles.ractangle1}>
+          {ultSrtLoaded && <Image style={styles.img_weathericon} source={IMG_WEATHER_SRC[icon].image} />}
+          <View style={styles.content_weather}>
+            {ultSrtLoaded && <Text style={styles.txt_weather}>{temp}°</Text>}
+            {srtWeather0200Loaded && (
+              <Text style={[styles.txt_subtitle2_r_w, { marginTop: 1, marginLeft: 5 }]}>
+                최고:{tmx}° 최저:{tmn}°
+              </Text>
+            )}
+          </View>
         </View>
       </View>
-    </View>
-  ) : (
-    <View style={styles.content_padding}>
-      <View style={styles.ractangle1}>
-        <Image style={styles.img_weathericon} source={IMG_WEATHER_SRC[1].image} />
-        <View style={styles.content_weather}>
-          <Text style={[styles.txt_subtitle2_r_w, { marginTop: 1, marginLeft: 5 }]}>현재 온도를 정상적으로 조회하지 못하였습니다. 앱을 새로고침 해주세요.</Text>
+    );
+  } else if ((!ultSrtWeatherArr && ultSrtWeatherArr === "") || (!srtWeather0200Arr && srtWeather0200Arr === "")) {
+    return (
+      <View style={styles.content_padding}>
+        <View style={styles.ractangle1}>
+          {/* <Image style={styles.img_weathericon} source={IMG_WEATHER_SRC[1].image} /> */}
+          <View style={styles.content_weather_err}>
+            <Text style={[styles.txt_subtitle1_b_w]}>현재 온도를 불러오지 못했습니다.</Text>
+            <Text style={[styles.txt_body2_r_w, { marginTop: 3 }]}>잠시 뒤 다시 시도해주세요.</Text>
+          </View>
         </View>
       </View>
-    </View>
-  );
+    );
+  } else {
+    return null;
+  }
 }
 
 export default WeatherNowComponent;

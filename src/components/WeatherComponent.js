@@ -11,6 +11,7 @@ import WeatherClothesComponent from "../../src/components/WeatherClothesComponen
 import { UltSrtWeather, Srt10Weather } from "../../src/UltStrWeather";
 import { API_KEY } from "../../src/ApiKey";
 import { ultSrtBaseDate, ultSrtBaseTime } from "../../src/Time";
+import checkNotNull from "../CheckNotNull";
 
 function WeatherComponent(props) {
   const gridX = props.gridX;
@@ -20,10 +21,10 @@ function WeatherComponent(props) {
 
   const initialState = {
     // [초단기예보 조회용 변수]
-    ultSrtWeatherArr: {},
+    ultSrtWeatherArr: null,
 
     // [단기 예보 2시 조회용 변수]
-    srtWeather0200Arr: {},
+    srtWeather0200Arr: null,
   };
 
   function reducer(state, action) {
@@ -69,7 +70,7 @@ function WeatherComponent(props) {
     let ultSrtWeatherArr;
 
     try {
-      const weatherItem = await AsyncStorage.getItem("@ultSrtWeather3");
+      const weatherItem = await AsyncStorage.getItem("@ultSrtWeather5");
       const dateItem = await AsyncStorage.getItem("@ultSrtBaseDate");
       const timeItem = await AsyncStorage.getItem("@ultSrtBaseTime");
       const gridXYItem = await AsyncStorage.getItem("@ultSrtgridXY");
@@ -81,11 +82,8 @@ function WeatherComponent(props) {
         ultSrtWeatherArr = JSON.parse(weatherItem);
       } else {
         ultSrtWeatherArr = await UltSrtWeather(API_KEY, ultSrtBaseDate, ultSrtBaseTime, gridX, gridY);
-        if (ultSrtWeatherArr === undefined) {
-          console.log("초단기 예보 API 조회 중 에러 발생");
-          ultSrtWeatherArr = "empty";
-        } else if (ultSrtWeatherArr.length > 0) {
-          const ultSrtWeather = ["@ultSrtWeather3", JSON.stringify(ultSrtWeatherArr)];
+        if (ultSrtWeatherArr.length > 0) {
+          const ultSrtWeather = ["@ultSrtWeather5", JSON.stringify(ultSrtWeatherArr)];
           const ultSrtDate = ["@ultSrtBaseDate", ultSrtBaseDate];
           const ultSrtTime = ["@ultSrtBaseTime", ultSrtBaseTime];
           const gridXY = ["@ultSrtgridXY", gridXYStr];
@@ -126,8 +124,8 @@ function WeatherComponent(props) {
     }
 
     try {
+      const weatherItem = await AsyncStorage.getItem("@srtWeather02005");
       const dateItem = await AsyncStorage.getItem("@srt0200BaseDate2");
-      const weatherItem = await AsyncStorage.getItem("@srtWeather02004");
       const gridXYItem = await AsyncStorage.getItem("@srt0200gridXY");
       console.log("10일 예보 쿠키 baseDate", dateItem);
       console.log("10일 예보 현재 crntBaseDate", crntBaseDate);
@@ -137,8 +135,8 @@ function WeatherComponent(props) {
         srtWeather0200Arr = JSON.parse(weatherItem);
       } else {
         ({ srtWeather0200Arr, baseDate } = await Srt10Weather(API_KEY, gridX, gridY));
-        if (srtWeather0200Arr.length > 0) {
-          const srtWeather0200 = ["@srtWeather02004", JSON.stringify(srtWeather0200Arr)];
+        if (checkNotNull(srtWeather0200Arr)) {
+          const srtWeather0200 = ["@srtWeather02005", JSON.stringify(srtWeather0200Arr)];
           const srt0200BaseDate1 = ["@srt0200BaseDate2", baseDate];
           const gridXY = ["@srt0200gridXY", gridXYStr];
 
@@ -159,14 +157,6 @@ function WeatherComponent(props) {
     getSrtWeather0200();
   };
 
-  checkNull = (value) => {
-    if (value == "" || value == null || value == undefined || (value != null && typeof value == "object" && !Object.keys(value).length) || !value) {
-      return false;
-    } else {
-      return true;
-    }
-  };
-
   useEffect(() => {
     getWeather();
   }, []);
@@ -174,15 +164,12 @@ function WeatherComponent(props) {
   return (
     <>
       <AddressComponent addrObj={props.addrObj} />
-      <WeatherNowComponent
-        ultSrtWeatherArr={checkNull(state.ultSrtWeatherArr) ? state.ultSrtWeatherArr : "empty"}
-        srtWeather0200Arr={state.srtWeather0200Arr.length > 1 ? state.srtWeather0200Arr[0] : "empty"}
-      />
+      <WeatherNowComponent ultSrtWeatherArr={state.ultSrtWeatherArr} srtWeather0200Arr={state.srtWeather0200Arr} />
       <DustCovidComponent addrObj={props.addrObj} latitude={props.latitude} longitude={props.longitude} />
       <Weather3Component gridX={props.gridX} gridY={props.gridY} />
-      <Weather10Component addrObj={props.addrObj} srtWeather0200Arr={state.srtWeather0200Arr.length > 1 ? state.srtWeather0200Arr : "empty"} />
-      <WeatherDetailComponent ultSrtWeatherArr={checkNull(state.ultSrtWeatherArr) ? state.ultSrtWeatherArr : "empty"} />
-      <WeatherClothesComponent srtWeather0200Arr={state.srtWeather0200Arr.length > 1 ? state.srtWeather0200Arr[0] : "empty"} />
+      <Weather10Component addrObj={props.addrObj} srtWeather0200Arr={state.srtWeather0200Arr} />
+      <WeatherDetailComponent ultSrtWeatherArr={state.ultSrtWeatherArr} />
+      <WeatherClothesComponent srtWeather0200Arr={state.srtWeather0200Arr} />
     </>
   );
 }
