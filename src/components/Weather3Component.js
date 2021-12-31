@@ -7,6 +7,8 @@ import { IMG_WEATHER3_SRC } from "../ImageSrc";
 import { SrtWeather } from "../../src/UltStrWeather";
 import { API_KEY } from "../../src/ApiKey";
 import { srtBaseDate, srtBaseTime, todayDate, currentAclock } from "../../src/Time";
+import checkNotNull from "../CheckNotNull";
+import ErrorComponent from "../../src/components/ErrorComponent";
 
 function Weather3Component(props) {
   const gridX = props.gridX;
@@ -63,7 +65,7 @@ function Weather3Component(props) {
         srtWeatherPopObj = JSON.parse(weatherPopItem);
       } else {
         ({ srtWeatherTmpObj, srtWeatherSkyObj, srtWeatherPtyObj, srtWeatherPopObj } = await SrtWeather(API_KEY, srtBaseDate, srtBaseTime, gridX, gridY));
-        if (srtWeatherTmpObj.length > 0 && srtWeatherSkyObj.length > 0 && srtWeatherPtyObj.length > 0 && srtWeatherPopObj.length > 0) {
+        if (checkNotNull(srtWeatherTmpObj) && checkNotNull(srtWeatherSkyObj) && checkNotNull(srtWeatherPtyObj) && checkNotNull(srtWeatherPopObj)) {
           const srtWeatherTmp = ["@srtWeatherTmp", JSON.stringify(srtWeatherTmpObj)];
           const srtWeatherSky = ["@srtWeatherSky", JSON.stringify(srtWeatherSkyObj)];
           const srtWeatherPty = ["@srtWeatherPty", JSON.stringify(srtWeatherPtyObj)];
@@ -94,8 +96,8 @@ function Weather3Component(props) {
     getSrtWeather();
   }, []);
 
-  return (
-    state.loaded && (
+  if (checkNotNull(state.srtWeatherTmpObj) && checkNotNull(state.srtWeatherSkyObj) && checkNotNull(state.srtWeatherPtyObj)) {
+    return (
       <View style={[styles.ractangle_bg, { height: 195 }]}>
         <View style={styles.content_padding}>
           <Text style={styles.txt_h6_b}>3일 예보</Text>
@@ -133,8 +135,16 @@ function Weather3Component(props) {
           </ScrollView>
         </View>
       </View>
-    )
-  );
+    );
+  } else if (
+    (state.srtWeatherTmpObj !== {} && state.srtWeatherTmpObj === "") ||
+    (state.srtWeatherSkyObj !== {} && state.srtWeatherSkyObj === "") ||
+    (state.srtWeatherPtyObj !== {} && state.srtWeatherPtyObj === "")
+  ) {
+    return <ErrorComponent title="3일 예보" />;
+  } else {
+    return null;
+  }
 }
 
 export default Weather3Component;

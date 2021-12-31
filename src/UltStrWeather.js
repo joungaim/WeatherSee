@@ -61,6 +61,10 @@ async function SrtWeather(apikey, basedate, basetime, nx, ny) {
       });
     })
     .catch(function (error) {
+      srtWeatherTmpObj = "";
+      srtWeatherSkyObj = "";
+      srtWeatherPtyObj = "";
+      srtWeatherPopObj = "";
       console.log("단기예보 실패 : " + error);
     });
   return { srtWeatherTmpObj, srtWeatherSkyObj, srtWeatherPtyObj, srtWeatherPopObj };
@@ -116,9 +120,6 @@ async function Srt10Weather(apikey, nx, ny) {
         weather10PopAmArr[i] = Math.max.apply(null, getSepArrByDate(weather10PopOrgArr, baseDate, i, "popAm"));
         weather10PopPmArr[i] = Math.max.apply(null, getSepArrByDate(weather10PopOrgArr, baseDate, i, "popPm"));
       }
-
-      // POP가 중간중간 끼여 있으면 TMN TMX SKY 를 순서대로 쓰기에 불편하기 때문에 배열 뒤로 보내는 코드
-      // weather10Data = weather10Data.filter((ele) => ele.category != "POP").concat(weather10Data.filter((ele) => ele.category == "POP"));
 
       const weather10DataLth = 3; // 단기예보는 3일간의 날씨를 불러오는 데 1일에 TMX, TMN, SKY 는 각각 하나씩 있으므로 3일x3개는 9개. 뒤에 POP가 있을 수 있으므로 배열 길이로 체크하면 안됨.
       for (let i = 0; i < weather10DataLth; i++) {

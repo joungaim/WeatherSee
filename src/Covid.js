@@ -20,6 +20,7 @@ async function Covid(gubun, crntDate) {
       });
     })
     .catch(function (error) {
+      covidResponseData = "";
       console.log("코로나19 확진자 예보 실패 : " + error);
     });
   return covidResponseData;

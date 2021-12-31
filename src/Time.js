@@ -13,13 +13,20 @@ const { srtBaseDate, srtBaseTime } = getSrtBaseDateTime();
 const midBaseDateTime = getMidBaseDateTime();
 
 /**
- * 인자 날짜에서 하루 뺀 날짜 반환
+ * 인자 날짜에서 하루 전 날짜 반환
  */
 function getSubtract1day(fromDate) {
   const subtractDate = moment(fromDate).subtract(1, "days").format("YYYYMMDD");
   return subtractDate;
 }
 
+/**
+ * 첫번째 인자 날짜에서 두번째 일수 더한 날짜 반환
+ */
+function getAddDay(fromDate, i) {
+  const addDate = moment(fromDate).add(i, "days").format("YYYYMMDD");
+  return addDate;
+}
 /**
  * 인자 날짜에서 한시간 후 날짜 반환
  * moment(fromDate).add(15, "minutes").format("YYYYMMDDHHmm") 에서 fromDate 값으로 들어갈 데이터인데,
@@ -198,6 +205,7 @@ function getMidBaseDateTime() {
 
 export {
   getSubtract1day,
+  getAddDay,
   getAfter1Hour,
   getAfter15Min,
   ultSrtBaseDate,

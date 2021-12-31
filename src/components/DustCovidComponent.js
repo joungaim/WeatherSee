@@ -1,12 +1,14 @@
 import React, { useReducer, useEffect } from "react";
-import styles from "../styles/styles";
 import { View, Image, Text, AsyncStorage } from "react-native";
 import Swiper from "react-native-swiper";
-import { Dust } from "../../src/Dust";
-import { Covid } from "../../src/Covid";
-import { DUST_STATION } from "../../src/DustStationList";
+import styles from "../styles/styles";
+import { Dust } from "../Dust";
+import { Covid } from "../Covid";
+import { DUST_STATION } from "../DustStationList";
+import { todayDateAClock, currentTime, todayDate, todayDateTime, yesterdayDate, getAfter1Hour, getAfter15Min } from "../Time";
 import { IMG_DUST_SRC, IMG_COVID_SRC } from "../ImageSrc";
-import { todayDateAClock, currentTime, todayDate, todayDateTime, yesterdayDate, getAfter1Hour, getAfter15Min } from "../../src/Time";
+import checkNotNull from "../CheckNotNull";
+import { ErrorComponentWhite } from "../components/ErrorComponent";
 import moment from "moment";
 
 function DustCovidComponent(props) {
@@ -16,22 +18,17 @@ function DustCovidComponent(props) {
   const longitude = props.longitude; //level2
 
   const initialState = {
-    srtWeatherTmpObj: {},
-    srtWeatherSkyObj: {},
-    srtWeatherPtyObj: {},
-    srtWeatherPopObj: {},
-
-    pm10Value: 0,
-    pm25Value: 0,
-    pm10Grade: 0,
-    pm25Grade: 0,
-    pm10GradeStr: "",
-    pm25GradeStr: "",
+    pm10Value: null,
+    pm25Value: null,
+    pm10Grade: null,
+    pm25Grade: null,
+    pm10GradeStr: null,
+    pm25GradeStr: null,
     dustLoaded: false,
 
-    gubun: "",
-    incDec: 0,
-    totIncDec: 0,
+    gubun: null,
+    incDec: null,
+    totIncDec: null,
     covidLoaded: false,
   };
 
@@ -77,7 +74,6 @@ function DustCovidComponent(props) {
     var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
     var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     var d = R * c; // 좌표사이 거리(km)
-    // console.log("두 좌표 사이의 거리 : ", d);
     return d;
   };
 
@@ -93,7 +89,6 @@ function DustCovidComponent(props) {
     if (stationObj2.length < 1) {
       stationObj2 = stationObj;
     }
-    // console.log("stationObj2 level2 : ", stationObj2);
 
     if (stationObj2.length > 1) {
       let minDistance;
@@ -117,6 +112,7 @@ function DustCovidComponent(props) {
   };
 
   getDustGrade = (dust) => {
+    console.log("getDustGrade 진입!!");
     const pm10Value = dust.pm10Value;
     const pm25Value = dust.pm25Value;
 
@@ -187,7 +183,7 @@ function DustCovidComponent(props) {
     let pm10Grade, pm25Grade, pm10GradeStr, pm25GradeStr;
 
     try {
-      const dateItem = await AsyncStorage.getItem("@dustDate");
+      const dateItem = await AsyncStorage.getItem("@dustDate1");
       const dustItem = await AsyncStorage.getItem("@dustObj");
       const dustStationNameItem = await AsyncStorage.getItem("@stationName");
       const pm10GradeItem = await AsyncStorage.getItem("@pm10Grade");
@@ -214,19 +210,27 @@ function DustCovidComponent(props) {
         pm25GradeStr = pm25GradeStrItem;
       } else {
         dust = await Dust(stationName);
-        ({ pm10Grade, pm25Grade, pm10GradeStr, pm25GradeStr } = getDustGrade(dust));
+        if (checkNotNull(dust)) {
+          ({ pm10Grade, pm25Grade, pm10GradeStr, pm25GradeStr } = getDustGrade(dust));
 
-        let crntDate = getAfter1Hour(todayDateAClock);
-        crntDate = getAfter15Min(crntDate);
-        const dustDate = ["@dustDate", crntDate];
-        const dustObj = ["@dustObj", JSON.stringify(dust)];
-        const dustStationName = ["@stationName", stationName];
-        const dustPm10Grade = ["@pm10Grade", String(pm10Grade)];
-        const dustPm25Grade = ["@pm25Grade", String(pm25Grade)];
-        const dustPm10GradeStr = ["@pm10GradeStr", pm10GradeStr];
-        const dustPm25GradeStr = ["@pm25GradeStr", pm25GradeStr];
+          let crntDate = getAfter1Hour(todayDateAClock);
+          crntDate = getAfter15Min(crntDate);
+          const dustDate = ["@dustDate1", crntDate];
+          const dustObj = ["@dustObj", JSON.stringify(dust)];
+          const dustStationName = ["@stationName", stationName];
+          const dustPm10Grade = ["@pm10Grade", String(pm10Grade)];
+          const dustPm25Grade = ["@pm25Grade", String(pm25Grade)];
+          const dustPm10GradeStr = ["@pm10GradeStr", pm10GradeStr];
+          const dustPm25GradeStr = ["@pm25GradeStr", pm25GradeStr];
 
-        await AsyncStorage.multiSet([dustDate, dustObj, dustStationName, dustPm10Grade, dustPm25Grade, dustPm10GradeStr, dustPm25GradeStr]);
+          await AsyncStorage.multiSet([dustDate, dustObj, dustStationName, dustPm10Grade, dustPm25Grade, dustPm10GradeStr, dustPm25GradeStr]);
+        } else {
+          dust = { pm10Value: "", pm25Value: "" };
+          pm10Grade = "";
+          pm25Grade = "";
+          pm10GradeStr = "";
+          pm25GradeStr = "";
+        }
       }
     } catch (e) {
       // error reading value
@@ -302,7 +306,7 @@ function DustCovidComponent(props) {
     }
 
     try {
-      const dateItem = await AsyncStorage.getItem("@covidDate");
+      const dateItem = await AsyncStorage.getItem("@covidDate1");
       const gubunItem = await AsyncStorage.getItem("@covidGubun");
       const incDecItem = await AsyncStorage.getItem("@covidIncDec");
       const totIncDecItem = await AsyncStorage.getItem("@covidTotIncDec");
@@ -315,16 +319,20 @@ function DustCovidComponent(props) {
         totIncDec = Number(totIncDecItem);
       } else {
         covidObj = await Covid(gubun, crntDate);
-        incDec = covidObj[0].incDec;
-        totIncDec = covidObj[1].incDec;
-        console.log("DustCovidComponent.js totIncDec : ", totIncDec);
+        if (checkNotNull(covidObj)) {
+          incDec = covidObj[0].incDec;
+          totIncDec = covidObj[1].incDec;
 
-        const covidDate = ["@covidDate", crntDate];
-        const covidGubun = ["@covidGubun", gubun];
-        const covidIncDec = ["@covidIncDec", String(incDec)];
-        const covidTotIncDec = ["@covidTotIncDec", String(totIncDec)];
+          const covidDate = ["@covidDate1", crntDate];
+          const covidGubun = ["@covidGubun", gubun];
+          const covidIncDec = ["@covidIncDec", String(incDec)];
+          const covidTotIncDec = ["@covidTotIncDec", String(totIncDec)];
 
-        await AsyncStorage.multiSet([covidDate, covidGubun, covidIncDec, covidTotIncDec]);
+          await AsyncStorage.multiSet([covidDate, covidGubun, covidIncDec, covidTotIncDec]);
+        } else {
+          incDec = "";
+          totIncDec = "";
+        }
       }
     } catch (e) {
       // error reading value
@@ -346,51 +354,69 @@ function DustCovidComponent(props) {
   useEffect(() => {
     getCovid();
   }, []);
+
   return (
-    state.dustLoaded &&
-    state.covidLoaded && (
-      <View style={styles.content_row}>
-        <Swiper style={styles.wrapper} showsPagination={false}>
-          <View style={styles.slide1}>
-            <View style={[styles.ractangle_wrapper]}>
-              <View style={[styles.ractangle_w_r, { height: 90 }]}>
-                <Image style={styles.img_contain} source={IMG_DUST_SRC[state.pm10Grade].image} />
-                <View style={{ marginLeft: "6%" }}>
-                  <Text style={[styles.txt_caption_b, { marginBottom: 3 }]}>미세먼지</Text>
-                  <Text style={styles.txt_subtitle1_b}>{state.pm10GradeStr}</Text>
-                  <Text style={styles.txt_caption_r}>{state.pm10Value} ㎍/m³</Text>
+    <View style={styles.content_row}>
+      <Swiper style={styles.wrapper} showsPagination={false}>
+        <View style={styles.slide1}>
+          <View style={[styles.ractangle_wrapper]}>
+            {checkNotNull(state.pm10Value) && checkNotNull(state.pm10GradeStr) && checkNotNull(state.pm25Value) && checkNotNull(state.pm25GradeStr) ? (
+              <>
+                <View style={[styles.ractangle_w_r, { height: 90 }]}>
+                  <Image style={styles.img_contain} source={IMG_DUST_SRC[state.pm10Grade].image} />
+                  <View style={{ marginLeft: "6%" }}>
+                    <Text style={[styles.txt_caption_b, { marginBottom: 3 }]}>미세먼지</Text>
+                    <Text style={styles.txt_subtitle1_b}>{state.pm10GradeStr}</Text>
+                    <Text style={styles.txt_caption_r}>{state.pm10Value} ㎍/m³</Text>
+                  </View>
                 </View>
-              </View>
 
-              <View style={[styles.ractangle_w_r, { height: 90, marginLeft: "2.5%" }]}>
-                <Image style={styles.img_contain} source={IMG_DUST_SRC[state.pm25Grade].image} />
-                <View style={{ marginLeft: "6%" }}>
-                  <Text style={[styles.txt_caption_b, { marginBottom: 3 }]}>초미세먼지</Text>
-                  <Text style={styles.txt_subtitle1_b}>{state.pm25GradeStr}</Text>
-                  <Text style={styles.txt_caption_r}>{state.pm25Value} ㎍/m³</Text>
+                <View style={[styles.ractangle_w_r, { height: 90, marginLeft: "2.5%" }]}>
+                  <Image style={styles.img_contain} source={IMG_DUST_SRC[state.pm25Grade].image} />
+                  <View style={{ marginLeft: "6%" }}>
+                    <Text style={[styles.txt_caption_b, { marginBottom: 3 }]}>초미세먼지</Text>
+                    <Text style={styles.txt_subtitle1_b}>{state.pm25GradeStr}</Text>
+                    <Text style={styles.txt_caption_r}>{state.pm25Value} ㎍/m³</Text>
+                  </View>
                 </View>
-              </View>
-            </View>
+              </>
+            ) : (!state.pm10Value && state.pm10Value === "") ||
+              (!state.pm10GradeStr && state.pm10GradeStr === "") ||
+              (!state.pm10Grade && state.pm10Grade === "") ||
+              (!state.pm25Value && state.pm25Value === "") ||
+              (!state.pm25GradeStr && state.pm25GradeStr === "") ||
+              (!state.pm25Grade && state.pm25Grade === "") ? (
+              <ErrorComponentWhite title="미세먼지 정보" />
+            ) : (
+              <></>
+            )}
           </View>
+        </View>
 
-          <View style={styles.slide2}>
-            <View style={[styles.ractangle_wrapper]}>
-              <View style={[styles.ractangle_w_r, { height: 90 }]}>
-                <Text style={[styles.txt_body2_r]}>전국</Text>
-                <Text style={[styles.txt_subtitle1_b, { marginLeft: "3%" }]}>{state.totIncDec.toLocaleString("ko-KR")}명</Text>
-                <Image style={styles.img_arrow} source={IMG_COVID_SRC[0].image} marginLeft="3%" />
-              </View>
-
-              <View style={[styles.ractangle_w_r, { height: 90, marginLeft: "2.5%" }]}>
-                <Text style={[styles.txt_body2_r]}>{state.gubun}</Text>
-                <Text style={[styles.txt_subtitle1_b, { marginLeft: "3%" }]}>{state.incDec.toLocaleString("ko-KR")}명</Text>
-                <Image style={styles.img_arrow} source={IMG_COVID_SRC[0].image} marginLeft="3%" />
-              </View>
-            </View>
+        <View style={styles.slide2}>
+          <View style={[styles.ractangle_wrapper]}>
+            {checkNotNull(state.totIncDec) && checkNotNull(state.incDec) && checkNotNull(state.gubun) ? (
+              <>
+                <View style={[styles.ractangle_w_r, { height: 90 }]}>
+                  <Text style={[styles.txt_body2_r]}>전국</Text>
+                  <Text style={[styles.txt_subtitle1_b, { marginLeft: "3%" }]}>{state.totIncDec.toLocaleString("ko-KR")}명</Text>
+                  <Image style={styles.img_arrow} source={IMG_COVID_SRC[0].image} marginLeft="3%" />
+                </View>
+                <View style={[styles.ractangle_w_r, { height: 90, marginLeft: "2.5%" }]}>
+                  <Text style={[styles.txt_body2_r]}>{state.gubun}</Text>
+                  <Text style={[styles.txt_subtitle1_b, { marginLeft: "3%" }]}>{state.incDec.toLocaleString("ko-KR")}명</Text>
+                  <Image style={styles.img_arrow} source={IMG_COVID_SRC[0].image} marginLeft="3%" />
+                </View>
+              </>
+            ) : (!state.totIncDec && state.totIncDec === "") || (!state.incDec && state.incDec === "") || (!state.gubun && state.gubun === "") ? (
+              <ErrorComponentWhite title="코로나 확진자 수" />
+            ) : (
+              <></>
+            )}
           </View>
-        </Swiper>
-      </View>
-    )
+        </View>
+      </Swiper>
+    </View>
   );
 }
 

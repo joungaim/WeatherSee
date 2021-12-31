@@ -399,6 +399,17 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
 
+  ractangle_err_w: {
+    flex: 1,
+    backgroundColor: "white",
+    width: "100%",
+    borderRadius: 14,
+    marginTop: 10,
+    marginBottom: 10,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
   ractangle_err: {
     backgroundColor: "#F3F3F9",
     borderRadius: 14,
