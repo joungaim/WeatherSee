@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1015441262442",
+    "project_id": "weathersee-40c91",
+    "storage_bucket": "weathersee-40c91.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1015441262442:android:74d6fa76ba18e075fe4713",
+        "android_client_info": {
+          "package_name": "com.nidit.daysee"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1015441262442-cb8op2rcgoankof0emuf28nqhggj2ds9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAimx55wdMT623iAXT7GbmW5YAcH8AKLfM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1015441262442-cb8op2rcgoankof0emuf28nqhggj2ds9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,4 +1,14 @@
 // 오늘 날씨 아이콘
+let IMG_EXCEPTION_SRC = [
+  {
+    image: require("../assets/img/exception/umbrella.png"),
+  },
+  {
+    image: require("../assets/img/exception/location.png"),
+  },
+];
+
+// 오늘 날씨 아이콘
 let IMG_WEATHER_SRC = [
   {
     image: require("../assets/img/weather/sun.png"),
@@ -167,4 +177,4 @@ const IMG_COVID_SRC = [
   },
 ];
 
-export { IMG_WEATHER_SRC, IMG_WEATHER10_SRC, IMG_WEATHER3_SRC, IMG_CLOTHES_ON_SRC, IMG_CLOTHES_RCTNGL_SRC, IMG_DUST_SRC, IMG_COVID_SRC };
+export { IMG_EXCEPTION_SRC, IMG_WEATHER_SRC, IMG_WEATHER10_SRC, IMG_WEATHER3_SRC, IMG_CLOTHES_ON_SRC, IMG_CLOTHES_RCTNGL_SRC, IMG_DUST_SRC, IMG_COVID_SRC };

@@ -13,20 +13,39 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
+      "config": {
+        "googleMobileAdsAppId": "ca-app-pub-3940256099942544/2934735716"
+      },
+      "bundleIdentifier": "com.nidit.daysee",
+      "googleServicesFile": "./GoogleService-Info.plist",
       "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
-      }
+      },
+      "config": {
+        "googleMobileAdsAppId": "ca-app-pub-3940256099942544/6300978111"
+      },
+      "package": "com.nidit.daysee",
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "config": {
+        "firebase": {
+          "apiKey": "AIzaSyAZ_6n2gMd3MKedZ6DO3auqsn9ZVyDYcdw",
+          "authDomain": "weathersee-40c91.firebaseapp.com",
+          "projectId": "weathersee-40c91",
+          "storageBucket": "weathersee-40c91.appspot.com",
+          "messagingSenderId": "1015441262442",
+          "appId": "1:1015441262442:web:a6b5595f00eb2b93fe4713",
+          "measurementId": "G-PYZPZDBNZG"
+        }
+      }
     }
   }
 }

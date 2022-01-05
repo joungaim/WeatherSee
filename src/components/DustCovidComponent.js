@@ -112,7 +112,6 @@ function DustCovidComponent(props) {
   };
 
   getDustGrade = (dust) => {
-    console.log("getDustGrade 진입!!");
     const pm10Value = dust.pm10Value;
     const pm25Value = dust.pm25Value;
 

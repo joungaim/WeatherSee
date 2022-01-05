@@ -7,7 +7,6 @@ import { getSepArrByDate, getModeValue } from "../src/ArrayManager";
  */
 async function UltSrtWeather(apikey, basedate, basetime, nx, ny) {
   const ultSrtUrl = `http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtFcst?serviceKey=${apikey}&numOfRows=100&pageNo=1&base_date=${basedate}&base_time=${basetime}&nx=${nx}&ny=${ny}&dataType=JSON`;
-  // const ultSrtUrl = `http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtFcst?serviceKey=${apikey}&numOfRows=100&pageNo=1&base_dat=${basedate}&base_time=${basetime}&nx=${nx}&ny=${ny}&dataType=JSON`; //에러 테스트용 url
   let ultSrtWeatherResponseData;
   console.log("초단기예보 url : " + ultSrtUrl);
   await axios
@@ -83,7 +82,6 @@ async function Srt10Weather(apikey, nx, ny) {
   }
 
   const srt10Url = `http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?serviceKey=${apikey}&numOfRows=1000&pageNo=1&dataType=JSON&base_date=${baseDate}&base_time=${baseTime}&nx=${nx}&ny=${ny}`;
-  // const srt10Url = `http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?serviceKey=${apikey}&numOfRows=1000&pageNo=1&dataTyp=JSON&base_date=${baseDate}&base_time=${baseTime}&nx=${nx}&ny=${ny}`; //테스트용 코드
   let weather10Data;
   let srtWeather0200Arr = [];
 
@@ -185,8 +183,6 @@ async function MidLandWeather(apikey, basetime, midRegId) {
           midLandArr[i].popPm = midLandData[midLandKeyArr[i].rnStPm];
         }
       }
-
-      // console.log("중기육상예보 데이터 ", midLandData);
     })
     .catch(function (error) {
       midLandArr = "";
@@ -217,8 +213,6 @@ async function MidTaWeather(apikey, basetime, midRegId) {
           tmx: midTaData["taMax" + j],
         };
       }
-
-      // console.log("중기기온예보 데이터 수정", midTaData);
     })
     .catch(function (error) {
       midTaArr = "";

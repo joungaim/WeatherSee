@@ -8,7 +8,8 @@ import { midBaseDateTime } from "../../src/Time";
 import { API_KEY } from "../../src/ApiKey";
 import checkNotNull from "../CheckNotNull";
 import { MidLandWeather, MidTaWeather } from "../../src/UltStrWeather";
-import ErrorComponent from "../../src/components/ErrorComponent";
+import ErrorComponent from "../components/ErrorComponent";
+import AdmobComponent from "../components/AdmobComponent";
 import moment from "moment";
 
 function Weather10Component(props) {
@@ -116,62 +117,65 @@ function Weather10Component(props) {
 
   if (isNotNullSrt && checkNotNull(state.weather10Arr)) {
     return (
-      <View style={[styles.ractangle_bg, { paddingBottom: 4 }]}>
-        <View style={styles.content_padding}>
-          <Text style={styles.txt_h6_b_weather10}>10일 예보</Text>
+      <>
+        <View style={[styles.ractangle_bg, { paddingBottom: 4 }]}>
+          <View style={styles.content_padding}>
+            <Text style={styles.txt_h6_b_weather10}>10일 예보</Text>
 
-          {state.weather10Arr.map((arr, i) => (
-            <>
-              <View style={[styles.content_row]}>
-                <View style={[styles.margin_weather10, { flex: 5, flexDirection: "row", alignItems: "center" }]}>
-                  <Text
-                    style={[
-                      styles.txt_subtitle1_b,
-                      {
-                        color: moment().add(i, "days").format("dddd") == "토요일" || moment().add(i, "days").format("dddd") == "일요일" ? "#FF3B30" : "black",
-                      },
-                    ]}
-                  >
-                    {moment().add(i, "days").format("dddd")}
-                  </Text>
+            {state.weather10Arr.map((arr, i) => (
+              <>
+                <View style={[styles.content_row]}>
+                  <View style={[styles.margin_weather10, { flex: 5, flexDirection: "row", alignItems: "center" }]}>
+                    <Text
+                      style={[
+                        styles.txt_subtitle1_b,
+                        {
+                          color: moment().add(i, "days").format("dddd") == "토요일" || moment().add(i, "days").format("dddd") == "일요일" ? "#FF3B30" : "black",
+                        },
+                      ]}
+                    >
+                      {moment().add(i, "days").format("dddd")}
+                    </Text>
 
-                  <Text
-                    style={[
-                      styles.txt_caption_r_b,
-                      {
-                        color: moment().add(i, "days").format("dddd") == "토요일" || moment().add(i, "days").format("dddd") == "일요일" ? "#FF3B30" : "black",
-                      },
-                      { marginLeft: 5, width: 35 },
-                    ]}
-                  >
-                    {i == 0 ? "오늘" : i == 1 ? "내일" : i == 2 ? "모레" : moment().add(i, "days").format("MM.DD")}
-                  </Text>
-                </View>
-
-                <View style={[styles.margin_weather10, { flex: 1.5, alignItems: "center", justifyContent: "center" }]}>
-                  <Image style={{ resizeMode: "contain" }} source={IMG_WEATHER10_SRC[GetWeatherImage(arr.sky)].image} />
-                </View>
-                {state.isPop > 0 && (
-                  <View style={{ flex: 2, alignItems: "flex-start", justifyContent: "center" }}>
-                    {arr.popAm >= 40 && <Text style={styles.txt_caption_r}>오전 {arr.popAm}%</Text>}
-                    {arr.popPm >= 40 && <Text style={styles.txt_caption_r}>오후 {arr.popPm}%</Text>}
+                    <Text
+                      style={[
+                        styles.txt_caption_r_b,
+                        {
+                          color: moment().add(i, "days").format("dddd") == "토요일" || moment().add(i, "days").format("dddd") == "일요일" ? "#FF3B30" : "black",
+                        },
+                        { marginLeft: 5, width: 35 },
+                      ]}
+                    >
+                      {i == 0 ? "오늘" : i == 1 ? "내일" : i == 2 ? "모레" : moment().add(i, "days").format("MM.DD")}
+                    </Text>
                   </View>
-                )}
 
-                <View style={[styles.margin_weather10, { flex: 4, flexDirection: "row", alignItems: "center", justifyContent: "flex-end" }]}>
-                  <View style={styles.content_weather10_taMax}>
-                    <Text style={styles.txt_subtitle1_b}>{arr.tmx}°</Text>
+                  <View style={[styles.margin_weather10, { flex: 1.5, alignItems: "center", justifyContent: "center" }]}>
+                    <Image style={{ resizeMode: "contain" }} source={IMG_WEATHER10_SRC[GetWeatherImage(arr.sky)].image} />
                   </View>
-                  <View style={styles.content_weather10_taMin}>
-                    <Text style={[styles.txt_subtitle1_r_g]}>{arr.tmn}°</Text>
+                  {state.isPop > 0 && (
+                    <View style={{ flex: 2, alignItems: "flex-start", justifyContent: "center" }}>
+                      {arr.popAm >= 40 && <Text style={styles.txt_caption_r}>오전 {arr.popAm}%</Text>}
+                      {arr.popPm >= 40 && <Text style={styles.txt_caption_r}>오후 {arr.popPm}%</Text>}
+                    </View>
+                  )}
+
+                  <View style={[styles.margin_weather10, { flex: 4, flexDirection: "row", alignItems: "center", justifyContent: "flex-end" }]}>
+                    <View style={styles.content_weather10_taMax}>
+                      <Text style={styles.txt_subtitle1_b}>{arr.tmx}°</Text>
+                    </View>
+                    <View style={styles.content_weather10_taMin}>
+                      <Text style={[styles.txt_subtitle1_r_g]}>{arr.tmn}°</Text>
+                    </View>
                   </View>
                 </View>
-              </View>
-              {i != 9 && <View style={styles.devider_weather10}></View>}
-            </>
-          ))}
+                {i != 9 && <View style={styles.devider_weather10}></View>}
+              </>
+            ))}
+          </View>
         </View>
-      </View>
+        <AdmobComponent />
+      </>
     );
   } else if ((!state.weather10Arr && state.weather10Arr === "") || (!srtWeather0200Arr && srtWeather0200Arr === "")) {
     return <ErrorComponent title="10일 예보" />;

@@ -2,6 +2,7 @@ import React, { useEffect, useReducer } from "react";
 import { Text } from "react-native";
 import "moment/locale/ko";
 import firebase from "firebase/app";
+import * as Analytics from "expo-firebase-analytics";
 import HeaderComponent from "./src/components/HeaderComponent";
 import checkFirstLaunch from "./src/CheckFirstLaunch";
 import { useFonts } from "expo-font";
@@ -83,6 +84,8 @@ export default function App() {
   getLocation = async () => {
     if (Text.defaultProps == null) Text.defaultProps = {};
     Text.defaultProps.allowFontScaling = false;
+    Analytics.setClientId('jeonga_daysee');
+    Analytics.logEvent("App_Start",{});
   };
 
   getCheckFirstLaunch = async () => {

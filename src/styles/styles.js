@@ -163,6 +163,16 @@ const styles = StyleSheet.create({
     marginBottom: 23,
   },
 
+  txt_h6_r: {
+    fontSize: 20,
+    color: "black",
+    fontFamily: "NotoSansKR_500Medium",
+    lineHeight: 24.5,
+    paddingLeft: "10%",
+    paddingRight: "10%",
+    textAlign: "center",
+  },
+
   txt_h6_b_weather10: {
     fontSize: 20,
     color: "black",
@@ -211,6 +221,16 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 16,
     color: "black",
+  },
+
+  txt_subtitle2_r_g: {
+    fontFamily: "NotoSansKR_400Regular",
+    fontSize: 13,
+    lineHeight: 18,
+    color: "#8A8A8E",
+    textAlign: "center",
+    paddingLeft: "10%",
+    paddingRight: "10%",
   },
 
   txt_subtitle2_b: {

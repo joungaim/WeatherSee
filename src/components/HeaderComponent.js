@@ -1,19 +1,23 @@
 import React, { useCallback, useEffect, useReducer } from "react";
-import { View, ScrollView, RefreshControl, AsyncStorage } from "react-native";
+import { View, ScrollView, RefreshControl, Alert } from "react-native";
 import styles from "../styles/styles";
 import * as Location from "expo-location";
-import { Address } from "../../src/Address";
-import { GridXY } from "../../src/GridXY";
-import LoadingComponent from "../../src/components/LoadingComponent";
-import WeatherComponent from "../../src/components/WeatherComponent";
-import ModalComponent from "../../src/components/ModalComponent";
+import { Address } from "../Address";
+import { GridXY } from "../GridXY";
+import checkNotNull from "../CheckNotNull";
+import LoadingComponent from "../components/LoadingComponent";
+import WeatherComponent from "../components/WeatherComponent";
+import ModalComponent from "../components/ModalComponent";
+import ErrorFallbackComponent from "../components/ErrorFallbackComponent";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 
 function HeaderComponent(props) {
   const initialState = {
-    // [로딩화면 boolean 값 : 데이터 다 받아오면 false 할당]
-    isLoading: true,
+    isGranted: true,
+    isError: false,
+
+    isLoading: "doing",
     isRefreshed: false,
     refreshing: false,
 
@@ -31,7 +35,7 @@ function HeaderComponent(props) {
   function reducer(state, action) {
     switch (action.type) {
       case "SET_ISLOADING":
-        return { ...state, isLoading: false };
+        return { ...state, isLoading: "done" };
       case "SET_LOCATION":
         return {
           ...state,
@@ -50,6 +54,10 @@ function HeaderComponent(props) {
         return { ...state, isRefreshed: true };
       case "SET_UNIQUEVALUE":
         return { ...state, uniqueValue: action.uniqueValue };
+      case "SET_GRANTED":
+        return { ...state, isLoading: "fail", isGranted: false };
+      case "SET_ERROR":
+        return { ...state, isLoading: "fail", isError: true };
       default:
         throw new Error();
     }
@@ -86,66 +94,71 @@ function HeaderComponent(props) {
 
   getLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
+    // 위치정보 허용 안했을 때
     if (status !== "granted") {
-      Alert.alert("위치정보 사용을 허용해 주세요.");
+      dispatch({
+        type: "SET_GRANTED",
+      });
       return;
     }
+    try {
+      // 다른 지역 테스트 코드 : 끝나면 풀기
+      const {
+        coords: { latitude, longitude },
+      } = await Location.getCurrentPositionAsync({});
 
-    // 다른 지역 테스트 코드 : 끝나면 풀기
-    const {
-      coords: { latitude, longitude },
-    } = await Location.getCurrentPositionAsync({});
+      // 다른 지역 테스트 코드 : 끝나면 삭제
+      // const latitude = null;
+      // const longitude = 129.0337727390025;
 
-    // 다른 지역 테스트 코드 : 끝나면 삭제
-    // const latitude = 35.19631127996341;
-    // const longitude = 129.0337727390025;
+      const { gridX, gridY } = await GridXY(latitude, longitude);
 
-    const { gridX, gridY } = await GridXY(latitude, longitude);
+      dispatch({
+        type: "SET_LOCATION",
+        latitude: latitude,
+        longitude: longitude,
+        gridX: gridX,
+        gridY: gridY,
+      });
 
-    // const gridXStr = String(gridX);
-    // const gridYStr = String(gridY);
-    // try {
-    //   const gridXItem = await AsyncStorage.getItem("@gridX");
-    //   const gridYItem = await AsyncStorage.getItem("@gridY");
-    //   console.log("Header gridXItem : ", gridXItem, " , gridYItem: ", gridYItem);
-    //   if (gridXItem === null || gridYItem === null || gridXStr !== gridXItem || gridYStr !== gridYItem) {
-    //     const gridX_ = ["@gridX", gridXStr];
-    //     const gridY_ = ["@gridY", gridYStr];
-    //     await AsyncStorage.multiSet([gridX_, gridY_]);
-    //   }
-    // } catch (e) {
-    //   // error reading value
-    // }
+      const { addrText, addrSi, addrGu, addrDong } = await Address(latitude, longitude);
 
-    dispatch({
-      type: "SET_LOCATION",
-      latitude: latitude,
-      longitude: longitude,
-      gridX: gridX,
-      gridY: gridY,
-    });
+      if (!checkNotNull(latitude) || !checkNotNull(longitude) || !checkNotNull(addrText)) {
+        dispatch({
+          type: "SET_ERROR",
+        });
+      }
 
-    const { addrText, addrSi, addrGu, addrDong } = await Address(latitude, longitude);
+      dispatch({
+        type: "SET_ADDR_OBJ",
+        addrObj: { addrText, addrSi, addrGu, addrDong },
+      });
 
-    dispatch({
-      type: "SET_ADDR_OBJ",
-      addrObj: { addrText, addrSi, addrGu, addrDong },
-    });
-
-    dispatch({
-      type: "SET_ISLOADING",
-    });
+      dispatch({
+        type: "SET_ISLOADING",
+      });
+    } catch {
+      dispatch({
+        type: "SET_ERROR",
+      });
+    }
   };
 
   useEffect(() => {
     getLocation();
   }, []);
 
-  if (state.isLoading && !state.isRefreshed) {
+  if (state.isLoading === "doing" && !state.isRefreshed) {
     return <LoadingComponent />;
   }
+  if (!state.isGranted) {
+    return <ErrorFallbackComponent gubn="granted" />;
+  }
+  if (state.isError) {
+    return <ErrorFallbackComponent gubn="error" />;
+  }
   return (
-    !state.isLoading && (
+    state.isLoading === "done" && (
       <SafeAreaProvider>
         <SafeAreaView style={styles.container}>
           <ScrollView
